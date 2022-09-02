@@ -52,21 +52,21 @@ class TiledeskChannel {
 
     let channel;
     let new_request_id;
-    
+
     if (messageInfo.channel == "whatsapp") {
       channel = messageInfo.whatsapp;
-      new_request_id = "support-group-" + this.settings.project_id + "-" + uuidv4() + "-wab-" + channel.phone_number_id + "-" + channel.from;
-      
+      new_request_id = "support-group-" + this.settings.project_id + "-" + uuidv4().substring(0, 8) + "-wab-" + channel.phone_number_id + "-" + channel.from;
+
     } else if (messageInfo.channel == "telegram") {
       channel = messageInfo.telegram;
       // Check
       //new_request_id = "support-group-" + projectId + "-" + uuidv4() + "-telegram-" + from;
-      
+
     } else if (messageInfo.channel == "messenger") {
       channel = messageInfo.messenger;
       // Check
       //new_request_id = hased_request_id = "support-group-" + projectId + "-" + uuidv4() + "-" + sender_id + "-" + webhook_event.recipient.id;
-      
+
     } else {
       console.log("Channel not supported")
     }
@@ -103,7 +103,7 @@ class TiledeskChannel {
         method: 'GET'
       }).then((response) => {
 
-        console.log("response.data: ", response.data);
+        console.log("Requests response: ", response.data);
 
         let request_id;
         if (response.data.requests[0]) {
@@ -113,7 +113,7 @@ class TiledeskChannel {
         }
 
         console.log("tiledeskMessage:", tiledeskMessage);
-        
+
         return axios({
           url: this.API_URL + `/${this.settings.project_id}/requests/${request_id}/messages`,
           headers: {
@@ -138,7 +138,7 @@ class TiledeskChannel {
     }).catch((err) => {
       console.error("axios signIn error: " + err);
     })
-  
+
   }
 
 }

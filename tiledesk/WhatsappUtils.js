@@ -12,7 +12,8 @@ class WhatsappUtils {
    * const media = new TiledeskClient({channelMedia: media, token: whatsappBusinessToken});
    * 
    * @param {Object} config JSON configuration.
-   * @param {string} config.token Mandatory. Token required for authentication
+   * @param {string} config.token Mandatory. Token required for authentication.
+   * @param {string} config.GRAPH_URL Mandatory. Url for facebook whatsapp api.
    * @param {boolean} options.log Optional. If true HTTP requests are logged.
    */
 
@@ -24,17 +25,20 @@ class WhatsappUtils {
     if (!config.token) {
       throw new Error('config.token is mandatory');
     }
+
+    if (!config.GRAPH_URL) {
+      throw new Error('config.GRAPH_URL is mandatory');
+    }
     // this.media = config.channelMedia;
     this.token = config.token;
+    this.GRAPH_URL = config.GRAPH_URL
   }
 
   async downloadMedia(mediaId) {
-
-    const GRAPH_URL = process.env.GRAPH_URL;
     console.log("downloadMedia: ", mediaId);
 
     return await axios({
-      url: GRAPH_URL + mediaId,
+      url: this.GRAPH_URL + mediaId,
       headers: {
         'Content-Type': 'application/json',
         'Authorization': "Bearer " + this.token
@@ -112,6 +116,45 @@ class WhatsappUtils {
     })
   }
 
+
+  // HTTP REQUEST
+
+  static async myrequest(options, callback, log) {
+    if (log) {
+      console.log("API URL: ", options.url);
+      console.log("** Options: ", options);
+    }
+    return await axios({
+      url: options.url,
+      method: options.method,
+      data: options.json,
+      params: options.params,
+      headers: options.headers
+    }).then((res) => {
+      if (log) {
+        console.log("Response for url:", options.url);
+        console.log("Response headers:\n", res.headers);
+      }
+      if (res && res.status == 200 && res.data) {
+        if (callback) {
+          callback(null, res.data);
+        }
+      }
+      else {
+        if (callback) {
+          callback(TiledeskClient.getErr({message: "Response status not 200"}, options, res), null, null);
+        }
+      }
+    }).catch((err) => {
+      console.error("An error occured: ", err);
+      if (callback) {
+        callback(err, null, null);
+      }
+    })
+  }
+
+
+  // FUNCTIONS
 
   getId() {
     var newTime = Math.floor((new Date()).getTime() / 1000) - 1546300800;//seconds since 01/01/2019

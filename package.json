@@ -23,7 +23,6 @@
     "multer": "^1.4.5-lts.1",
     "request": "^2.88.2",
     "uuid": "^8.3.2"
-
   },
   "devDependencies": {
     "mocha": "^8.2.1"

@@ -1,18 +1,18 @@
 const axios = require("axios").default;
 
 class TiledeskSubscriptionClient {
-  
+
   /**
    * Constructor for TiledeskSubscriptionClient
    *
    * @example
    * const { TiledeskSubscriptionClient } = require('tiledesk-subscription-client');
-   * const tdClient = new TiledeskSubscriptionClient({API_URL: tiledeskApiUrl, token: jwt_token});
+   * const tdClient = new TiledeskSubscriptionClient({API_URL: tiledeskApiUrl, token: jwt_token, log: log});
    * 
    * @param {Object} config JSON configuration.
    * @param {string} config.API_URL Mandatory. The Tiledesk api url.
    * @param {string} config.token Optional. Token required for authentication.
-   * @param {boolean} options.log Optional. If true HTTP requests are logged.
+   * @param {boolean} config.log Optional. If true HTTP requests are logged.
    */
   constructor(config) {
     if (!config) {
@@ -27,6 +27,12 @@ class TiledeskSubscriptionClient {
     this.API_URL = config.API_URL;
     this.token = config.token;
     this.config = config;
+    this.log = true;
+    if (config.log) {
+      this.log = config.log;
+      console.log("config.log: ", config.log)
+      console.log("this.log: ", this.log)
+    }
   }
 
   async subscribe(projectId, data, callback) {
@@ -55,10 +61,11 @@ class TiledeskSubscriptionClient {
             if (callback) {
               callback(null, resbody);
             }
+            console.log("[Utils] Subscribed");
             resolve(resbody);
           }
         }, true);
-      
+
     })
     return promise;
   }
@@ -87,6 +94,7 @@ class TiledeskSubscriptionClient {
             if (callback) {
               callback(null, resbody);
             }
+            console.log("[Utils] Unsubscribed");
             resolve(resbody);
           }
         }, true);
@@ -98,8 +106,7 @@ class TiledeskSubscriptionClient {
   // HTTP REQUEST
 
   static async myrequest(options, callback, log) {
-    if (log) {
-      console.log("API URL: ", options.url);
+    if (this.log) {
       console.log("** Options: ", options);
     }
     return await axios({
@@ -109,7 +116,7 @@ class TiledeskSubscriptionClient {
       params: options.params,
       headers: options.headers
     }).then((res) => {
-      if (log) {
+      if (this.log) {
         console.log("Response for url:", options.url);
         console.log("Response headers:\n", res.headers);
       }
@@ -120,7 +127,7 @@ class TiledeskSubscriptionClient {
       }
       else {
         if (callback) {
-          callback(TiledeskClient.getErr({message: "Response status not 200"}, options, res), null, null);
+          callback(TiledeskClient.getErr({ message: "Response status not 200" }, options, res), null, null);
         }
       }
     }).catch((err) => {
@@ -130,7 +137,7 @@ class TiledeskSubscriptionClient {
       }
     })
   }
-  
+
 }
 
 module.exports = { TiledeskSubscriptionClient }

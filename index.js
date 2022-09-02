@@ -28,14 +28,16 @@ const kvbase_collection = 'kvstore';
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-const TOKEN = process.env.WHATSAPP_TOKEN;        // From FB DevX getting started page
-const VERIFY_TOKEN = process.env.VERIFY_TOKEN;   // Arbitrary, used with webhook configuration in FB DevX
+//const TOKEN = process.env.WHATSAPP_TOKEN;        // From FB DevX getting started page
+//const VERIFY_TOKEN = process.env.VERIFY_TOKEN;   // Arbitrary, used with webhook configuration in FB DevX
 const BASE_URL = process.env.BASE_URL;
 const API_URL = process.env.API_URL;
-const project_id = process.env.PROJECT_ID;
-const token_jwt = process.env.TOKEN_JWT
+//const project_id = process.env.PROJECT_ID;
+//const token_jwt = process.env.TOKEN_JWT
 const GRAPH_URL = process.env.GRAPH_URL;
 const MONGODB_URL = process.env.MONGODB_URL;
+
+const log = false;
 
 var subscription;
 
@@ -49,32 +51,16 @@ db.connect(MONGODB_URL, () => {
   });
 })
 
-/*
-mongoose.connect(MONGODB_URL, { useNewUrlParser: true, useUnifiedTopology: true }, (err, client) => {
-  if (err) {
-    console.error("[ERROR] Connection with MongoDB: ", err);
-    process.exit(1);
-  } else {
-    console.log("Database connection ready!")
-
-    var server = app.listen(process.env.PORT || 1337, function() {
-      var port = server.address().port;
-      console.log("App now running on port", port);
-    });
-  }
-})
-*/
-
-// Sets server port and logs message on success
-//app.listen(process.env.PORT || 1337, () => console.log("webhook is listening"));
-
 app.get('/', async (req, res) => {
   console.log("Setting up...");
   res.send('Home works!')
 })
 
-
 app.get('/configure', async (req, res) => {
+  console.log("\n/configure");
+  if (log) {
+    console.log("/configure query: ", req.query);
+  }
 
   let projectId = "";
   let token = "";
@@ -94,7 +80,7 @@ app.get('/configure', async (req, res) => {
 
     readHTMLFile('/configure.html', (err, html) => {
       if (err) {
-        console.log("[ERROR] Read html file: ", err);
+        console.log("(ERROR) Read html file: ", err);
       }
 
       var template = handlebars.compile(html);
@@ -106,7 +92,9 @@ app.get('/configure', async (req, res) => {
         verify_token: settings.verify_token,
         subscription_id: settings.subscriptionId,
       }
-      console.log("Replacements: ", replacements);
+      if (log) {
+        console.log("Replacements: ", replacements);
+      }
       var html = template(replacements);
       res.send(html);
 
@@ -117,7 +105,7 @@ app.get('/configure', async (req, res) => {
     readHTMLFile('/configure.html', (err, html) => {
 
       if (err) {
-        console.log("[ERROR] Read html file: ", err);
+        console.log("(ERROR) Read html file: ", err);
       }
 
       var template = handlebars.compile(html);
@@ -126,7 +114,9 @@ app.get('/configure', async (req, res) => {
         token: token,
         proxy_url: proxy_url,
       }
-      console.log("Replacements: ", replacements);
+      if (log) {
+        console.log("Replacements: ", replacements);
+      }
       var html = template(replacements);
       res.send(html);
 
@@ -135,7 +125,10 @@ app.get('/configure', async (req, res) => {
 })
 
 app.post('/update', async (req, res) => {
-  console.log("req.body: ", req.body);
+  console.log("\n/update");
+  if (log) {
+    console.log("/update body: ", req.body);
+  }
 
   let projectId = req.body.project_id;
   let token = req.body.token;
@@ -143,24 +136,20 @@ app.post('/update', async (req, res) => {
   let verify_token = req.body.verify_token;
 
   let CONTENT_KEY = "whatsapp-" + projectId;
-
   let settings = await db.get(CONTENT_KEY);
-  console.log("[KVDB - GET] settings: ", settings);
 
   let proxy_url = BASE_URL + "/webhook/" + projectId;
-  console.log("proxy_url: ", proxy_url);
 
   if (settings) {
 
     settings.wab_token = wab_token;
     settings.verify_token = verify_token;
-    console.log("Updated settings: ", settings);
 
     await db.set(CONTENT_KEY, settings);
 
     readHTMLFile('/configure.html', (err, html) => {
       if (err) {
-        console.log("[ERROR] Read html file: ", err);
+        console.log("(ERROR) Read html file: ", err);
       }
 
       var template = handlebars.compile(html);
@@ -172,14 +161,17 @@ app.post('/update', async (req, res) => {
         verify_token: settings.verify_token,
         subscription_id: settings.subscriptionId,
       }
-      console.log("Replacements: ", replacements);
+      if (log) {
+        console.log("Replacements: ", replacements);  
+      }
+      
       var html = template(replacements);
       res.send(html);
     })
 
   } else {
 
-    const tdClient = new TiledeskSubscriptionClient({ API_URL: API_URL, token: token })
+    const tdClient = new TiledeskSubscriptionClient({ API_URL: API_URL, token: token, log: false })
 
     const data = {
       target: BASE_URL + "/tiledesk",
@@ -196,8 +188,10 @@ app.post('/update', async (req, res) => {
     // promise
     tdClient.subscribe(projectId, data).then((data) => {
       let subscription = data;
-      console.log("\nsubscription: ", subscription)
-
+      if (log) {
+        console.log("\nSubscription: ", subscription)  
+      }
+      
       let settings = {
         project_id: projectId,
         token: token,
@@ -209,13 +203,11 @@ app.post('/update', async (req, res) => {
       }
 
       db.set(CONTENT_KEY, settings)
-
-      let cnt = db.get(CONTENT_KEY);
-      console.log("Content retrieved: ", cnt);
+      //let cnt = db.get(CONTENT_KEY);
 
       readHTMLFile('/configure.html', (err, html) => {
         if (err) {
-          console.log("[ERROR] Read html file: ", err);
+          console.log("(ERROR) Read html file: ", err);
         }
 
         var template = handlebars.compile(html);
@@ -227,122 +219,38 @@ app.post('/update', async (req, res) => {
           verify_token: settings.verify_token,
           subscription_id: settings.subscriptionId,
         }
-        console.log("Replacements: ", replacements);
-        var html = template(replacements);
-        res.send(html);
-      })
-
-
-    }).catch((err) => {
-      console.log("\nsubscription err: ", err)
-    })
-
-    /*
-    await tdClient.subscribe(projectId, data, (err, data) => {
-      
-      let subscription = data;
-      console.log("\nsubscription: ", subscription)
-
-      let settings = {
-        project_id: projectId,
-        token: token,
-        proxy_url: proxy_url,
-        subscriptionId: subscription._id,
-        secret: subscription.secret,
-        wab_token: wab_token,
-        verify_token: verify_token,
-      }
-
-      db.set(CONTENT_KEY, settings)
-
-      let cnt = db.get(CONTENT_KEY);
-      console.log("Content retrieved: ", cnt);
-
-      readHTMLFile('/configure.html', (err, html) => {
-        if (err) {
-          console.log("[ERROR] Read html file: ", err);
+        if (log) {
+          console.log("Replacements: ", replacements);  
         }
-
-        var template = handlebars.compile(html);
-        var replacements = {
-          project_id: projectId,
-          token: token,
-          proxy_url: proxy_url,
-          wab_token: settings.wab_token,
-          verify_token: settings.verify_token,
-          subscription_id: settings.subscriptionId,
-        }
-        console.log("Replacements: ", replacements);
-        var html = template(replacements);
-        res.send(html);
-      })
-      
-    });
-
-    /*
-    subscribeWebhookTiledesk(projectId, token).then((subscription) => {
-      console.log("subscribeWebhookTiledesk() RESULT: ", subscription);
-
-      // Code for Mongo Key-Value Store
-      let settings = {
-        project_id: projectId,
-        token: token,
-        proxy_url: proxy_url,
-        subscriptionId: subscription.subscriptionId,
-        secret: subscription.secret,
-        wab_token: wab_token,
-        verify_token: verify_token,
-      }
-
-      db.set(CONTENT_KEY, settings)
-
-      let cnt = db.get(CONTENT_KEY);
-      console.log("Content retrieved: ", cnt);
-
-
-      readHTMLFile('/configure.html', (err, html) => {
-        if (err) {
-          console.log("[ERROR] Read html file: ", err);
-        }
-
-        var template = handlebars.compile(html);
-        var replacements = {
-          project_id: projectId,
-          token: token,
-          proxy_url: proxy_url,
-          wab_token: settings.wab_token,
-          verify_token: settings.verify_token,
-          subscription_id: settings.subscriptionId,
-        }
-        console.log("Replacements: ", replacements);
+        
         var html = template(replacements);
         res.send(html);
       })
 
     }).catch((err) => {
-      console.log("subscribeWebhookTiledesk() ERROR: ", err)
+      console.log("\n (ERROR) Subscription: ", err)
     })
-  */
+
   }
 })
 
-app.post('/disconnect', async (req, res) => {
-  console.log("Disconnect req.body: ", req.body);
+app.post('\n/disconnect', async (req, res) => {
+  console.log("/disconnect")
+  if (log) {
+    console.log("/disconnect body: ", req.body)  
+  }
 
   let projectId = req.body.project_id;
   let token = req.body.token;
   let subscriptionId = req.body.subscription_id;
 
   let CONTENT_KEY = "whatsapp-" + projectId;
-
-  let proxy_url = BASE_URL + "/webhook/" + projectId;
-  console.log("proxy_url: ", proxy_url);
-
-
   await db.remove(CONTENT_KEY);
   console.log("Content deleted.");
 
-  const tdClient = new TiledeskSubscriptionClient({ API_URL: API_URL, token: token })
+  let proxy_url = BASE_URL + "/webhook/" + projectId;
+
+  const tdClient = new TiledeskSubscriptionClient({ API_URL: API_URL, token: token, log: false })
 
   /*
   // callback
@@ -352,12 +260,11 @@ app.post('/disconnect', async (req, res) => {
   */
 
   tdClient.unsubscribe(projectId, subscriptionId).then((data) => {
-    console.log("unsubscribe result: ", data);
 
     readHTMLFile('/configure.html', (err, html) => {
 
       if (err) {
-        console.log("[ERROR] Read html file: ", err);
+        console.log("(ERROR) Read html file: ", err);
       }
 
       var template = handlebars.compile(html);
@@ -366,67 +273,37 @@ app.post('/disconnect', async (req, res) => {
         token: token,
         proxy_url: proxy_url,
       }
-      console.log("Replacements: ", replacements);
+      if (log) {
+        console.log("Replacements: ", replacements);  
+      }
+      
       var html = template(replacements);
       res.send(html);
     })
 
   }).catch((err) => {
-    console.error("unsubscribe error: ", err);
+    console.error("(ERROR) Unsubscribe: ", err);
   })
 
 })
 
-app.post('/disconnect_old', async (req, res) => {
-  console.log("Disconnect req.body: ", req.body);
+app.post('/tiledesk', async (req, res) => {
 
-  let projectId = req.body.project_id;
-  let token = req.body.token;
-  let subscriptionId = req.body.subscription_id;
-
-  let CONTENT_KEY = "whatsapp-" + projectId;
-
-  let proxy_url = BASE_URL + "/webhook/" + projectId;
-  console.log("proxy_url: ", proxy_url);
-
-
-  await db.remove(CONTENT_KEY);
-  console.log("Content deleted.");
-
-
-
-  unsubscribeWebhookTiledesk(projectId, token, subscriptionId).then((response) => {
-    console.log("Unsubscribed: ", response);
-
-    readHTMLFile('/configure.html', (err, html) => {
-
-      if (err) {
-        console.log("[ERROR] Read html file: ", err);
-      }
-
-      var template = handlebars.compile(html);
-      var replacements = {
-        project_id: projectId,
-        token: token,
-        proxy_url: proxy_url,
-      }
-      console.log("Replacements: ", replacements);
-      var html = template(replacements);
-      res.send(html);
-    })
-  })
-})
-
-
-app.post('/tiledesk', (req, res) => {
-
-  console.log("(TILEDESK) REQ.BODY: ", req.body);
+  console.log("\n/tiledesk")
+  console.log("/tiledesk tiledeskChannelMessage: ", req.body.payload);
+  if (log) {
+  }
 
   var tiledeskChannelMessage = req.body.payload;
   //console.log("(TILEDESK) Payload: ", JSON.stringify(req.body.payload));
 
   var projectId = req.body.payload.id_project;
   console.log("(TILEDESK) PROJECT ID: ", projectId);
+
+  // get settings from mongo
+  let CONTENT_KEY = "whatsapp-" + projectId;
+  let settings = await db.get(CONTENT_KEY);
+  let wab_token = settings.wab_token;
 
   var text = req.body.payload.text;
   console.log("(TILEDESK) TEXT: ", text);
@@ -450,23 +327,23 @@ app.post('/tiledesk', (req, res) => {
   let recipient_id = tiledeskChannelMessage.recipient;
   console.log("(Tiledesk) Recipient_id: ", recipient_id);
 
-  let last = recipient_id.lastIndexOf("-");
+  //let last = recipient_id.lastIndexOf("-");
 
-  let to = recipient_id.substring(last + 1);
-  console.log("(Tiledesk) to: ", to);
+  let whatsapp_receiver = recipient_id.substring(recipient_id.lastIndexOf("-") + 1);
+  console.log("(Tiledesk) whatsapp_receiver: ", whatsapp_receiver);
 
-  let last2 = recipient_id.lastIndexOf("wab-");
+  //let last2 = recipient_id.lastIndexOf("wab-");
 
-  let phone_number_id = recipient_id.substring(last2 + 4, last);
+  let phone_number_id = recipient_id.substring(recipient_id.lastIndexOf("wab-") + 4, last);
   console.log("(Tiledesk) phone_number_id: ", phone_number_id)
 
   const tlr = new TiledeskWhatsappTranslator({ channelMessage: tiledeskChannelMessage });
 
-  const whatsappJsonMessage = tlr.toWhatsapp(to);
+  const whatsappJsonMessage = tlr.toWhatsapp(whatsapp_receiver);
   console.log("whatsappJsonMessage: ", whatsappJsonMessage);
 
   if (whatsappJsonMessage) {
-    sendMessage(phone_number_id, whatsappJsonMessage).then((response) => {
+    sendMessage(phone_number_id, whatsappJsonMessage, wab_token).then((response) => {
       console.log("sendMessage() response: ", response);
     }).catch((err) => {
       console.log("ERROR sendMessage(): ", err);
@@ -515,20 +392,13 @@ app.post("/webhook/:project_id", async (req, res) => {
           lastname: " "
         }
       }
-      /*
-      let phone_number_id = req.body.entry[0].changes[0].value.metadata.phone_number_id;
-      console.log("(WAB) Phone number Id: ", phone_number_id);
-
-      let from = whatsappChannelMessage.from;
-      console.log("(WAB) From: ", from);
-
-      let lastname = " ";
-      */
 
       let CONTENT_KEY = "whatsapp-" + projectId;
 
       let settings = await db.get(CONTENT_KEY);
-      console.log("[KVDB] settings: ", settings);
+      if (log) {
+        console.log("[KVDB] settings: ", settings);
+      }
 
       if (!settings) {
         console.log("No settings found. Exit..");
@@ -552,12 +422,12 @@ app.post("/webhook/:project_id", async (req, res) => {
       }
       else if ((whatsappChannelMessage.type == 'image') || (whatsappChannelMessage.type == 'video') || (whatsappChannelMessage.type == 'document')) {
         let media;
+        const util = new WhatsappUtils({ token: settings.wab_token, GRAPH_URL: GRAPH_URL })
 
         if (whatsappChannelMessage.type == 'image') {
           media = whatsappChannelMessage.image;
           console.log("media_id: ", media.id);
 
-          const util = new WhatsappUtils({ token: settings.wab_token })
           const filename = await util.downloadMedia(media.id);
           console.log("File position: ", filename);
 
@@ -571,7 +441,6 @@ app.post("/webhook/:project_id", async (req, res) => {
         if (whatsappChannelMessage.type == 'video') {
           media = whatsappChannelMessage.video;
 
-          const util = new WhatsappUtils({ token: settings.wab_token })
           const filename = await util.downloadMedia(media.id);
           console.log("File position: ", filename);
 
@@ -584,8 +453,7 @@ app.post("/webhook/:project_id", async (req, res) => {
         if (whatsappChannelMessage.type == 'document') {
           media = whatsappChannelMessage.document;
 
-          const util = new WhatsappUtils({ channelMedia: media, token: settings.wab_token })
-          const filename = await util.downloadMedia();
+          const filename = await util.downloadMedia(media.id);
           console.log("File position: ", filename);
 
           const media_url = await util.uploadMedia(filename, "files");
@@ -594,207 +462,19 @@ app.post("/webhook/:project_id", async (req, res) => {
           tiledeskJsonMessage = tlr.toTiledesk(firstname, media_url);
         }
 
-        /*
-        const util = new WhatsappUtils({ channelMedia: media, token: settings.wab_token })
-        const filename = await util.downloadMedia();
-        console.log("File position: ", filename);
-
-        const image_url = await util.uploadMedia(filename, "images");
-        console.log("image_url: ", image_url)
-      */
-
       } else {
         // unsupported. Try anyway to send something.
       }
 
       console.log("tiledeskJsonMessage: ", tiledeskJsonMessage);
 
-
       // tdClient.signInWithCustomToken
       // tdClient.getRequests 
       const tdChannel = new TiledeskChannel({ settings: settings, API_URL: API_URL })
       const response = await tdChannel.send(tiledeskJsonMessage, message_info);
-      console.log("*** Response: ", response)
-
-
-      /*
-      
-      var payload = {
-        _id: 'wab-' + from,
-        first_name: firstname,
-        last_name: lastname,
-        email: 'na@whatsapp.com',
-        sub: 'userexternal',
-        aud: 'https://tiledesk.com/subscriptions/' + settings.subscriptionId
+      if (log) {  
+        console.log("Send response: ", response)
       }
-      console.log("PAYLOAD: ", payload);
-      var customToken = jwt.sign(payload, settings.secret);
-
-      request({
-          url: API_URL + `/auth/signinWithCustomToken`,
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'JWT ' + customToken
-          },
-          json: {},
-          method: 'POST'
-        }, (err, res, resbody) => {
-
-          if (err) {
-            console.log("ERROR signinWithCustomToken: ", err);
-          } else {
-            console.log("RESBODY signinWithCustomToken: ", resbody);
-
-            var token = resbody.token;
-
-            request({
-              url: API_URL + `/${project_id}/requests/me?channel=whatsapp`,
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': token
-              },
-              method: 'GET'
-            }, (err, res, resbody) => {
-
-              if (err) {
-                console.log("ERROR getAllRequests", err);
-              } else {
-
-                let resbody_json = JSON.parse(resbody);
-                //console.log("Get all requests resbody: ", resbody_json);
-
-                let request_id;
-                if (resbody_json.requests[0]) {
-                  request_id = resbody_json.requests[0].request_id;
-                  console.log("OLD REQUEST ID: ", request_id);
-                } else {
-                  // oppure si può utilizzare entry.id al posto di from?
-                  request_id = "support-group-" + project_id + "-" + uuidv4() + "-wab-" + phone_number_id + "-" + from;
-                  console.log("NEW REQUEST ID: ", request_id);
-                }
-
-                request({
-                  url: API_URL + `/${project_id}/requests/${request_id}/messages`,
-                  headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': token
-                  },
-                  json: tiledeskJsonMessage,
-                  method: 'POST'
-                }, (err, res, resbody) => {
-
-                  if (err) {
-                    console.log("ERROR SendMessage: ", err)
-                  } else if (resbody.success == false) {
-                    console.log("SUCCESS FALSE!")
-                  }
-
-                  if (res.statusCode === 200) {
-                    console.log("SUCCESS TRUE!");
-                  }
-                })
-              }
-            })
-          }
-        })
-      
-      
-      */
-
-      /*
-      const tlr = new TiledeskWhatsappTranslator({channelMessage: whatsappChannelMessage});
-      
-      const tiledeskJsonMessage = tlr.toTiledesk(firstname);
-      console.log("tiledeskJsonMessage: ", tiledeskJsonMessage);
-      */
-
-
-      /*
-      createMsg(message, firstname).then((msg) => {
-        console.log("createMsg Response: ", msg);
-
-        var payload = {
-          _id: 'wab-' + from,
-          first_name: firstname,
-          last_name: lastname,
-          email: 'na@whatsapp.com',
-          sub: 'userexternal',
-          aud: 'https://tiledesk.com/subscriptions/' + settings.subscriptionId
-        }
-        console.log("PAYLOAD: ", payload);
-        var customToken = jwt.sign(payload, settings.secret);
-
-        request({
-          url: API_URL + `/auth/signinWithCustomToken`,
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'JWT ' + customToken
-          },
-          json: {},
-          method: 'POST'
-        }, (err, res, resbody) => {
-
-          if (err) {
-            console.log("ERROR signinWithCustomToken: ", err);
-          } else {
-            console.log("RESBODY signinWithCustomToken: ", resbody);
-
-            var token = resbody.token;
-
-            request({
-              url: API_URL + `/${project_id}/requests/me?channel=whatsapp`,
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': token
-              },
-              method: 'GET'
-            }, (err, res, resbody) => {
-
-              if (err) {
-                console.log("ERROR getAllRequests", err);
-              } else {
-
-                let resbody_json = JSON.parse(resbody);
-                //console.log("Get all requests resbody: ", resbody_json);
-
-                let request_id;
-                if (resbody_json.requests[0]) {
-                  request_id = resbody_json.requests[0].request_id;
-                  console.log("OLD REQUEST ID: ", request_id);
-                } else {
-                  // oppure si può utilizzare entry.id al posto di from?
-                  request_id = "support-group-" + project_id + "-" + uuidv4() + "-wab-" + phone_number_id + "-" + from;
-                  console.log("NEW REQUEST ID: ", request_id);
-                }
-
-                request({
-                  url: API_URL + `/${project_id}/requests/${request_id}/messages`,
-                  headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': token
-                  },
-                  json: msg,
-                  method: 'POST'
-                }, (err, res, resbody) => {
-
-                  if (err) {
-                    console.log("ERROR SendMessage: ", err)
-                  } else if (resbody.success == false) {
-                    console.log("SUCCESS FALSE!")
-                  }
-
-                  if (res.statusCode === 200) {
-                    console.log("SUCCESS TRUE!");
-                  }
-                })
-              }
-            })
-          }
-        })
-      }).catch((err) => {
-        console.log("ERROR createMsg(): ", err);
-      })
-      */
 
     }
     res.sendStatus(200);
@@ -806,7 +486,7 @@ app.post("/webhook/:project_id", async (req, res) => {
 
 // Accepts GET requests at the /webhook endpoint. You need this URL to setup webhook initially.
 // info on verification request payload: https://developers.facebook.com/docs/graph-api/webhooks/getting-started#verification-requests 
-app.get("/webhook/:project_id", (req, res) => {
+app.get("/webhook/:project_id", async (req, res) => {
   /**
    * UPDATE YOUR VERIFY TOKEN
    *This will be the Verify Token value when you set up webhook
@@ -817,53 +497,40 @@ app.get("/webhook/:project_id", (req, res) => {
   let token = req.query["hub.verify_token"];
   let challenge = req.query["hub.challenge"];
 
-  // Check if a token and mode were sent
-  if (mode && token) {
-    // Check the mode and token sent are correct
-    if (mode === "subscribe" && token === VERIFY_TOKEN) {
-      // Respond with 200 OK and challenge token from the request
-      console.log("WEBHOOK_VERIFIED");
-      res.status(200).send(challenge);
-    } else {
-      // Responds with '403 Forbidden' if verify tokens do not match
-      res.sendStatus(403);
-    }
-  }
-});
+  let CONTENT_KEY = "whatsapp-" + req.params.project_id;
 
+  let settings = await db.get(CONTENT_KEY);
+
+  if (!settings || !settings.verify_token) {
+    console.error("No settings found! Unable to verify token.")
+    res.sendStatus(403);
+  } else {
+    let VERIFY_TOKEN = settings.verify_token;
+
+    // Check if a token and mode were sent
+    if (mode && token) {
+      // Check the mode and token sent are correct
+      if (mode === "subscribe" && token === VERIFY_TOKEN) {
+        // Respond with 200 OK and challenge token from the request
+        console.log("WEBHOOK_VERIFIED");
+        res.status(200).send(challenge);
+      } else {
+        // Responds with '403 Forbidden' if verify tokens do not match
+        res.sendStatus(403);
+      }
+    }
+
+  }
+
+});
 
 
 // *****************************
 // ********* FUNCTIONS *********
 // *****************************
 
-function unsubscribeWebhookTiledesk(projectId, token, subscriptionId) {
-  let promise = new Promise((resolve, reject) => {
-
-    request({
-      url: API_URL + `/${projectId}/subscriptions/${subscriptionId}`,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': token
-      },
-      method: 'DELETE'
-    }, (err, res, resbody) => {
-      if (err) {
-        reject("Error Tiledesk Unsubscription: ", err)
-      } else if (resbody.success == false) {
-        reject("Resbody success: False")
-      } else {
-        console.log("Unsubscribed: ", resbody);
-        resolve(true);
-      }
-    })
-  })
-  return promise;
-}
-
-// !!!!!!! WARNING!!! TOKEN is hard coded here
-
-function sendMessage(phone_number_id, data) {
+// !!!!!!! Move this. Where?
+function sendMessage(phone_number_id, data, TOKEN) {
 
   let promise = new Promise((resolve, reject) => {
     request({
@@ -887,7 +554,7 @@ function sendMessage(phone_number_id, data) {
 
 
 function readHTMLFile(templateName, callback) {
-  console.log("Leggo il file: ", templateName)
+  console.log("Reading file: ", templateName)
   fs.readFile(appRoot + '/template/' + templateName, { encoding: 'utf-8' },
     function(err, html) {
       if (err) {
@@ -935,6 +602,32 @@ function subscribeWebhookTiledesk(project_id, token_jwt) {
         }
         console.log("Subscription: ", subscription);
         resolve(subscription);
+      }
+    })
+  })
+  return promise;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function unsubscribeWebhookTiledesk(projectId, token, subscriptionId) {
+  let promise = new Promise((resolve, reject) => {
+
+    request({
+      url: API_URL + `/${projectId}/subscriptions/${subscriptionId}`,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': token
+      },
+      method: 'DELETE'
+    }, (err, res, resbody) => {
+      if (err) {
+        reject("Error Tiledesk Unsubscription: ", err)
+      } else if (resbody.success == false) {
+        reject("Resbody success: False")
+      } else {
+        console.log("Unsubscribed: ", resbody);
+        resolve(true);
       }
     })
   })
@@ -1306,7 +999,7 @@ function callSendAPI_old(project_id, phone_number_id, to, payload) {
         //  link: videoUrl,
         //  caption: text
         //}
-  
+
         data.type = 'document'
         data.document = {
           link: videoUrl,
@@ -1610,6 +1303,48 @@ function getSubscriptions(project_id, token) {
   })
   return promise;
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+app.post('/disconnect_old', async (req, res) => {
+  console.log("Disconnect req.body: ", req.body);
+
+  let projectId = req.body.project_id;
+  let token = req.body.token;
+  let subscriptionId = req.body.subscription_id;
+
+  let CONTENT_KEY = "whatsapp-" + projectId;
+
+  let proxy_url = BASE_URL + "/webhook/" + projectId;
+  console.log("proxy_url: ", proxy_url);
+
+
+  await db.remove(CONTENT_KEY);
+  console.log("Content deleted.");
+
+
+
+  unsubscribeWebhookTiledesk(projectId, token, subscriptionId).then((response) => {
+    console.log("Unsubscribed: ", response);
+
+    readHTMLFile('/configure.html', (err, html) => {
+
+      if (err) {
+        console.log("[ERROR] Read html file: ", err);
+      }
+
+      var template = handlebars.compile(html);
+      var replacements = {
+        project_id: projectId,
+        token: token,
+        proxy_url: proxy_url,
+      }
+      console.log("Replacements: ", replacements);
+      var html = template(replacements);
+      res.send(html);
+    })
+  })
+})
 
 */
 
