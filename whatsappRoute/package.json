@@ -1,18 +1,19 @@
 {
-  "name": "tiledesk-whatsapp",
-  "version": "1.0.0",
-  "description": "",
+  "name": "@tiledesk/tiledesk-whatsapp-connector",
+  "version": "0.1.0",
+  "description": "Tiledesk Whatsapp connector",
   "main": "index.js",
   "scripts": {
-    "test": "mocha"
+    "test": "mocha",
+    "start": "node index.js"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Giovanni Troisi",
+  "license": "MIT",
   "dependencies": {
     "@tiledesk/tiledesk-client": "^0.8.29",
     "@tiledesk/tiledesk-kvbasemongo": "^1.0.0",
-    "app-root-path": "^3.1.0",
+    "app-root-path": "^3.0.0",
     "axios": "^0.27.2",
     "body-parser": "^1.20.0",
     "dotenv": "^16.0.2",
@@ -20,8 +21,8 @@
     "form-data": "^4.0.0",
     "handlebars": "^4.7.7",
     "jsonwebtoken": "^8.5.1",
-    "mongoose": "^6.5.4",
-    "request": "^2.88.2",
+    "mongoose": "^6.5.0",
+    "multer": "^1.4.5-lts.1",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
