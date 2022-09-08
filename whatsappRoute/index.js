@@ -586,7 +586,7 @@ function startApp(settings, callback) {
 
 function readHTMLFile(templateName, callback) {
   console.log("Reading file: ", templateName)
-  fs.readFile(appRoot + '/template/' + templateName, { encoding: 'utf-8' },
+  fs.readFile(appRoot + '/template' + templateName, { encoding: 'utf-8' },
     function(err, html) {
       if (err) {
         throw err;
