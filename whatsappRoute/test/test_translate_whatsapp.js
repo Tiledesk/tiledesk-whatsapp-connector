@@ -282,7 +282,10 @@ describe('Test Translator\n', function() {
     assert(tiledeskJsonMessage.attributes.subtype === "info");
     assert(tiledeskJsonMessage.senderFullname === fullname);
 
-    console.log("(test) tiledeskJsonMessage: ", tiledeskJsonMessage);
+    if (log) {
+      console.log("(test) tiledeskJsonMessage: ", tiledeskJsonMessage);  
+    }
+    
   })
 
 
@@ -360,7 +363,9 @@ describe('Test Translator\n', function() {
     assert(tlr != null);
     const tiledeskJsonMessage = tlr.toTiledesk(fullname, media_url);
     assert(tiledeskJsonMessage != null);
-    console.log("(test) tiledeskJsonMessage: ", tiledeskJsonMessage);
+    if (log) {
+      console.log("(test) tiledeskJsonMessage: ", tiledeskJsonMessage);  
+    }
   })
 
 
@@ -378,7 +383,9 @@ describe('Test Translator\n', function() {
     assert(tlr != null);
     const tiledeskJsonMessage = tlr.toTiledesk(fullname, media_url);
     assert(tiledeskJsonMessage != null);
-    console.log("(test) tiledeskJsonMessage: ", tiledeskJsonMessage);
+    if (log) {
+      console.log("(test) tiledeskJsonMessage: ", tiledeskJsonMessage);  
+    }
   })
 
 
@@ -396,7 +403,9 @@ describe('Test Translator\n', function() {
     assert(tlr != null);
     const tiledeskJsonMessage = tlr.toTiledesk(fullname, media_url);
     assert(tiledeskJsonMessage != null);
-    console.log("(test) tiledeskJsonMessage: ", tiledeskJsonMessage);
+    if (log) {
+      console.log("(test) tiledeskJsonMessage: ", tiledeskJsonMessage);  
+    }
   })
 
   
