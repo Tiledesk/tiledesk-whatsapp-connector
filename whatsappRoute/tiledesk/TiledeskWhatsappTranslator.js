@@ -287,7 +287,7 @@ class TiledeskWhatsappTranslator {
   toTiledesk(from, media_url) {
 
     let whatsappChannelMessage = this.channelMessage;
-    if (log) {
+    if (this.log) {
       console.log("[Translator] whatsapp message: ", whatsappChannelMessage)
     }
 
