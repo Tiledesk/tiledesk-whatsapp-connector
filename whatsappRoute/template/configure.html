@@ -102,8 +102,13 @@
                                 value="{{ proxy_url}}">
                         </div>
                         <div style="width: 80px;">
+                          <!--
                             <input type="button" class="btn btn-primary" style="width: 100%;"
-                                onclick="copyTextToClipboard(this, document.getElementById('proxy_url').value)"
+                                onclick="copyTextToClipboard(this, document.getElementById('proxy_url').value)"    
+                                value="Copy"></input>
+                          -->
+                          <input type="button" id="copy-btn" class="btn btn-primary" style="width: 100%;"
+                                onclick="copyTextToClipboard()"    
                                 value="Copy"></input>
                         </div>
 
@@ -148,7 +153,7 @@
 
   <script>
 
-    function copyTextToClipboard(btn, text) {
+    function copyTextToClipboard2(btn, text) {
         console.log("Button clicked")
         // if (!navigator.clipboard) {
         //     fallbackCopyTextToClipboard(text);
@@ -162,6 +167,22 @@
             console.error('Async: Could not copy text: ', err);
         });
     }
+
+    function copyTextToClipboard() {
+      const proxyUrl = document.getElementById('proxy_url');
+      
+      //document.querySelector('textarea').select();
+      try {
+        document.execCommand('copy');
+        console.log('Async: Copied to clipboard!');
+        let btn = document.getElementById('copy-btn');
+        btn.value = "Copied!";
+      } catch (err) {
+        console.error('Async: Could not copy text: ', err);
+      }
+  
+      
+  }
 </script>
   
 

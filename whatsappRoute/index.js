@@ -237,8 +237,8 @@ router.post('/update', async (req, res) => {
   }
 })
 
-router.post('\n/disconnect', async (req, res) => {
-  console.log("/disconnect")
+router.post('/disconnect', async (req, res) => {
+  console.log("\n/disconnect")
   if (log) {
     console.log("/disconnect body: ", req.body)  
   }
@@ -586,7 +586,12 @@ function startApp(settings, callback) {
 
 function readHTMLFile(templateName, callback) {
   console.log("Reading file: ", templateName)
-  fs.readFile(appRoot.path + '/template' + templateName, { encoding: 'utf-8' },
+  console.log("appRoot: ", appRoot)
+  let file = appRoot + '/template' + templateName;
+  console.log("file: ", file);
+  console.log("*** appRoot: ", appRoot.toString());
+  console.log("type: ", typeof(appRoot))
+  fs.readFile(__dirname + '/template' + templateName, { encoding: 'utf-8' },
     function(err, html) {
       if (err) {
         throw err;
