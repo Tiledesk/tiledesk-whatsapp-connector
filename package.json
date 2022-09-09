@@ -11,7 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@tiledesk/tiledesk-whatsapp-connector": "^0.1.3",
+    "@tiledesk/tiledesk-whatsapp-connector": "^0.1.4",
     "dotenv": "^16.0.2",
     "express": "^4.18.1"
   },

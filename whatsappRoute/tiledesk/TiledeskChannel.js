@@ -97,7 +97,7 @@ class TiledeskChannel {
         method: 'GET'
       }).then((response) => {
 
-        if (log) {
+        if (this.log) {
           console.log("[Tiledesk Channel] get request response: ", response.data);
         }
 
@@ -108,7 +108,7 @@ class TiledeskChannel {
           request_id = new_request_id;
         }
 
-        if (log) {
+        if (this.log) {
           console.log("[Tiledesk Channel] tiledeskMessage:", tiledeskMessage);
         }
 
@@ -122,7 +122,7 @@ class TiledeskChannel {
           method: 'POST'
         }).then((response) => {
 
-          if (log) {
+          if (this.log) {
             console.log("[Tiledesk Channel] send message response: ", response.data);  
           }
           
