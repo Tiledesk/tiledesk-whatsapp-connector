@@ -32,10 +32,15 @@ class TiledeskWhatsapp {
     // this.media = config.channelMedia;
     this.token = config.token;
     this.GRAPH_URL = config.GRAPH_URL
+    
+    this.log = false;
+    if (config.log) {
+      this.log = config.log;
+    }
   }
 
   async sendMessage(phone_number_id, message) {
-    if (log) {
+    if (this.log) {
       console.log("[Tiledesk Whatsapp] Sending message...", message);  
     } else {
       console.log("[Tiledesk Whatsapp] Sending message...");  
@@ -58,7 +63,7 @@ class TiledeskWhatsapp {
   }
 
   async downloadMedia(mediaId) {
-    if (log) {
+    if (this.log) {
       console.log("[Tiledesk Whatsapp] Download media with id: ", mediaId);  
     }
 
@@ -128,7 +133,7 @@ class TiledeskWhatsapp {
     }
 
     return await axios.post(url, form, request_config).then((response) => {
-      if (log) {
+      if (this.log) {
         console.log("[Tiledesk Whatsapp] upload response: ", response.data);
       }
 
@@ -146,7 +151,7 @@ class TiledeskWhatsapp {
   
   // HTTP REQUEST
   static async myrequest(options, callback, log) {
-    if (log) {
+    if (this.log) {
       console.log("API URL: ", options.url);
       console.log("** Options: ", options);
     }
@@ -157,7 +162,7 @@ class TiledeskWhatsapp {
       params: options.params,
       headers: options.headers
     }).then((res) => {
-      if (log) {
+      if (this.log) {
         console.log("Response for url:", options.url);
         console.log("Response headers:\n", res.headers);
       }
