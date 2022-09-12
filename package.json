@@ -11,9 +11,18 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@tiledesk/tiledesk-client": "^0.8.29",
+    "@tiledesk/tiledesk-kvbasemongo": "^1.0.0",
     "@tiledesk/tiledesk-whatsapp-connector": "^0.1.5",
+    "app-root-path": "^3.1.0",
+    "axios": "^0.27.2",
+    "body-parser": "^1.20.0",
     "dotenv": "^16.0.2",
-    "express": "^4.18.1"
+    "express": "^4.18.1",
+    "form-data": "^4.0.0",
+    "handlebars": "^4.7.7",
+    "jsonwebtoken": "^8.5.1",
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "mocha": "^8.2.1"

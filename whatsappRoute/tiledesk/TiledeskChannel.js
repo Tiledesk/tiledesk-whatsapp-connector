@@ -32,7 +32,7 @@ class TiledeskChannel {
       throw new Error('config.API_URL is mandatory');
     }
 
-    this.log = false;
+    this.log = true;
     if (config.log) {
       this.log = config.log;
     }
@@ -104,8 +104,10 @@ class TiledeskChannel {
         let request_id;
         if (response.data.requests[0]) {
           request_id = response.data.requests[0].request_id;
+          console.log("Old request id: ", request_id);
         } else {
           request_id = new_request_id;
+          console.log("New request id: ", request_id);
         }
 
         if (this.log) {

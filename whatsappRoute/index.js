@@ -42,7 +42,7 @@ router.use(bodyParser.urlencoded({ extended: true }));
 var API_URL = null;
 var GRAPH_URL = null;
 var BASE_URL = null;
-var log = false;
+var log = true;
 
 const db = new KVBaseMongo(kvbase_collection);
 /*
@@ -165,9 +165,9 @@ router.post('/update', async (req, res) => {
         subscription_id: settings.subscriptionId,
       }
       if (log) {
-        console.log("Replacements: ", replacements);  
+        console.log("Replacements: ", replacements);
       }
-      
+
       var html = template(replacements);
       res.send(html);
     })
@@ -192,9 +192,9 @@ router.post('/update', async (req, res) => {
     tdClient.subscribe(subscription_info).then((data) => {
       let subscription = data;
       if (log) {
-        console.log("\nSubscription: ", subscription)  
+        console.log("\nSubscription: ", subscription)
       }
-      
+
       let settings = {
         project_id: projectId,
         token: token,
@@ -223,9 +223,9 @@ router.post('/update', async (req, res) => {
           subscription_id: settings.subscriptionId,
         }
         if (log) {
-          console.log("Replacements: ", replacements);  
+          console.log("Replacements: ", replacements);
         }
-        
+
         var html = template(replacements);
         res.send(html);
       })
@@ -240,7 +240,7 @@ router.post('/update', async (req, res) => {
 router.post('/disconnect', async (req, res) => {
   console.log("\n/disconnect")
   if (log) {
-    console.log("/disconnect body: ", req.body)  
+    console.log("/disconnect body: ", req.body)
   }
 
   let projectId = req.body.project_id;
@@ -277,9 +277,9 @@ router.post('/disconnect', async (req, res) => {
         proxy_url: proxy_url,
       }
       if (log) {
-        console.log("Replacements: ", replacements);  
+        console.log("Replacements: ", replacements);
       }
-      
+
       var html = template(replacements);
       res.send(html);
     })
@@ -487,7 +487,7 @@ router.post("/webhook/:project_id", async (req, res) => {
       // tdClient.getRequests 
       const tdChannel = new TiledeskChannel({ settings: settings, API_URL: API_URL })
       const response = await tdChannel.send(tiledeskJsonMessage, message_info);
-      if (log) {  
+      if (log) {
         console.log("Send response: ", response)
       }
 
@@ -550,7 +550,7 @@ function startApp(settings, callback) {
   if (!settings.MONGODB_URL) {
     throw new Error("settings.MONGODB_URL is mandatory");
   }
-  
+
   if (!settings.API_URL) {
     throw new Error("settings.API_URL is mandatory");
   } else {
@@ -586,11 +586,6 @@ function startApp(settings, callback) {
 
 function readHTMLFile(templateName, callback) {
   console.log("Reading file: ", templateName)
-  console.log("appRoot: ", appRoot)
-  let file = appRoot + '/template' + templateName;
-  console.log("file: ", file);
-  console.log("*** appRoot: ", appRoot.toString());
-  console.log("type: ", typeof(appRoot))
   fs.readFile(__dirname + '/template' + templateName, { encoding: 'utf-8' },
     function(err, html) {
       if (err) {
@@ -602,4 +597,4 @@ function readHTMLFile(templateName, callback) {
     })
 }
 
-module.exports = { router: router, startApp: startApp};
+module.exports = { router: router, startApp: startApp };
