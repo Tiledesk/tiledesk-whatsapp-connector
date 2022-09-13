@@ -35,10 +35,10 @@ describe('Test Translator\n', function() {
 
     let tiledeskChannelMessage = {
       text: 'Image Caption', // can be empty --> ""
+      type: 'image',
       recipient: 'support-group-62c3f10152dc7400352bab0d-86a2293e-c7dc-4e62-89b1-ffe9bba7fd59-wab-104777398965560-tel393484506627',
       metadata: {
         src: 'https://fakeimageurl.com/',
-        type: 'image/png',
       },
       attributes: {
         userFullname: 'John Doe'
@@ -66,10 +66,10 @@ describe('Test Translator\n', function() {
 
     let tiledeskChannelMessage = {
       text: 'Video Caption', // can be empty --> ""
+      type: 'video',
       recipient: 'support-group-62c3f10152dc7400352bab0d-86a2293e-c7dc-4e62-89b1-ffe9bba7fd59-wab-104777398965560-393484506627',
       metadata: {
-        src: 'https://fakevideourl.com/',
-        type: 'video/png',
+        src: 'https://fakevideourl.com/'
       },
       attributes: {
         userFullname: 'John Doe'
@@ -97,10 +97,10 @@ describe('Test Translator\n', function() {
 
     let tiledeskChannelMessage = {
       text: 'Document Caption', // can be empty --> ""
+      type: 'application',
       recipient: 'support-group-62c3f10152dc7400352bab0d-86a2293e-c7dc-4e62-89b1-ffe9bba7fd59-wab-104777398965560-tel393484506627',
       metadata: {
-        src: 'https://fakedocumenturl.com/',
-        type: 'application/pdf',
+        src: 'https://fakedocumenturl.com/'
       },
       attributes: {
         userFullname: 'John Doe'
@@ -283,13 +283,13 @@ describe('Test Translator\n', function() {
     assert(tiledeskJsonMessage.senderFullname === fullname);
 
     if (log) {
-      console.log("(test) tiledeskJsonMessage: ", tiledeskJsonMessage);  
+      console.log("(test) tiledeskJsonMessage: ", tiledeskJsonMessage);
     }
-    
+
   })
 
 
- it("Translates a message with QUICK REPLY (button_reply) from Whatsapp to Tiledesk", function() {
+  it("Translates a message with QUICK REPLY (button_reply) from Whatsapp to Tiledesk", function() {
 
     let whatsappChannelMessage = {
       type: "interactive",
@@ -314,7 +314,7 @@ describe('Test Translator\n', function() {
       console.log("(test) tiledeskJsonMessage: ", tiledeskJsonMessage);
     }
   })
-  
+
 
   it("Translates a message with ACTION BUTTON (button_reply) from Whatsapp to Tiledesk", function() {
 
@@ -364,7 +364,7 @@ describe('Test Translator\n', function() {
     const tiledeskJsonMessage = tlr.toTiledesk(fullname, media_url);
     assert(tiledeskJsonMessage != null);
     if (log) {
-      console.log("(test) tiledeskJsonMessage: ", tiledeskJsonMessage);  
+      console.log("(test) tiledeskJsonMessage: ", tiledeskJsonMessage);
     }
   })
 
@@ -384,7 +384,7 @@ describe('Test Translator\n', function() {
     const tiledeskJsonMessage = tlr.toTiledesk(fullname, media_url);
     assert(tiledeskJsonMessage != null);
     if (log) {
-      console.log("(test) tiledeskJsonMessage: ", tiledeskJsonMessage);  
+      console.log("(test) tiledeskJsonMessage: ", tiledeskJsonMessage);
     }
   })
 
@@ -404,9 +404,9 @@ describe('Test Translator\n', function() {
     const tiledeskJsonMessage = tlr.toTiledesk(fullname, media_url);
     assert(tiledeskJsonMessage != null);
     if (log) {
-      console.log("(test) tiledeskJsonMessage: ", tiledeskJsonMessage);  
+      console.log("(test) tiledeskJsonMessage: ", tiledeskJsonMessage);
     }
   })
 
-  
+
 })

@@ -33,7 +33,7 @@ class TiledeskWhatsappTranslator {
       throw new Error('config.channelMessage is mandatory');
     }
     this.channelMessage = config.channelMessage;
-    this.log = false;
+    this.log = true;
     if (config.log) {
       this.log = true;
     }
@@ -63,8 +63,9 @@ class TiledeskWhatsappTranslator {
     }
 
     if (tiledeskChannelMessage.metadata) {
-
-      if (tiledeskChannelMessage.metadata.type.startsWith('image/')) {
+  
+      if (tiledeskChannelMessage.type.startsWith('image')) {
+      //if (tiledeskChannelMessage.metadata.type.startsWith('image/')) {
         var imgUrl = tiledeskChannelMessage.metadata.src;
         whatsapp_message.type = 'image'
         whatsapp_message.image = {
@@ -73,7 +74,8 @@ class TiledeskWhatsappTranslator {
         }
       }
 
-      if (tiledeskChannelMessage.metadata.type.startsWith('video/')) {
+      if (tiledeskChannelMessage.type.startsWith('video')) {
+      //if (tiledeskChannelMessage.metadata.type.startsWith('video/')) {
         var videoUrl = tiledeskChannelMessage.metadata.src;
         whatsapp_message.type = 'document'
         whatsapp_message.document = {
@@ -89,7 +91,8 @@ class TiledeskWhatsappTranslator {
         */
       }
 
-      if (tiledeskChannelMessage.metadata.type.startsWith('application/')) {
+      if (tiledeskChannelMessage.type.startsWith('application')) {
+      //if (tiledeskChannelMessage.metadata.type.startsWith('application/')) {
         var doc = tiledeskChannelMessage.metadata.src;
         whatsapp_message.type = 'document'
         whatsapp_message.document = {
