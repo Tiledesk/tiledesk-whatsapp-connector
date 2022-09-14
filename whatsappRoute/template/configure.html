@@ -23,6 +23,8 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"
         integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd" crossorigin="anonymous">
         </script>
+  
+    <link rel="stylesheet" href="./css/style.css">
 
 </head>
 
@@ -43,7 +45,7 @@
           <div>
             
             <h1 style="margin-top: 0px; margin-bottom: 2px; min-width: 500px;">WhatsApp Business</h1>
-            <h7 style="color: rgb(140, 140, 140);">by Tiledesk (v. 0.1.8)</h7>
+            <h7 style="color: rgb(140, 140, 140);">by Tiledesk (v. 0.1.9)</h7>
 
             {{#if wab_token}}
               <div style="margin-top: 20px;">
@@ -94,9 +96,14 @@
             <form action="./update" method="post">
 
               <div class="form-group" style="width: 490px;">
-                    <label style="margin-bottom: 0px;" for="proxy_url">Webhook Endpoint
-                    <a href="https://gethelp.tiledesk.com/" target="_blank"><span style="margin-left: 10px;"><i class="fa fa-question-circle" style="color: #337ab7;"></i></span></a></label>
-                    <p style="margin-bottom: 5px; font-size: 12px; color: #a7a7a7;">Copy this URL in the Facebook Developer Dashboad. See documentation for more info.</p>
+                    <label for="proxy_url">Webhook Endpoint
+                        <span style="margin-left: 10px;">
+                          <i class="fa fa-question-circle custom-tooltip" style="color: #337ab7;">
+                            <span class="custom-tooltiptext">This is the endpoint to be reached by WhatsApp. Copy it to the Facebook Developer console in "Callback URL" in Whatsapp Configuration. See documention for more info.</span>
+                          </i>
+                        </span>
+                    </label>
+                    <!--<p style="margin-bottom: 5px; font-size: 12px; color: #a7a7a7;">Copy this URL in the Facebook Developer Dashboad. See documentation for more info.</p> -->
                     <div style="display: flex; flex-direction: row; justify-content: space-between">
                         <div style="width: 400px;">
                             <input type="text" readonly class="form-control" name="proxy_url" id="proxy_url"
@@ -117,13 +124,26 @@
                 </div>
 
                 <div class="form-group" style="width: 400px;">
-                    <label for="wab_token">Whatsapp Token</label>
+                    <label for="wab_token">Whatsapp Token
+                    <span style="margin-left: 10px;">
+                          <i class="fa fa-question-circle custom-tooltip" style="color: #337ab7;">
+                            <span class="custom-tooltiptext">Paste it the permanent WhatsApp Business token. See documention for more info.</span>
+                          </i>
+                        </span>
+                    </label>
                     <input type="text" class="form-control" name="wab_token" value="{{ wab_token }}"
                         placeholder="Enter the Whatsapp Token">
                 </div>
 
                 <div class="form-group" style="width: 400px;">
-                    <label for="verify_token">Verify Token</label>
+                    <label for="verify_token">Verify Token
+                    <span style="margin-left: 10px;">
+                          <i class="fa fa-question-circle custom-tooltip" style="color: #337ab7;">
+                            <span class="custom-tooltiptext">This is a verification token of your choice. Copy it to the Facebook Developer console in "Verify Token" in Whatsapp Configuration.
+                              See documention for more info.</span>
+                          </i>
+                        </span>
+                    </label>
                     <input type="password" class="form-control" name="verify_token" value="{{ verify_token }}"
                         placeholder="Enter your Verify Token">
                 </div>

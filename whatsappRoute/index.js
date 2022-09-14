@@ -12,7 +12,7 @@ const bodyParser = require("body-parser");
 const appRoot = require('app-root-path');
 const handlebars = require('handlebars');
 const fs = require('fs');
-//const Path = require('path');
+const path = require('path');
 //const FormData = require('form-data');
 
 // tiledesk clients
@@ -28,6 +28,7 @@ const kvbase_collection = 'kvstore';
 
 router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({ extended: true }));
+router.use(express.static(path.join(__dirname, 'template')));
 
 //const TOKEN = process.env.WHATSAPP_TOKEN;        // From FB DevX getting started page
 //const VERIFY_TOKEN = process.env.VERIFY_TOKEN;   // Arbitrary, used with webhook configuration in FB DevX
