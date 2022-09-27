@@ -395,7 +395,7 @@ router.post("/webhook/:project_id", async (req, res) => {
 
       if (req.body.entry[0].changes[0].value.messages[0].type == "system") {
         console.log("Skip system message")
-        res.sendStatus(200);
+        return res.sendStatus(200);
       }
 
       //let originalWhatsappMessage = req.body;
@@ -499,7 +499,7 @@ router.post("/webhook/:project_id", async (req, res) => {
       }
 
     }
-    res.sendStatus(200); 
+    res.sendStatus(200);
   } else {
     // Return a '404 Not Found' if event is not from a WhatsApp API
     res.sendStatus(404);
