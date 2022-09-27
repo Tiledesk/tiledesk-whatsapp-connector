@@ -1,4 +1,3 @@
-
 class TiledeskWhatsappTranslator {
 
   /**
@@ -6,20 +5,16 @@ class TiledeskWhatsappTranslator {
    *
    * @example
    * const { TiledeskWhatsappTranslator } = require('tiledesk-whatsapp-translator');
-   * const tlr = new TiledeskWhatsappTranslator({channelMessage: replyFromChatbot});
+   * const tlr = new TiledeskWhatsappTranslator();
    * 
    * @param {Object} config JSON configuration.
-   * @param {string} config.channelMessage Mandatory. Tiledesk channel native message
-   * @param {boolean} options.log Optional. If true HTTP requests are logged.
    */
 
   static WHATSAPP_MESSAGING_PRODUCT = "whatsapp";
-  static CHANNEL_NAME = "whatsapp"
+  static CHANNEL_NAME = "whatsapp";
 
-  constructor(config) {
-    if (!config) {
-      throw new Error('config is mandatory');
-    }
+  constructor() {
+    
 
     /*
     if (!config.tiledeskChannelMessage) {
@@ -28,15 +23,9 @@ class TiledeskWhatsappTranslator {
     this.tiledeskChannelMessage = config.tiledeskChannelMessage;
     console.log("this.tiledeskChannelMessage: ", this.tiledeskChannelMessage);
     */
-
-    if (!config.channelMessage) {
-      throw new Error('config.channelMessage is mandatory');
-    }
-    this.channelMessage = config.channelMessage;
+    
     this.log = true;
-    if (config.log) {
-      this.log = true;
-    }
+    
 
   }
 
@@ -46,11 +35,21 @@ class TiledeskWhatsappTranslator {
   ********* WHATSAPP BUSINESS *********
   *************************************
   */
-  toWhatsapp(whatsapp_receiver) {
+
+  /** Returns a Whatsapp  messagem new request ID for the specified Project.<br>
+   * A request's ID has the format:<br>
+   * <br>
+   * <i>support-group-PROJECT_ID-UNIQUE_ID</i><br>
+   * <br>
+   * <i>UNIQUE_ID</i> MUST be unique in your Project. <b>This method always returns an <i>UUID</i> for the <i>UNIQUE_ID</i> component</b>.
+   * 
+   * @param {Object} tiledeskChannelMessage - The message in Tiledesk format.
+   * @param {string} whatsapp_receiver - The Whatsapp recipient fo the message.
+  */
+  toWhatsapp(tiledeskChannelMessage, whatsapp_receiver) {
 
 
     // to --> recipient
-    let tiledeskChannelMessage = this.channelMessage;
     if (this.log) {
       console.log("[Translator] tiledesk message: ", tiledeskChannelMessage)
     }
@@ -287,9 +286,8 @@ class TiledeskWhatsappTranslator {
     }
   }
 
-  toTiledesk(from, media_url) {
+  toTiledesk(whatsappChannelMessage, from, media_url) {
 
-    let whatsappChannelMessage = this.channelMessage;
     if (this.log) {
       console.log("[Translator] whatsapp message: ", whatsappChannelMessage)
     }

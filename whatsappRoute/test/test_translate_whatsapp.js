@@ -10,16 +10,16 @@ describe('Test Translator\n', function() {
   it("Translates a TEXT message from Tiledesk to Whatsapp", function() {
     let tiledeskChannelMessage = {
       text: 'Test Message',
-      recipient: 'support-group-62c3f10152dc7400352bab0d-86a2293e-c7dc-4e62-89b1-ffe9bba7fd59-wab-104777398965560-tel393484506627',
+      recipient: 'support-group-62c3f10152dc7400352bab0d-86a2293e-wab-104777398965560-393484506627',
       attributes: {
         userFullname: 'John Doe'
       }
     }
     let whatsapp_receiver = tiledeskChannelMessage.recipient.substring(tiledeskChannelMessage.recipient.lastIndexOf("tel") + 1)
 
-    const tlr = new TiledeskWhatsappTranslator({ channelMessage: tiledeskChannelMessage });
+    const tlr = new TiledeskWhatsappTranslator();
     assert(tlr != null);
-    const whatsappJsonMessage = tlr.toWhatsapp(whatsapp_receiver);
+    const whatsappJsonMessage = tlr.toWhatsapp(tiledeskChannelMessage, whatsapp_receiver);
     assert(whatsappJsonMessage != null);
     assert(whatsappJsonMessage.messaging_product === TiledeskWhatsappTranslator.WHATSAPP_MESSAGING_PRODUCT);
     assert(whatsappJsonMessage.to === whatsapp_receiver);
@@ -36,7 +36,7 @@ describe('Test Translator\n', function() {
     let tiledeskChannelMessage = {
       text: 'Image Caption', // can be empty --> ""
       type: 'image',
-      recipient: 'support-group-62c3f10152dc7400352bab0d-86a2293e-c7dc-4e62-89b1-ffe9bba7fd59-wab-104777398965560-tel393484506627',
+      recipient: 'support-group-62c3f10152dc7400352bab0d-86a2293e-wab-104777398965560-393484506627',
       metadata: {
         src: 'https://fakeimageurl.com/',
       },
@@ -46,9 +46,9 @@ describe('Test Translator\n', function() {
     }
     let whatsapp_receiver = tiledeskChannelMessage.recipient.substring(tiledeskChannelMessage.recipient.lastIndexOf("tel") + 3)
 
-    const tlr = new TiledeskWhatsappTranslator({ channelMessage: tiledeskChannelMessage });
+    const tlr = new TiledeskWhatsappTranslator();
     assert(tlr != null);
-    const whatsappJsonMessage = tlr.toWhatsapp(whatsapp_receiver);
+    const whatsappJsonMessage = tlr.toWhatsapp(tiledeskChannelMessage, whatsapp_receiver);
     assert(whatsappJsonMessage != null);
     assert(whatsappJsonMessage.messaging_product === TiledeskWhatsappTranslator.WHATSAPP_MESSAGING_PRODUCT);
     assert(whatsappJsonMessage.to === whatsapp_receiver);
@@ -67,7 +67,7 @@ describe('Test Translator\n', function() {
     let tiledeskChannelMessage = {
       text: 'Video Caption', // can be empty --> ""
       type: 'video',
-      recipient: 'support-group-62c3f10152dc7400352bab0d-86a2293e-c7dc-4e62-89b1-ffe9bba7fd59-wab-104777398965560-393484506627',
+      recipient: 'support-group-62c3f10152dc7400352bab0d-86a2293e-wab-104777398965560-393484506627',
       metadata: {
         src: 'https://fakevideourl.com/'
       },
@@ -77,9 +77,9 @@ describe('Test Translator\n', function() {
     }
     let whatsapp_receiver = tiledeskChannelMessage.recipient.substring(tiledeskChannelMessage.recipient.lastIndexOf("tel") + 3)
 
-    const tlr = new TiledeskWhatsappTranslator({ channelMessage: tiledeskChannelMessage });
+    const tlr = new TiledeskWhatsappTranslator();
     assert(tlr != null);
-    const whatsappJsonMessage = tlr.toWhatsapp(whatsapp_receiver);
+    const whatsappJsonMessage = tlr.toWhatsapp(tiledeskChannelMessage, whatsapp_receiver);
     assert(whatsappJsonMessage != null);
     assert(whatsappJsonMessage.messaging_product === TiledeskWhatsappTranslator.WHATSAPP_MESSAGING_PRODUCT);
     assert(whatsappJsonMessage.to === whatsapp_receiver);
@@ -98,7 +98,7 @@ describe('Test Translator\n', function() {
     let tiledeskChannelMessage = {
       text: 'Document Caption', // can be empty --> ""
       type: 'application',
-      recipient: 'support-group-62c3f10152dc7400352bab0d-86a2293e-c7dc-4e62-89b1-ffe9bba7fd59-wab-104777398965560-tel393484506627',
+      recipient: 'support-group-62c3f10152dc7400352bab0d-86a2293e-wab-104777398965560-393484506627',
       metadata: {
         src: 'https://fakedocumenturl.com/'
       },
@@ -108,9 +108,9 @@ describe('Test Translator\n', function() {
     }
     let whatsapp_receiver = tiledeskChannelMessage.recipient.substring(tiledeskChannelMessage.recipient.lastIndexOf("tel") + 3)
 
-    const tlr = new TiledeskWhatsappTranslator({ channelMessage: tiledeskChannelMessage });
+    const tlr = new TiledeskWhatsappTranslator();
     assert(tlr != null);
-    const whatsappJsonMessage = tlr.toWhatsapp(whatsapp_receiver);
+    const whatsappJsonMessage = tlr.toWhatsapp(tiledeskChannelMessage, whatsapp_receiver);
     assert(whatsappJsonMessage != null);
     assert(whatsappJsonMessage.messaging_product === TiledeskWhatsappTranslator.WHATSAPP_MESSAGING_PRODUCT);
     assert(whatsappJsonMessage.to === whatsapp_receiver);
@@ -128,7 +128,7 @@ describe('Test Translator\n', function() {
 
     let tiledeskChannelMessage = {
       text: 'Test Message',
-      recipient: 'support-group-62c3f10152dc7400352bab0d-86a2293e-c7dc-4e62-89b1-ffe9bba7fd59-wab-104777398965560-tel393484506627',
+      recipient: 'support-group-62c3f10152dc7400352bab0d-86a2293e-wab-104777398965560-393484506627',
       attributes: {
         attachment: {
           buttons: [
@@ -141,9 +141,9 @@ describe('Test Translator\n', function() {
     }
     let whatsapp_receiver = tiledeskChannelMessage.recipient.substring(tiledeskChannelMessage.recipient.lastIndexOf("tel") + 3)
 
-    const tlr = new TiledeskWhatsappTranslator({ channelMessage: tiledeskChannelMessage });
+    const tlr = new TiledeskWhatsappTranslator();
     assert(tlr != null);
-    const whatsappJsonMessage = tlr.toWhatsapp(whatsapp_receiver);
+    const whatsappJsonMessage = tlr.toWhatsapp(tiledeskChannelMessage, whatsapp_receiver);
     assert(whatsappJsonMessage != null);
     assert(whatsappJsonMessage.messaging_product === TiledeskWhatsappTranslator.WHATSAPP_MESSAGING_PRODUCT);
     assert(!whatsappJsonMessage.text);
@@ -166,7 +166,7 @@ describe('Test Translator\n', function() {
 
     let tiledeskChannelMessage = {
       text: 'Test Message',
-      recipient: 'support-group-62c3f10152dc7400352bab0d-86a2293e-c7dc-4e62-89b1-ffe9bba7fd59-wab-104777398965560-tel393484506627',
+      recipient: 'support-group-62c3f10152dc7400352bab0d-86a2293e-wab-104777398965560-393484506627',
       attributes: {
         attachment: {
           buttons: [
@@ -179,11 +179,11 @@ describe('Test Translator\n', function() {
         }
       }
     }
-    let whatsapp_receiver = tiledeskChannelMessage.recipient.substring(tiledeskChannelMessage.recipient.lastIndexOf("tel") + 3)
+    let whatsapp_receiver = tiledeskChannelMessage.recipient.substring(tiledeskChannelMessage.recipient.lastIndexOf("-") + 1)
 
-    const tlr = new TiledeskWhatsappTranslator({ channelMessage: tiledeskChannelMessage });
+    const tlr = new TiledeskWhatsappTranslator();
     assert(tlr != null);
-    const whatsappJsonMessage = tlr.toWhatsapp(whatsapp_receiver);
+    const whatsappJsonMessage = tlr.toWhatsapp(tiledeskChannelMessage, whatsapp_receiver);
     assert(whatsappJsonMessage != null);
     assert(whatsappJsonMessage.messaging_product === TiledeskWhatsappTranslator.WHATSAPP_MESSAGING_PRODUCT);
     assert(!whatsappJsonMessage.text);
@@ -214,9 +214,9 @@ describe('Test Translator\n', function() {
     }
     let fullname = "John Doe"; // from whatsapp contacts
 
-    const tlr = new TiledeskWhatsappTranslator({ channelMessage: whatsappChannelMessage });
+    const tlr = new TiledeskWhatsappTranslator();
     assert(tlr != null);
-    const tiledeskJsonMessage = tlr.toTiledesk(fullname, null)
+    const tiledeskJsonMessage = tlr.toTiledesk(whatsappChannelMessage, fullname, null)
     assert(tiledeskJsonMessage != null);
     assert(tiledeskJsonMessage.channel.name === TiledeskWhatsappTranslator.CHANNEL_NAME);
     assert(tiledeskJsonMessage.text === whatsappChannelMessage.text.body);
@@ -241,9 +241,9 @@ describe('Test Translator\n', function() {
     }
     let fullname = "John Doe"; // from whatsapp contacts
 
-    const tlr = new TiledeskWhatsappTranslator({ channelMessage: whatsappChannelMessage });
+    const tlr = new TiledeskWhatsappTranslator();
     assert(tlr != null);
-    const tiledeskJsonMessage = tlr.toTiledesk(fullname, null)
+    const tiledeskJsonMessage = tlr.toTiledesk(whatsappChannelMessage, fullname, null)
     assert(tiledeskJsonMessage != null);
     assert(tiledeskJsonMessage.channel.name === TiledeskWhatsappTranslator.CHANNEL_NAME);
     assert(tiledeskJsonMessage.text === whatsappChannelMessage.interactive.list_reply.title);
@@ -268,9 +268,9 @@ describe('Test Translator\n', function() {
     }
     let fullname = "John Doe"; // from whatsapp contacts
 
-    const tlr = new TiledeskWhatsappTranslator({ channelMessage: whatsappChannelMessage });
+    const tlr = new TiledeskWhatsappTranslator();
     assert(tlr != null);
-    const tiledeskJsonMessage = tlr.toTiledesk(fullname, null)
+    const tiledeskJsonMessage = tlr.toTiledesk(whatsappChannelMessage, fullname, null)
     assert(tiledeskJsonMessage != null);
     assert(tiledeskJsonMessage.channel.name === TiledeskWhatsappTranslator.CHANNEL_NAME);
     assert(tiledeskJsonMessage.text === ' ');
@@ -303,9 +303,9 @@ describe('Test Translator\n', function() {
     }
     let fullname = "John Doe"; // from whatsapp contacts
 
-    const tlr = new TiledeskWhatsappTranslator({ channelMessage: whatsappChannelMessage });
+    const tlr = new TiledeskWhatsappTranslator();
     assert(tlr != null);
-    const tiledeskJsonMessage = tlr.toTiledesk(fullname, null)
+    const tiledeskJsonMessage = tlr.toTiledesk(whatsappChannelMessage, fullname, null)
     assert(tiledeskJsonMessage != null);
     assert(tiledeskJsonMessage.channel.name === TiledeskWhatsappTranslator.CHANNEL_NAME);
     assert(tiledeskJsonMessage.text === whatsappChannelMessage.interactive.button_reply.title);
@@ -330,9 +330,9 @@ describe('Test Translator\n', function() {
     }
     let fullname = "John Doe"; // from whatsapp contacts
 
-    const tlr = new TiledeskWhatsappTranslator({ channelMessage: whatsappChannelMessage });
+    const tlr = new TiledeskWhatsappTranslator();
     assert(tlr != null);
-    const tiledeskJsonMessage = tlr.toTiledesk(fullname, null)
+    const tiledeskJsonMessage = tlr.toTiledesk(whatsappChannelMessage, fullname, null)
     assert(tiledeskJsonMessage != null);
     assert(tiledeskJsonMessage.channel.name === TiledeskWhatsappTranslator.CHANNEL_NAME);
     assert(tiledeskJsonMessage.text === ' ');
@@ -359,9 +359,9 @@ describe('Test Translator\n', function() {
     let fullname = "John Doe";
     let media_url = "https://fakeimageurl.com/"
 
-    const tlr = new TiledeskWhatsappTranslator({ channelMessage: whatsappChannelMessage });
+    const tlr = new TiledeskWhatsappTranslator();
     assert(tlr != null);
-    const tiledeskJsonMessage = tlr.toTiledesk(fullname, media_url);
+    const tiledeskJsonMessage = tlr.toTiledesk(whatsappChannelMessage, fullname, media_url);
     assert(tiledeskJsonMessage != null);
     if (log) {
       console.log("(test) tiledeskJsonMessage: ", tiledeskJsonMessage);
@@ -379,9 +379,9 @@ describe('Test Translator\n', function() {
     let fullname = "John Doe";
     let media_url = "https://fakeimageurl.com/"
 
-    const tlr = new TiledeskWhatsappTranslator({ channelMessage: whatsappChannelMessage });
+    const tlr = new TiledeskWhatsappTranslator();
     assert(tlr != null);
-    const tiledeskJsonMessage = tlr.toTiledesk(fullname, media_url);
+    const tiledeskJsonMessage = tlr.toTiledesk(whatsappChannelMessage, fullname, media_url);
     assert(tiledeskJsonMessage != null);
     if (log) {
       console.log("(test) tiledeskJsonMessage: ", tiledeskJsonMessage);
@@ -399,9 +399,9 @@ describe('Test Translator\n', function() {
     let fullname = "John Doe";
     let media_url = "https://fakedocumenturl.com/"
 
-    const tlr = new TiledeskWhatsappTranslator({ channelMessage: whatsappChannelMessage });
+    const tlr = new TiledeskWhatsappTranslator();
     assert(tlr != null);
-    const tiledeskJsonMessage = tlr.toTiledesk(fullname, media_url);
+    const tiledeskJsonMessage = tlr.toTiledesk(whatsappChannelMessage, fullname, media_url);
     assert(tiledeskJsonMessage != null);
     if (log) {
       console.log("(test) tiledeskJsonMessage: ", tiledeskJsonMessage);

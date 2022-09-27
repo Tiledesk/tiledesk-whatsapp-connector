@@ -341,9 +341,9 @@ router.post('/tiledesk', async (req, res) => {
   let phone_number_id = recipient_id.substring(recipient_id.lastIndexOf("wab-") + 4, recipient_id.lastIndexOf("-"));
   console.log("(Tiledesk) phone_number_id: ", phone_number_id)
 
-  const tlr = new TiledeskWhatsappTranslator({ channelMessage: tiledeskChannelMessage });
+  const tlr = new TiledeskWhatsappTranslator();
 
-  const whatsappJsonMessage = tlr.toWhatsapp(whatsapp_receiver);
+  const whatsappJsonMessage = tlr.toWhatsapp(tiledeskChannelMessage, whatsapp_receiver);
   console.log("whatsappJsonMessage: ", whatsappJsonMessage);
 
   if (whatsappJsonMessage) {
@@ -363,7 +363,7 @@ router.post('/tiledesk', async (req, res) => {
     })
     */
   } else {
-    console.error("Whatsapp Json Message is mandatory!")
+    console.error("Whatsapp Json Message is undefined!")
   }
   // richiamo toWhatsapp;
   // sendMessage
@@ -393,8 +393,14 @@ router.post("/webhook/:project_id", async (req, res) => {
 
       console.log("\n***Body: ", JSON.stringify(req.body, null, 2));
 
+      if (req.body.entry[0].changes[0].value.messages[0].type == "system") {
+        console.log("Skip system message")
+        res.sendStatus(200);
+      }
+
       //let originalWhatsappMessage = req.body;
       let whatsappChannelMessage = req.body.entry[0].changes[0].value.messages[0];
+
 
       let firstname = req.body.entry[0].changes[0].value.contacts[0].profile.name;
       console.log("(WAB) firstname: ", firstname)
@@ -424,16 +430,16 @@ router.post("/webhook/:project_id", async (req, res) => {
 
       let tiledeskJsonMessage;
 
-      const tlr = new TiledeskWhatsappTranslator({ channelMessage: whatsappChannelMessage });
+      const tlr = new TiledeskWhatsappTranslator();
 
       if ((whatsappChannelMessage.type == 'text')) {
         console.log("message type text")
-        tiledeskJsonMessage = tlr.toTiledesk(firstname);
+        tiledeskJsonMessage = tlr.toTiledesk(whatsappChannelMessage, firstname);
 
       }
       else if (whatsappChannelMessage.type == 'interactive') {
         console.log("message type interactive")
-        tiledeskJsonMessage = tlr.toTiledesk(firstname);
+        tiledeskJsonMessage = tlr.toTiledesk(whatsappChannelMessage, firstname);
 
       }
       else if ((whatsappChannelMessage.type == 'image') || (whatsappChannelMessage.type == 'video') || (whatsappChannelMessage.type == 'document')) {
@@ -450,7 +456,7 @@ router.post("/webhook/:project_id", async (req, res) => {
           const image_url = await util.uploadMedia(filename, "images");
           console.log("image_url: ", image_url)
 
-          tiledeskJsonMessage = tlr.toTiledesk(firstname, image_url);
+          tiledeskJsonMessage = tlr.toTiledesk(whatsappChannelMessage, firstname, image_url);
 
         }
 
@@ -463,7 +469,7 @@ router.post("/webhook/:project_id", async (req, res) => {
           const media_url = await util.uploadMedia(filename, "files");
           console.log("image_url: ", media_url)
 
-          tiledeskJsonMessage = tlr.toTiledesk(firstname, media_url);
+          tiledeskJsonMessage = tlr.toTiledesk(whatsappChannelMessage, firstname, media_url);
         }
 
         if (whatsappChannelMessage.type == 'document') {
@@ -475,7 +481,7 @@ router.post("/webhook/:project_id", async (req, res) => {
           const media_url = await util.uploadMedia(filename, "files");
           console.log("image_url: ", media_url)
 
-          tiledeskJsonMessage = tlr.toTiledesk(firstname, media_url);
+          tiledeskJsonMessage = tlr.toTiledesk(whatsappChannelMessage, firstname, media_url);
         }
 
       } else {
@@ -493,7 +499,7 @@ router.post("/webhook/:project_id", async (req, res) => {
       }
 
     }
-    res.sendStatus(200);
+    res.sendStatus(200); 
   } else {
     // Return a '404 Not Found' if event is not from a WhatsApp API
     res.sendStatus(404);
