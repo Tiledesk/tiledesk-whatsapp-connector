@@ -122,7 +122,24 @@ class TiledeskWhatsappTranslator {
             }
           }
 
-          if (buttons_count < 4) {
+          if (buttons_count == 0) {
+
+            for (let btn of buttons) {
+              if (btn.type == 'url') {
+                text = text + "\n\n👉 " + btn.value + " (" + btn.link + ")"
+              }
+            }
+
+            whatsapp_message.text = { body: text };
+
+            if (this.log) {
+              console.log("[Translator] whatsapp message: ", whatsapp_message)
+            }
+            return whatsapp_message;
+            
+          }
+
+          if (buttons_count > 0 && buttons_count < 4) {
 
             for (let btn of buttons) {
               let title = (btn.value.length > 20) ? btn.value.substr(0, 18) + '..' : btn.value;

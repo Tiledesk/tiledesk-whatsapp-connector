@@ -33,7 +33,7 @@ class TiledeskWhatsapp {
     // this.media = config.channelMedia;
     this.token = config.token;
     this.GRAPH_URL = config.GRAPH_URL
-    
+
     this.log = false;
     if (config.log) {
       this.log = config.log;
@@ -42,11 +42,11 @@ class TiledeskWhatsapp {
 
   async sendMessage(phone_number_id, message) {
     if (this.log) {
-      console.log("[Tiledesk Whatsapp] Sending message...", message);  
+      console.log("[Tiledesk Whatsapp] Sending message...", message);
     } else {
-      console.log("[Tiledesk Whatsapp] Sending message...");  
+      console.log("[Tiledesk Whatsapp] Sending message...");
     }
-    
+
     return await axios({
       url: this.GRAPH_URL + phone_number_id + "/messages?access_token=" + this.token,
       headers: {
@@ -65,7 +65,7 @@ class TiledeskWhatsapp {
 
   async downloadMedia(mediaId) {
     if (this.log) {
-      console.log("[Tiledesk Whatsapp] Download media with id: ", mediaId);  
+      console.log("[Tiledesk Whatsapp] Download media with id: ", mediaId);
     }
 
     return await axios({
@@ -75,7 +75,7 @@ class TiledeskWhatsapp {
         'Authorization': "Bearer " + this.token
       }
     }).then(async (response) => {
-      console.log("response 1: ", response.data)
+      console.log("response: ", response.data)
 
       let download_url = response.data.url;
       let mime_type = response.data.mime_type;
@@ -85,7 +85,7 @@ class TiledeskWhatsapp {
 
       let example_path = path.join(__dirname, '..', 'tmp', type);
       console.log("read file: ", example_path)
-            
+
       const writeStream = fs.createWriteStream(example_path);
       console.log("[Tiledesk Whatsapp] Downloading file...");
 
@@ -98,7 +98,6 @@ class TiledeskWhatsapp {
         responseType: 'stream'
       }).then((response) => {
 
-        console.log("response 2: ", response.data)
         return new Promise((resolve, reject) => {
           response.data.pipe(writeStream);
           let error = null;
@@ -116,7 +115,7 @@ class TiledeskWhatsapp {
           })
         })
       }).catch((err) => {
-        console.log("axios err: ", err);  
+        console.log("axios err: ", err);
       })
     }).catch((err) => {
       console.log("axios err: ", err);
@@ -153,7 +152,7 @@ class TiledeskWhatsapp {
     })
   }
 
-  
+
   // HTTP REQUEST
   static async myrequest(options, callback, log) {
     if (this.log) {
@@ -178,7 +177,7 @@ class TiledeskWhatsapp {
       }
       else {
         if (callback) {
-          callback(TiledeskClient.getErr({message: "Response status not 200"}, options, res), null, null);
+          callback(TiledeskClient.getErr({ message: "Response status not 200" }, options, res), null, null);
         }
       }
     }).catch((err) => {

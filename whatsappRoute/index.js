@@ -343,7 +343,7 @@ router.post('/tiledesk', async (req, res) => {
 
   const tlr = new TiledeskWhatsappTranslator();
 
-  const whatsappJsonMessage = tlr.toWhatsapp(tiledeskChannelMessage, whatsapp_receiver);
+  let whatsappJsonMessage = await tlr.toWhatsapp(tiledeskChannelMessage, whatsapp_receiver);
   console.log("whatsappJsonMessage: ", whatsappJsonMessage);
 
   if (whatsappJsonMessage) {
