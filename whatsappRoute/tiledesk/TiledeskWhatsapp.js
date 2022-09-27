@@ -1,6 +1,7 @@
 const axios = require("axios").default;
 const fs = require('fs');
 const FormData = require('form-data');
+const path = require('path');
 
 class TiledeskWhatsapp {
 
@@ -74,7 +75,7 @@ class TiledeskWhatsapp {
         'Authorization': "Bearer " + this.token
       }
     }).then(async (response) => {
-      console.log("response: ", response.data);
+      console.log("response 1: ", response.data)
 
       let download_url = response.data.url;
       let mime_type = response.data.mime_type;
@@ -82,7 +83,10 @@ class TiledeskWhatsapp {
       let tid = this.getId();
       let type = "media-" + tid + "." + extension;
 
-      const writeStream = fs.createWriteStream('tmp/' + type);
+      let example_path = path.join(__dirname, '..', 'tmp', type);
+      console.log("read file: ", example_path)
+            
+      const writeStream = fs.createWriteStream(example_path);
       console.log("[Tiledesk Whatsapp] Downloading file...");
 
       return await axios({
@@ -94,6 +98,7 @@ class TiledeskWhatsapp {
         responseType: 'stream'
       }).then((response) => {
 
+        console.log("response 2: ", response.data)
         return new Promise((resolve, reject) => {
           response.data.pipe(writeStream);
           let error = null;
@@ -106,7 +111,7 @@ class TiledeskWhatsapp {
           writeStream.on('close', () => {
             if (!error) {
               console.log("[Tiledesk Whatsapp] Download completed")
-              resolve('tmp/' + type);
+              resolve(type);
             }
           })
         })

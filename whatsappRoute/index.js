@@ -452,8 +452,9 @@ router.post("/webhook/:project_id", async (req, res) => {
 
           const filename = await util.downloadMedia(media.id);
           console.log("File position: ", filename);
+          let file_path = path.join(__dirname, 'tmp', filename);
 
-          const image_url = await util.uploadMedia(filename, "images");
+          const image_url = await util.uploadMedia(file_path, "images");
           console.log("image_url: ", image_url)
 
           tiledeskJsonMessage = tlr.toTiledesk(whatsappChannelMessage, firstname, image_url);
@@ -465,8 +466,10 @@ router.post("/webhook/:project_id", async (req, res) => {
 
           const filename = await util.downloadMedia(media.id);
           console.log("File position: ", filename);
+          let file_path = path.join(__dirname, 'tmp', filename);
 
-          const media_url = await util.uploadMedia(filename, "files");
+          
+          const media_url = await util.uploadMedia(file_path, "files");
           console.log("image_url: ", media_url)
 
           tiledeskJsonMessage = tlr.toTiledesk(whatsappChannelMessage, firstname, media_url);
@@ -477,8 +480,9 @@ router.post("/webhook/:project_id", async (req, res) => {
 
           const filename = await util.downloadMedia(media.id);
           console.log("File position: ", filename);
+          let file_path = path.join(__dirname, 'tmp', filename);
 
-          const media_url = await util.uploadMedia(filename, "files");
+          const media_url = await util.uploadMedia(file_path, "files");
           console.log("image_url: ", media_url)
 
           tiledeskJsonMessage = tlr.toTiledesk(whatsappChannelMessage, firstname, media_url);
