@@ -63,7 +63,7 @@ class TiledeskWhatsappTranslator {
 
     if (tiledeskChannelMessage.metadata) {
   
-      if (tiledeskChannelMessage.type.startsWith('image')) {
+      if (tiledeskChannelMessage.metadata.type.startsWith('image')) {
       //if (tiledeskChannelMessage.metadata.type.startsWith('image/')) {
         var imgUrl = tiledeskChannelMessage.metadata.src;
         whatsapp_message.type = 'image'
@@ -71,9 +71,9 @@ class TiledeskWhatsappTranslator {
           link: imgUrl,
           caption: text
         }
-      }
+      } 
 
-      if (tiledeskChannelMessage.type.startsWith('video')) {
+      else if (tiledeskChannelMessage.metadata.type.startsWith('video')) {
       //if (tiledeskChannelMessage.metadata.type.startsWith('video/')) {
         var videoUrl = tiledeskChannelMessage.metadata.src;
         whatsapp_message.type = 'document'
@@ -90,14 +90,19 @@ class TiledeskWhatsappTranslator {
         */
       }
 
-      if (tiledeskChannelMessage.type.startsWith('application')) {
+      else if (tiledeskChannelMessage.metadata.type.startsWith('application')) {
       //if (tiledeskChannelMessage.metadata.type.startsWith('application/')) {
         var doc = tiledeskChannelMessage.metadata.src;
         whatsapp_message.type = 'document'
         whatsapp_message.document = {
           link: doc,
-          caption: text
+          caption: tiledeskChannelMessage.metadata.name
         }
+      }
+
+      else {
+        console.log("file type not supported")
+        return null
       }
 
       if (this.log) {
@@ -299,7 +304,15 @@ class TiledeskWhatsappTranslator {
 
     } else {
       // Skip message - non si deve fare qui!
-      return null
+      whatsapp_message.text = { body: text };
+
+      if (this.log) {
+        console.log("[Translator] whatsapp message: ", whatsapp_message)
+      }
+      return whatsapp_message;
+
+      
+      //return null
     }
   }
 
