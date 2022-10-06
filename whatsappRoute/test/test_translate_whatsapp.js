@@ -71,7 +71,8 @@ describe('Test Translator\n', function() {
       recipient: 'support-group-62c3f10152dc7400352bab0d-86a2293e-wab-104777398965560-393484506627',
       metadata: {
         src: 'https://fakevideourl.com/',
-        type: 'video/mp4'
+        type: 'video/mp4',
+        name: 'fakevideo.mp4'
       },
       attributes: {
         userFullname: 'John Doe'
@@ -86,9 +87,9 @@ describe('Test Translator\n', function() {
     assert(whatsappJsonMessage.messaging_product === TiledeskWhatsappTranslator.WHATSAPP_MESSAGING_PRODUCT);
     assert(whatsappJsonMessage.to === whatsapp_receiver);
     assert(!whatsappJsonMessage.text);
-    assert(whatsappJsonMessage.document);
-    assert(whatsappJsonMessage.document.link === tiledeskChannelMessage.metadata.src);
-    assert(whatsappJsonMessage.document.caption === tiledeskChannelMessage.text);
+    assert(whatsappJsonMessage.video);
+    assert(whatsappJsonMessage.video.link === tiledeskChannelMessage.metadata.src);
+    assert(whatsappJsonMessage.video.caption === tiledeskChannelMessage.metadata.name);
     if (log) {
       console.log("(test) whatsappJsonMessage: ", whatsappJsonMessage);
     }
@@ -103,7 +104,7 @@ describe('Test Translator\n', function() {
       recipient: 'support-group-62c3f10152dc7400352bab0d-86a2293e-wab-104777398965560-393484506627',
       metadata: {
         src: 'https://fakedocumenturl.com/',
-        name: "Document name",
+        name: "fakedocument.pdf",
         type: 'application/pdf'
       },
       attributes: {
