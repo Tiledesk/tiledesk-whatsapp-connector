@@ -12,6 +12,7 @@ const BASE_URL = process.env.BASE_URL;
 const API_URL = process.env.API_URL;
 const GRAPH_URL = process.env.GRAPH_URL;
 const MONGODB_URL = process.env.MONGODB_URL;
+const APPS_API_URL = process.env.APPS_API_URL;
 const log = false;
 
 whatsapp.startApp(
@@ -20,6 +21,7 @@ whatsapp.startApp(
     API_URL: API_URL,
     GRAPH_URL: GRAPH_URL,
     BASE_URL: BASE_URL,
+    APPS_API_URL: APPS_API_URL,
     log: log
   }, () => {
     console.log("Whatsapp route succesfully started.")

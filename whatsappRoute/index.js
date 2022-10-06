@@ -3,17 +3,10 @@ const express = require("express");
 const app = express();
 const router = express.Router();
 const bodyParser = require("body-parser");
-//const request = require("request");
-//const multer = require('multer');
-//const jwt = require('jsonwebtoken');
-//const { v4: uuidv4 } = require('uuid');
-//const axios = require("axios").default;
-//const mongoose = require("mongoose");
 const appRoot = require('app-root-path');
 const handlebars = require('handlebars');
 const fs = require('fs');
 const path = require('path');
-//const FormData = require('form-data');
 
 // tiledesk clients
 const { TiledeskClient } = require('@tiledesk/tiledesk-client');
@@ -21,6 +14,7 @@ const { TiledeskWhatsappTranslator } = require('./tiledesk/TiledeskWhatsappTrans
 const { TiledeskSubscriptionClient } = require('./tiledesk/TiledeskSubscriptionClient');
 const { TiledeskWhatsapp } = require('./tiledesk/TiledeskWhatsapp');
 const { TiledeskChannel } = require('./tiledesk/TiledeskChannel');
+const { TiledeskAppsClient } = require('./tiledesk/TiledeskAppsClient');
 
 // mongo
 const { KVBaseMongo } = require('@tiledesk/tiledesk-kvbasemongo');
@@ -30,34 +24,140 @@ router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({ extended: true }));
 router.use(express.static(path.join(__dirname, 'template')));
 
-//const TOKEN = process.env.WHATSAPP_TOKEN;        // From FB DevX getting started page
-//const VERIFY_TOKEN = process.env.VERIFY_TOKEN;   // Arbitrary, used with webhook configuration in FB DevX
-//const BASE_URL = process.env.BASE_URL;
-//const API_URL = process.env.API_URL;
-//const project_id = process.env.PROJECT_ID;
-//const token_jwt = process.env.TOKEN_JWT
-//const GRAPH_URL = process.env.GRAPH_URL;
-//const MONGODB_URL = process.env.MONGODB_URL;
-
-
 var API_URL = null;
 var GRAPH_URL = null;
 var BASE_URL = null;
+var APPS_API_URL = null;
 var log = true;
 
 const db = new KVBaseMongo(kvbase_collection);
-/*
-db.connect(MONGODB_URL, () => {
-  console.log("KVBaseMongo successfully connected.");
-  var server = app.listen(process.env.PORT || 1337, function() {
-    var port = server.address().port;
-    console.log("App now running on port", port);
-  });
-})
-*/
 
 router.get('/', async (req, res) => {
   res.send('Home works!')
+})
+
+router.get('/detail', async (req, res) => {
+
+  let projectId = req.query.project_id;
+  let token = req.query.token;
+  let app_id = req.query.app_id;
+
+  const appClient = new TiledeskAppsClient({ APPS_API_URL: APPS_API_URL });
+  let installation = await appClient.getInstallations(projectId, app_id);
+
+  let installed = false;
+  if (installation) {
+    installed = true;
+  }
+
+  readHTMLFile('/detail.html', (err, html) => {
+    if (err) {
+      console.log("(ERROR) Read html file: ", err);
+    }
+
+    var template = handlebars.compile(html);
+    var replacements = {
+      project_id: projectId,
+      token: token,
+      app_id: app_id,
+      installed: installed
+    }
+    if (log) {
+      console.log("Replacements: ", replacements);
+    }
+    var html = template(replacements);
+    res.send(html);
+  })
+})
+
+router.post('/install', async (req, res) => {
+
+  let project_id = req.body.project_id;
+  let app_id = req.body.app_id;
+  let token = req.body.token;
+
+  console.log("Install app " + app_id + " for project id " + project_id);
+  let installation_info = {
+    project_id: project_id,
+    app_id: app_id,
+    createdAt: Date.now()
+  };
+
+  console.log("installation info: ", installation_info)
+
+  const appClient = new TiledeskAppsClient({ APPS_API_URL: APPS_API_URL });
+  //let installation = await appClient.install(installation_info);
+  appClient.install(installation_info).then((installation) => {
+
+    if (log) {
+      console.log("installation response: ", installation);
+    }
+
+    let installed = true;
+
+    readHTMLFile('/detail.html', (err, html) => {
+      if (err) {
+        console.log("(ERROR) Read html file: ", err);
+      }
+
+      var template = handlebars.compile(html);
+      var replacements = {
+        project_id: project_id,
+        token: token,
+        app_id: app_id,
+        installed: installed
+      }
+      if (log) {
+        console.log("Replacements: ", replacements);
+      }
+      var html = template(replacements);
+      res.send(html);
+    })
+
+  }).catch((err) => {
+    console.error("installation error: ", err.data)
+    res.send("An error occurred during the installation");
+  })
+
+})
+
+router.post('/uninstall', async (req, res) => {
+  let project_id = req.body.project_id;
+  let app_id = req.body.app_id;
+  let token = req.body.token;
+
+  const appClient = new TiledeskAppsClient({ APPS_API_URL: APPS_API_URL });
+  appClient.uninstall(project_id, app_id).then((response) => {
+
+    if (log) {
+      console.log("uninstallation response: ", response);
+    }
+
+    let installed = false;
+
+    readHTMLFile('/detail.html', (err, html) => {
+      if (err) {
+        console.log("(ERROR) Read html file: ", err);
+      }
+
+      var template = handlebars.compile(html);
+      var replacements = {
+        project_id: project_id,
+        token: token,
+        app_id: app_id,
+        installed: installed
+      }
+      if (log) {
+        console.log("Replacements: ", replacements);
+      }
+      var html = template(replacements);
+      res.send(html);
+    })
+
+  }).catch((err) => {
+    console.error("uninsallation error: ", err.data)
+    res.send("An error occurred during the uninstallation");
+  })
 })
 
 router.get('/configure', async (req, res) => {
@@ -468,7 +568,7 @@ router.post("/webhook/:project_id", async (req, res) => {
           console.log("File position: ", filename);
           let file_path = path.join(__dirname, 'tmp', filename);
 
-          
+
           const media_url = await util.uploadMedia(file_path, "files");
           console.log("image_url: ", media_url)
 
@@ -583,29 +683,36 @@ function startApp(settings, callback) {
     console.log("GRAPH_URL: ", GRAPH_URL);
   }
 
-  if (settings.log) {
-    log = settings.log;
-  }
-
-  db.connect(settings.MONGODB_URL, () => {
-    console.log("KVBaseMongo successfully connected.");
-    if (callback) {
-      callback();
+    if (!settings.APPS_API_URL) {
+      throw new Error("settings.APPS_API_URL is mandatory");
+    } else {
+      APPS_API_URL = settings.APPS_API_URL;
+      console.log("APPS_API_URL: ", APPS_API_URL);
     }
-  })
-}
 
-function readHTMLFile(templateName, callback) {
-  console.log("Reading file: ", templateName)
-  fs.readFile(__dirname + '/template' + templateName, { encoding: 'utf-8' },
-    function(err, html) {
-      if (err) {
-        throw err;
-        //callback(err);
-      } else {
-        callback(null, html)
+    if (settings.log) {
+      log = settings.log;
+    }
+
+    db.connect(settings.MONGODB_URL, () => {
+      console.log("KVBaseMongo successfully connected.");
+      if (callback) {
+        callback();
       }
     })
-}
+  }
 
-module.exports = { router: router, startApp: startApp };
+  function readHTMLFile(templateName, callback) {
+    console.log("Reading file: ", templateName)
+    fs.readFile(__dirname + '/template' + templateName, { encoding: 'utf-8' },
+      function(err, html) {
+        if (err) {
+          throw err;
+          //callback(err);
+        } else {
+          callback(null, html)
+        }
+      })
+  }
+
+  module.exports = { router: router, startApp: startApp };

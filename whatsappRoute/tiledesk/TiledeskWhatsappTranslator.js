@@ -2,7 +2,10 @@ class TiledeskWhatsappTranslator {
 
   /**
    * Constructor for TiledeskWhatsappTranslator
-   *
+   *const axios = require("axios").default;
+const fs = require('fs');
+const FormData = require('form-data');
+const path = require('path');
    * @example
    * const { TiledeskWhatsappTranslator } = require('tiledesk-whatsapp-translator');
    * const tlr = new TiledeskWhatsappTranslator();
@@ -14,7 +17,7 @@ class TiledeskWhatsappTranslator {
   static CHANNEL_NAME = "whatsapp";
 
   constructor() {
-    
+
 
     /*
     if (!config.tiledeskChannelMessage) {
@@ -23,9 +26,9 @@ class TiledeskWhatsappTranslator {
     this.tiledeskChannelMessage = config.tiledeskChannelMessage;
     console.log("this.tiledeskChannelMessage: ", this.tiledeskChannelMessage);
     */
-    
+
     this.log = true;
-    
+
 
   }
 
@@ -48,13 +51,16 @@ class TiledeskWhatsappTranslator {
   */
   toWhatsapp(tiledeskChannelMessage, whatsapp_receiver) {
 
-
     // to --> recipient
     if (this.log) {
       console.log("[Translator] tiledesk message: ", tiledeskChannelMessage)
     }
-    let text = tiledeskChannelMessage.text.replace(/-{1,}/g, '');
-    text = text.replace(/\*{2,}/g, '*')
+
+    let text = '';
+    if (tiledeskChannelMessage.text) {
+      text = tiledeskChannelMessage.text.replace(/-{1,}/g, '');
+      text = text.replace(/\*{2,}/g, '*')
+    }
 
     let whatsapp_message = {
       messaging_product: TiledeskWhatsappTranslator.WHATSAPP_MESSAGING_PRODUCT,
@@ -62,24 +68,24 @@ class TiledeskWhatsappTranslator {
     }
 
     if (tiledeskChannelMessage.metadata) {
-  
+
       if (tiledeskChannelMessage.metadata.type.startsWith('image')) {
-      //if (tiledeskChannelMessage.metadata.type.startsWith('image/')) {
+        //if (tiledeskChannelMessage.metadata.type.startsWith('image/')) {
         var imgUrl = tiledeskChannelMessage.metadata.src;
         whatsapp_message.type = 'image'
         whatsapp_message.image = {
           link: imgUrl,
           caption: text
         }
-      } 
+      }
 
       else if (tiledeskChannelMessage.metadata.type.startsWith('video')) {
-      //if (tiledeskChannelMessage.metadata.type.startsWith('video/')) {
+        //if (tiledeskChannelMessage.metadata.type.startsWith('video/')) {
         var videoUrl = tiledeskChannelMessage.metadata.src;
-        whatsapp_message.type = 'document'
-        whatsapp_message.document = {
+        whatsapp_message.type = 'video'
+        whatsapp_message.video = {
           link: videoUrl,
-          caption: text
+          caption: tiledeskChannelMessage.metadata.name
         }
         /*
         data.type = 'video'
@@ -91,7 +97,7 @@ class TiledeskWhatsappTranslator {
       }
 
       else if (tiledeskChannelMessage.metadata.type.startsWith('application')) {
-      //if (tiledeskChannelMessage.metadata.type.startsWith('application/')) {
+        //if (tiledeskChannelMessage.metadata.type.startsWith('application/')) {
         var doc = tiledeskChannelMessage.metadata.src;
         whatsapp_message.type = 'document'
         whatsapp_message.document = {
@@ -141,7 +147,7 @@ class TiledeskWhatsappTranslator {
               console.log("[Translator] whatsapp message: ", whatsapp_message)
             }
             return whatsapp_message;
-            
+
           }
 
           if (buttons_count > 0 && buttons_count < 4) {
@@ -311,7 +317,7 @@ class TiledeskWhatsappTranslator {
       }
       return whatsapp_message;
 
-      
+
       //return null
     }
   }
