@@ -7,6 +7,7 @@ const appRoot = require('app-root-path');
 const handlebars = require('handlebars');
 const fs = require('fs');
 const path = require('path');
+const pjson = require('./package.json');
 
 // tiledesk clients
 const { TiledeskClient } = require('@tiledesk/tiledesk-client');
@@ -57,6 +58,7 @@ router.get('/detail', async (req, res) => {
 
     var template = handlebars.compile(html);
     var replacements = {
+      app_version: pjson.version,
       project_id: projectId,
       token: token,
       app_id: app_id,
@@ -102,6 +104,7 @@ router.post('/install', async (req, res) => {
 
       var template = handlebars.compile(html);
       var replacements = {
+        app_version: pjson.version,
         project_id: project_id,
         token: token,
         app_id: app_id,
@@ -142,6 +145,7 @@ router.post('/uninstall', async (req, res) => {
 
       var template = handlebars.compile(html);
       var replacements = {
+        app_version: pjson.version,
         project_id: project_id,
         token: token,
         app_id: app_id,
@@ -189,6 +193,7 @@ router.get('/configure', async (req, res) => {
 
       var template = handlebars.compile(html);
       var replacements = {
+        app_version: pjson.version,
         project_id: projectId,
         token: token,
         proxy_url: proxy_url,
@@ -214,6 +219,7 @@ router.get('/configure', async (req, res) => {
 
       var template = handlebars.compile(html);
       var replacements = {
+        app_version: pjson.version,
         project_id: projectId,
         token: token,
         proxy_url: proxy_url,
@@ -258,6 +264,7 @@ router.post('/update', async (req, res) => {
 
       var template = handlebars.compile(html);
       var replacements = {
+        app_version: pjson.version,
         project_id: projectId,
         token: token,
         proxy_url: proxy_url,
@@ -316,6 +323,7 @@ router.post('/update', async (req, res) => {
 
         var template = handlebars.compile(html);
         var replacements = {
+          app_version: pjson.version,
           project_id: projectId,
           token: token,
           proxy_url: proxy_url,
@@ -373,6 +381,7 @@ router.post('/disconnect', async (req, res) => {
 
       var template = handlebars.compile(html);
       var replacements = {
+        app_version: pjson.version,
         project_id: projectId,
         token: token,
         proxy_url: proxy_url,
@@ -683,36 +692,36 @@ function startApp(settings, callback) {
     console.log("GRAPH_URL: ", GRAPH_URL);
   }
 
-    if (!settings.APPS_API_URL) {
-      throw new Error("settings.APPS_API_URL is mandatory");
-    } else {
-      APPS_API_URL = settings.APPS_API_URL;
-      console.log("APPS_API_URL: ", APPS_API_URL);
-    }
+  if (!settings.APPS_API_URL) {
+    throw new Error("settings.APPS_API_URL is mandatory");
+  } else {
+    APPS_API_URL = settings.APPS_API_URL;
+    console.log("APPS_API_URL: ", APPS_API_URL);
+  }
 
-    if (settings.log) {
-      log = settings.log;
-    }
+  if (settings.log) {
+    log = settings.log;
+  }
 
-    db.connect(settings.MONGODB_URL, () => {
-      console.log("KVBaseMongo successfully connected.");
-      if (callback) {
-        callback();
+  db.connect(settings.MONGODB_URL, () => {
+    console.log("KVBaseMongo successfully connected.");
+    if (callback) {
+      callback();
+    }
+  })
+}
+
+function readHTMLFile(templateName, callback) {
+  console.log("Reading file: ", templateName)
+  fs.readFile(__dirname + '/template' + templateName, { encoding: 'utf-8' },
+    function(err, html) {
+      if (err) {
+        throw err;
+        //callback(err);
+      } else {
+        callback(null, html)
       }
     })
-  }
+}
 
-  function readHTMLFile(templateName, callback) {
-    console.log("Reading file: ", templateName)
-    fs.readFile(__dirname + '/template' + templateName, { encoding: 'utf-8' },
-      function(err, html) {
-        if (err) {
-          throw err;
-          //callback(err);
-        } else {
-          callback(null, html)
-        }
-      })
-  }
-
-  module.exports = { router: router, startApp: startApp };
+module.exports = { router: router, startApp: startApp };

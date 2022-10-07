@@ -4,6 +4,32 @@
   display: inline-block;
 }
 
+.version {
+  background-color: #9b9b9b;
+  cursor: pointer;
+  padding: 0px 10px;
+  border-radius: 10px;
+  width: 59px;
+}
+
+.version:hover {
+  /*background-color: #4187e4;*/
+  background-color: #3773c2;
+  cursor: pointer;
+  padding: 0px 10px;
+  border-radius: 10px;
+  width: 59px;
+}
+
+.npm-link {
+  color: white !important;
+}
+
+.npm-link:hover {
+  color: white;
+  text-decoration: none;
+}
+
 /* Tooltip text */
 .custom-tooltip .custom-tooltiptext {
   visibility: hidden;

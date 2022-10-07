@@ -45,7 +45,12 @@
           <div>
             
             <h1 style="margin-top: 0px; margin-bottom: 2px; min-width: 500px;">WhatsApp Business</h1>
-            <h7 style="color: rgb(140, 140, 140);">by Tiledesk (v. 0.1.9)</h7>
+            <div style="display: flex; flex-direction: row; align-items: flex-end;">
+              <h7 style="color: rgb(140, 140, 140); margin-right: 10px;">by Tiledesk</h7>
+              <div class="version">
+                <a class="npm-link" href="https://www.npmjs.com/package/@tiledesk/tiledesk-whatsapp-connector" target="_blank">{{ app_version }}</a>
+              </div>
+            </div>
 
             {{#if wab_token}}
               <div style="margin-top: 20px;">
