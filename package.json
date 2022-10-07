@@ -13,7 +13,7 @@
   "dependencies": {
     "@tiledesk/tiledesk-client": "^0.8.29",
     "@tiledesk/tiledesk-kvbasemongo": "^1.0.0",
-    "@tiledesk/tiledesk-whatsapp-connector": "^0.1.15",
+    "@tiledesk/tiledesk-whatsapp-connector": "^0.1.16",
     "app-root-path": "^3.1.0",
     "axios": "^0.27.2",
     "body-parser": "^1.20.0",
