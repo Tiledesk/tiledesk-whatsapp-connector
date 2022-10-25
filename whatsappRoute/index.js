@@ -269,6 +269,7 @@ router.post('/update', async (req, res) => {
         token: token,
         proxy_url: proxy_url,
         wab_token: settings.wab_token,
+        show_success_modal: true,
         verify_token: settings.verify_token,
         subscription_id: settings.subscriptionId,
       }
@@ -327,6 +328,7 @@ router.post('/update', async (req, res) => {
           project_id: projectId,
           token: token,
           proxy_url: proxy_url,
+          show_success_modal: true,
           wab_token: settings.wab_token,
           verify_token: settings.verify_token,
           subscription_id: settings.subscriptionId,
@@ -340,7 +342,27 @@ router.post('/update', async (req, res) => {
       })
 
     }).catch((err) => {
-      console.log("\n (ERROR) Subscription: ", err)
+
+      readHTMLFile('/configure.html', (err, html) => {
+        if (err) {
+          console.log("(ERROR) Read html file: ", err);
+        }
+
+        var template = handlebars.compile(html);
+        var replacements = {
+          app_version: pjson.version,
+          project_id: projectId,
+          token: token,
+          proxy_url: proxy_url,
+          show_error_modal: true
+        }
+        if (log) {
+          console.log("Replacements: ", replacements);
+        }
+
+        var html = template(replacements);
+        res.send(html);
+      })
     })
 
   }
@@ -355,6 +377,8 @@ router.post('/disconnect', async (req, res) => {
   let projectId = req.body.project_id;
   let token = req.body.token;
   let subscriptionId = req.body.subscription_id;
+
+  console.log("uninstall --> subscriptionId: ", subscriptionId)
 
   let CONTENT_KEY = "whatsapp-" + projectId;
   await db.remove(CONTENT_KEY);
@@ -705,6 +729,7 @@ function startApp(settings, callback) {
 
   db.connect(settings.MONGODB_URL, () => {
     console.log("KVBaseMongo successfully connected.");
+    
     if (callback) {
       callback();
     }

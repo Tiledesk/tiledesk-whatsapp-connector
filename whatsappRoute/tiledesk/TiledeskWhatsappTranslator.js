@@ -58,8 +58,9 @@ const path = require('path');
 
     let text = '';
     if (tiledeskChannelMessage.text) {
-      text = tiledeskChannelMessage.text.replace(/-{1,}/g, '');
-      text = text.replace(/\*{2,}/g, '*')
+      text = tiledeskChannelMessage.text;
+      //text = tiledeskChannelMessage.text.replace(/-{1,}/g, '');
+      //text = text.replace(/\*{2,}/g, '*')
     }
 
     let whatsapp_message = {
@@ -69,23 +70,26 @@ const path = require('path');
 
     if (tiledeskChannelMessage.metadata) {
 
-      if (tiledeskChannelMessage.metadata.type.startsWith('image')) {
-        //if (tiledeskChannelMessage.metadata.type.startsWith('image/')) {
+      if ((tiledeskChannelMessage.metadata.type && tiledeskChannelMessage.metadata.type.startsWith('image')) || tiledeskChannelMessage.type.startsWith('image')) {
+
         var imgUrl = tiledeskChannelMessage.metadata.src;
-        whatsapp_message.type = 'image'
-        whatsapp_message.image = {
-          link: imgUrl,
-          caption: text
-        }
+          whatsapp_message.type = 'image'
+          whatsapp_message.image = {
+            link: imgUrl,
+            caption: text
+          }
+        
       }
 
-      else if (tiledeskChannelMessage.metadata.type.startsWith('video')) {
+      
+
+      else if ((tiledeskChannelMessage.metadata.type && tiledeskChannelMessage.metadata.type.startsWith('video')) ||     tiledeskChannelMessage.type.startsWith('video')) {
         //if (tiledeskChannelMessage.metadata.type.startsWith('video/')) {
         var videoUrl = tiledeskChannelMessage.metadata.src;
         whatsapp_message.type = 'video'
         whatsapp_message.video = {
           link: videoUrl,
-          caption: tiledeskChannelMessage.metadata.name
+          caption: tiledeskChannelMessage.metadata.name || tiledeskChannelMessage.text
         }
         /*
         data.type = 'video'
@@ -102,7 +106,7 @@ const path = require('path');
         whatsapp_message.type = 'document'
         whatsapp_message.document = {
           link: doc,
-          caption: tiledeskChannelMessage.metadata.name
+          caption: tiledeskChannelMessage.metadata.name || tiledeskChannelMessage.text
         }
       }
 
@@ -306,10 +310,7 @@ const path = require('path');
         return whatsapp_message;
       }
 
-
-
     } else {
-      // Skip message - non si deve fare qui!
       whatsapp_message.text = { body: text };
 
       if (this.log) {
