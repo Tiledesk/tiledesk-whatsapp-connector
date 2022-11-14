@@ -73,17 +73,17 @@ const path = require('path');
       if ((tiledeskChannelMessage.metadata.type && tiledeskChannelMessage.metadata.type.startsWith('image')) || tiledeskChannelMessage.type.startsWith('image')) {
 
         var imgUrl = tiledeskChannelMessage.metadata.src;
-          whatsapp_message.type = 'image'
-          whatsapp_message.image = {
-            link: imgUrl,
-            caption: text
-          }
-        
+        whatsapp_message.type = 'image'
+        whatsapp_message.image = {
+          link: imgUrl,
+          caption: text
+        }
+
       }
 
-      
 
-      else if ((tiledeskChannelMessage.metadata.type && tiledeskChannelMessage.metadata.type.startsWith('video')) ||     tiledeskChannelMessage.type.startsWith('video')) {
+
+      else if ((tiledeskChannelMessage.metadata.type && tiledeskChannelMessage.metadata.type.startsWith('video')) || tiledeskChannelMessage.type.startsWith('video')) {
         //if (tiledeskChannelMessage.metadata.type.startsWith('video/')) {
         var videoUrl = tiledeskChannelMessage.metadata.src;
         whatsapp_message.type = 'video'

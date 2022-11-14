@@ -1,6 +1,5 @@
 "use strict";
 const express = require("express");
-const app = express();
 const router = express.Router();
 const bodyParser = require("body-parser");
 const appRoot = require('app-root-path');
@@ -174,7 +173,7 @@ router.get('/configure', async (req, res) => {
   let token = "";
 
   projectId = req.query.project_id;
-  token = req.query.token
+  token = req.query.token;
 
   let CONTENT_KEY = "whatsapp-" + projectId;
 
@@ -650,13 +649,22 @@ router.get("/webhook/:project_id", async (req, res) => {
    * UPDATE YOUR VERIFY TOKEN
    *This will be the Verify Token value when you set up webhook
   **/
+  console.log("\nVerify the webhook: ", req);
+  console.log("\req.query: ", req.query);
 
   // Parse params from the webhook verification request
   let mode = req.query["hub.mode"];
   let token = req.query["hub.verify_token"];
   let challenge = req.query["hub.challenge"];
+  
+  console.log("**********")
+  console.log("mode: ", mode)
+  console.log("token: ", token)
+  console.log("challenge: ", challenge)
+  console.log("**********")
 
   let CONTENT_KEY = "whatsapp-" + req.params.project_id;
+  console.log("\CONTENT_KEY: ", CONTENT_KEY);
 
   let settings = await db.get(CONTENT_KEY);
 
@@ -666,17 +674,25 @@ router.get("/webhook/:project_id", async (req, res) => {
   } else {
     let VERIFY_TOKEN = settings.verify_token;
 
+    console.log("token: ", token);
+    console.log("verify token: ", VERIFY_TOKEN);
+
     // Check if a token and mode were sent
     if (mode && token) {
       // Check the mode and token sent are correct
       if (mode === "subscribe" && token === VERIFY_TOKEN) {
+        
         // Respond with 200 OK and challenge token from the request
         console.log("WEBHOOK_VERIFIED");
         res.status(200).send(challenge);
       } else {
         // Responds with '403 Forbidden' if verify tokens do not match
+        console.error("mode is not 'subscribe' or token do not match");
         res.sendStatus(403);
       }
+    } else {
+      console.error("mode or token undefined");
+      res.status(400).send("impossible to verify the webhook: mode or token undefined.")
     }
 
   }

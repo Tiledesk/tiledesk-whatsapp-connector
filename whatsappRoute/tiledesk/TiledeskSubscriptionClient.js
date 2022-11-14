@@ -8,7 +8,6 @@ class TiledeskSubscriptionClient {
    * @example
    * const { TiledeskSubscriptionClient } = require('tiledesk-subscription-client');
    * const tdClient = new TiledeskSubscriptionClient({API_URL: tiledeskApiUrl, token: jwt_token, log: log});
-   * 
    * @param {Object} config JSON configuration.
    * @param {string} config.API_URL Mandatory. The Tiledesk api url.
    * @param {string} config.token Optional. Token required for authentication.
