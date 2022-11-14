@@ -586,7 +586,7 @@ router.post("/webhook/:project_id", async (req, res) => {
           console.log("File position: ", filename);
           if (!filename) {
             console.log("Unable to download media. Message not sent.");
-            res.status(500).send({ success: false, error: "unable to download media" })
+            return res.status(500).send({ success: false, error: "unable to download media" })
           }
           let file_path = path.join(__dirname, 'tmp', filename);
 
@@ -604,7 +604,7 @@ router.post("/webhook/:project_id", async (req, res) => {
           console.log("File position: ", filename);
           if (!filename) {
             console.log("Unable to download media. Message not sent.");
-            res.status(500).send({ success: false, error: "unable to download media" })
+            return res.status(500).send({ success: false, error: "unable to download media" })
           }
           let file_path = path.join(__dirname, 'tmp', filename);
 
@@ -622,7 +622,7 @@ router.post("/webhook/:project_id", async (req, res) => {
           console.log("File position: ", filename);
           if (!filename) {
             console.log("Unable to download media. Message not sent.");
-            res.status(500).send({ success: false, error: "unable to download media" })
+            return res.status(500).send({ success: false, error: "unable to download media" })
           }
           let file_path = path.join(__dirname, 'tmp', filename);
 
