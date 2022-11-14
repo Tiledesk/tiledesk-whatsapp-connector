@@ -584,6 +584,10 @@ router.post("/webhook/:project_id", async (req, res) => {
 
           const filename = await util.downloadMedia(media.id);
           console.log("File position: ", filename);
+          if (!filename) {
+            console.log("Unable to download media. Message not sent.");
+            res.status(500).send({ success: false, error: "unable to download media" })
+          }
           let file_path = path.join(__dirname, 'tmp', filename);
 
           const image_url = await util.uploadMedia(file_path, "images");
@@ -598,6 +602,10 @@ router.post("/webhook/:project_id", async (req, res) => {
 
           const filename = await util.downloadMedia(media.id);
           console.log("File position: ", filename);
+          if (!filename) {
+            console.log("Unable to download media. Message not sent.");
+            res.status(500).send({ success: false, error: "unable to download media" })
+          }
           let file_path = path.join(__dirname, 'tmp', filename);
 
 
@@ -612,6 +620,10 @@ router.post("/webhook/:project_id", async (req, res) => {
 
           const filename = await util.downloadMedia(media.id);
           console.log("File position: ", filename);
+          if (!filename) {
+            console.log("Unable to download media. Message not sent.");
+            res.status(500).send({ success: false, error: "unable to download media" })
+          }
           let file_path = path.join(__dirname, 'tmp', filename);
 
           const media_url = await util.uploadMedia(file_path, "files");
@@ -656,7 +668,7 @@ router.get("/webhook/:project_id", async (req, res) => {
   let mode = req.query["hub.mode"];
   let token = req.query["hub.verify_token"];
   let challenge = req.query["hub.challenge"];
-  
+
   console.log("**********")
   console.log("mode: ", mode)
   console.log("token: ", token)
@@ -681,7 +693,7 @@ router.get("/webhook/:project_id", async (req, res) => {
     if (mode && token) {
       // Check the mode and token sent are correct
       if (mode === "subscribe" && token === VERIFY_TOKEN) {
-        
+
         // Respond with 200 OK and challenge token from the request
         console.log("WEBHOOK_VERIFIED");
         res.status(200).send(challenge);
@@ -745,7 +757,7 @@ function startApp(settings, callback) {
 
   db.connect(settings.MONGODB_URL, () => {
     console.log("KVBaseMongo successfully connected.");
-    
+
     if (callback) {
       callback();
     }
