@@ -460,6 +460,11 @@ router.post('/tiledesk', async (req, res) => {
     return res.send(200);
   }
 
+  if (attributes && attributes.subtype === 'info/support') {
+    console.log("Skip subtype: ", attributes.subtype);
+    return res.send(200);
+  }
+
   let recipient_id = tiledeskChannelMessage.recipient;
   console.log("(Tiledesk) Recipient_id: ", recipient_id);
 
