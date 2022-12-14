@@ -1,6 +1,6 @@
 var assert = require('assert');
 const { TiledeskWhatsappTranslator } = require('../tiledesk/TiledeskWhatsappTranslator');
-const log = false;
+const log = true;
 
 
 describe('Test Translator\n', function() {
@@ -202,7 +202,7 @@ describe('Test Translator\n', function() {
     assert(whatsappJsonMessage.interactive.action.sections[0].rows.length === 4);
     assert(whatsappJsonMessage.interactive.action.sections[1].rows.length === 1);
     if (log) {
-      console.log("(test) tiledeskJsonMessage: ", tiledeskJsonMessage);
+      console.log("(test) whatsappJsonMessage: ", whatsappJsonMessage);
     }
   })
 
@@ -239,7 +239,7 @@ describe('Test Translator\n', function() {
       interactive: {
         type: "list_reply",
         list_reply: {
-          id: "quick_Tiledesk Overview",
+          id: "quick1234_Tiledesk Overview",
           title: "Tiledesk Overview"
         }
       }
@@ -254,7 +254,7 @@ describe('Test Translator\n', function() {
     assert(tiledeskJsonMessage.text === whatsappChannelMessage.interactive.list_reply.title);
     assert(tiledeskJsonMessage.senderFullname === fullname);
     if (log) {
-      console.log("(test) tiledeskJsonMessage: ", tiledeskJsonMessage);
+      console.log("(test) --> tiledeskJsonMessage: ", tiledeskJsonMessage);
     }
   })
 
@@ -266,7 +266,7 @@ describe('Test Translator\n', function() {
       interactive: {
         type: "list_reply",
         list_reply: {
-          id: "action_main_menu",
+          id: "action1234_main_menu",
           title: "↩︎ Back"
         }
       }
@@ -282,7 +282,7 @@ describe('Test Translator\n', function() {
     assert(tiledeskJsonMessage.type === 'text');
     assert(tiledeskJsonMessage.attributes);
     assert(tiledeskJsonMessage.attributes.action);
-    assert(tiledeskJsonMessage.attributes.action === whatsappChannelMessage.interactive.list_reply.id.substring(7));
+    assert(tiledeskJsonMessage.attributes.action === whatsappChannelMessage.interactive.list_reply.id.substring(11));
     assert(tiledeskJsonMessage.attributes.subtype);
     assert(tiledeskJsonMessage.attributes.subtype === "info");
     assert(tiledeskJsonMessage.senderFullname === fullname);
@@ -301,7 +301,7 @@ describe('Test Translator\n', function() {
       interactive: {
         type: "button_reply",
         button_reply: {
-          id: "quick_Cloud pricing",
+          id: "quick1234_Cloud pricing",
           title: "Cloud pricing"
         }
       }
@@ -344,7 +344,7 @@ describe('Test Translator\n', function() {
     assert(tiledeskJsonMessage.type === 'text');
     assert(tiledeskJsonMessage.attributes);
     assert(tiledeskJsonMessage.attributes.action);
-    assert(tiledeskJsonMessage.attributes.action === whatsappChannelMessage.interactive.button_reply.id.substring(7));
+    assert(tiledeskJsonMessage.attributes.action === whatsappChannelMessage.interactive.button_reply.id.substring(11));
     assert(tiledeskJsonMessage.attributes.subtype);
     assert(tiledeskJsonMessage.attributes.subtype === 'info');
     assert(tiledeskJsonMessage.senderFullname === fullname);
