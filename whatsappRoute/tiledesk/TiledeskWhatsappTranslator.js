@@ -1,3 +1,5 @@
+const { v4: uuidv4 } = require('uuid');
+
 class TiledeskWhatsappTranslator {
 
   /**
@@ -163,7 +165,8 @@ const path = require('path');
                 let text_btn = {
                   type: "reply",
                   reply: {
-                    id: "quick_" + btn.value,
+                    //id: "quick_" + btn.value,
+                    id: "quick" + uuidv4().substring(0,4) + "_"+ btn.value,
                     title: title
                   }
                 }
@@ -174,7 +177,8 @@ const path = require('path');
                 let action_btn = {
                   type: "reply",
                   reply: {
-                    id: "action_" + btn.action,
+                    //id: "action" + "_" + btn.action,
+                    id: "action" + uuidv4().substring(0, 4) + "_" + btn.action,
                     title: title
                   }
                 }
@@ -206,7 +210,7 @@ const path = require('path');
 
               if (btn.type == 'text') {
                 let row = {
-                  id: "quick_" + btn.value,
+                  id: "quick" + uuidv4().substring(0,4) + "_"+ btn.value,
                   title: title
                 }
                 option_rows.push(row);
@@ -214,7 +218,7 @@ const path = require('path');
 
               if (btn.type == 'action') {
                 let row = {
-                  id: "action_" + btn.action,
+                  id: "action" + uuidv4().substring(0, 4) + "_" + btn.action,
                   title: title
                 }
                 action_rows.push(row);
@@ -305,7 +309,7 @@ const path = require('path');
         whatsapp_message.text = { body: text };
 
         if (this.log) {
-          console.log("[Translator] whatsapp message: ", whatsapp_message)
+          console.log("[Translator] simple whatsapp message: ", whatsapp_message)
         }
         return whatsapp_message;
       }
@@ -345,13 +349,13 @@ const path = require('path');
       // list reply
       if (whatsappChannelMessage.interactive.type == 'list_reply') {
         // action button
-        if (whatsappChannelMessage.interactive.list_reply.id.startsWith("action_")) {
+        if (whatsappChannelMessage.interactive.list_reply.id.startsWith("action")) {
           var tiledeskMessage = {
             senderFullname: from,
             text: ' ',
             type: 'text',
             attributes: {
-              action: whatsappChannelMessage.interactive.list_reply.id.substring(7),
+              action: whatsappChannelMessage.interactive.list_reply.id.substring(11),
               subtype: 'info'
             },
             channel: { name: TiledeskWhatsappTranslator.CHANNEL_NAME }
@@ -359,9 +363,9 @@ const path = require('path');
           return tiledeskMessage;
         }
         // quick reply button
-        if (whatsappChannelMessage.interactive.list_reply.id.startsWith("quick_")) {
+        if (whatsappChannelMessage.interactive.list_reply.id.startsWith("quick")) {
           var tiledeskMessage = {
-            text: whatsappChannelMessage.interactive.list_reply.id.substring(6),
+            text: whatsappChannelMessage.interactive.list_reply.id.substring(10),
             senderFullname: from,
             channel: { name: TiledeskWhatsappTranslator.CHANNEL_NAME }
           }
@@ -372,13 +376,13 @@ const path = require('path');
       // inline button reply
       if (whatsappChannelMessage.interactive.type == 'button_reply') {
         // action button
-        if (whatsappChannelMessage.interactive.button_reply.id.startsWith("action_")) {
+        if (whatsappChannelMessage.interactive.button_reply.id.startsWith("action")) {
           var tiledeskMessage = {
             senderFullname: from,
             text: ' ',
             type: 'text',
             attributes: {
-              action: whatsappChannelMessage.interactive.button_reply.id.substring(7),
+              action: whatsappChannelMessage.interactive.button_reply.id.substring(11),
               subtype: 'info'
             },
             channel: { name: TiledeskWhatsappTranslator.CHANNEL_NAME }
@@ -386,9 +390,9 @@ const path = require('path');
           return tiledeskMessage;
         }
         // quick reply button
-        if (whatsappChannelMessage.interactive.button_reply.id.startsWith("quick_")) {
+        if (whatsappChannelMessage.interactive.button_reply.id.startsWith("quick")) {
           var tiledeskMessage = {
-            text: whatsappChannelMessage.interactive.button_reply.id.substring(6),
+            text: whatsappChannelMessage.interactive.button_reply.id.substring(10),
             senderFullname: from,
             channel: { name: TiledeskWhatsappTranslator.CHANNEL_NAME }
           }

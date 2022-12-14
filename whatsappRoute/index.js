@@ -28,7 +28,7 @@ var API_URL = null;
 var GRAPH_URL = null;
 var BASE_URL = null;
 var APPS_API_URL = null;
-var log = true;
+var log = false;
 
 const db = new KVBaseMongo(kvbase_collection);
 
@@ -426,9 +426,9 @@ router.post('/disconnect', async (req, res) => {
 router.post('/tiledesk', async (req, res) => {
 
   console.log("\n/tiledesk")
-  if (log) {
-    console.log("/tiledesk tiledeskChannelMessage: ", req.body.payload);
-  }
+  //if (log) {
+  //console.log("/tiledesk ---> tiledeskChannelMessage: " + JSON.stringify(req.body.payload));
+  //}
 
   var tiledeskChannelMessage = req.body.payload;
   //console.log("(TILEDESK) Payload: ", JSON.stringify(req.body.payload));
@@ -445,7 +445,9 @@ router.post('/tiledesk', async (req, res) => {
   console.log("(TILEDESK) TEXT: ", text);
 
   var attributes = req.body.payload.attributes;
-  console.log("(TILEDESK) ATTRIBUTES: ", attributes)
+  if (log) {
+    console.log("(TILEDESK) ATTRIBUTES: ", attributes)
+  }
 
   var sender_id = req.body.payload.sender;
   console.log("(TILEDESK) SENDER ID: ", sender_id);
@@ -464,6 +466,8 @@ router.post('/tiledesk', async (req, res) => {
     console.log("Skip subtype: ", attributes.subtype);
     return res.send(200);
   }
+
+  console.log("/tiledesk ---> tiledeskChannelMessage: " + JSON.stringify(req.body.payload));
 
   let recipient_id = tiledeskChannelMessage.recipient;
   console.log("(Tiledesk) Recipient_id: ", recipient_id);

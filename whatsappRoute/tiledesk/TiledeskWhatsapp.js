@@ -58,7 +58,7 @@ class TiledeskWhatsapp {
       console.log("[Tiledesk Whatsapp] Message sent!");
       return response
     }).catch((err) => {
-      console.error("[Tiledesk Whatsapp ERROR] Send message: ", err);
+      console.error("[Tiledesk Whatsapp ERROR] Send message: ", err.response.data);
       throw err;
     })
   }
@@ -115,10 +115,10 @@ class TiledeskWhatsapp {
           })
         })
       }).catch((err) => {
-        console.log("axios err: ", err);
+        console.log("axios err: ", err.data);
       })
     }).catch((err) => {
-      console.log("axios err: ", err);
+      console.log("axios err: ", err.data);
     })
   }
 
