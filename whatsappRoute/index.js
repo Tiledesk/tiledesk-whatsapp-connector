@@ -7,6 +7,8 @@ const handlebars = require('handlebars');
 const fs = require('fs');
 const path = require('path');
 const pjson = require('./package.json');
+const { v4: uuidv4 } = require('uuid');
+const cors = require('cors');
 
 // tiledesk clients
 const { TiledeskClient } = require('@tiledesk/tiledesk-client');
@@ -15,14 +17,21 @@ const { TiledeskSubscriptionClient } = require('./tiledesk/TiledeskSubscriptionC
 const { TiledeskWhatsapp } = require('./tiledesk/TiledeskWhatsapp');
 const { TiledeskChannel } = require('./tiledesk/TiledeskChannel');
 const { TiledeskAppsClient } = require('./tiledesk/TiledeskAppsClient');
+const { MessageHandler } = require('./tiledesk/MessageHandler');
 
 // mongo
 const { KVBaseMongo } = require('@tiledesk/tiledesk-kvbasemongo');
 const kvbase_collection = 'kvstore';
+const db = new KVBaseMongo(kvbase_collection);
+
+// redis
+var redis = require('redis')
+var redis_client;
 
 router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({ extended: true }));
 router.use(express.static(path.join(__dirname, 'template')));
+router.use(cors());
 
 var API_URL = null;
 var GRAPH_URL = null;
@@ -30,10 +39,9 @@ var BASE_URL = null;
 var APPS_API_URL = null;
 var log = false;
 
-const db = new KVBaseMongo(kvbase_collection);
 
 router.get('/', async (req, res) => {
-  res.send('Home works!')
+  res.send('Welcome to Tiledesk-WhatsApp Business connector!')
 })
 
 router.get('/detail', async (req, res) => {
@@ -175,13 +183,12 @@ router.get('/configure', async (req, res) => {
   projectId = req.query.project_id;
   token = req.query.token;
 
-  let CONTENT_KEY = "whatsapp-" + projectId;
+  let proxy_url = BASE_URL + "/webhook/" + projectId;
 
+  let CONTENT_KEY = "whatsapp-" + projectId;
+  
   let settings = await db.get(CONTENT_KEY);
   console.log("[KVDB] settings: ", settings);
-
-  let proxy_url = BASE_URL + "/webhook/" + projectId;
-  console.log("proxy_url: ", proxy_url);
 
   if (settings) {
 
@@ -431,7 +438,7 @@ router.post('/tiledesk', async (req, res) => {
   //}
 
   var tiledeskChannelMessage = req.body.payload;
-  //console.log("(TILEDESK) Payload: ", JSON.stringify(req.body.payload));
+  console.log("(TILEDESK) Payload: ", JSON.stringify(req.body.payload));
 
   var projectId = req.body.payload.id_project;
   console.log("(TILEDESK) PROJECT ID: ", projectId);
@@ -444,9 +451,15 @@ router.post('/tiledesk', async (req, res) => {
   var text = req.body.payload.text;
   console.log("(TILEDESK) TEXT: ", text);
 
-  var attributes = req.body.payload.attributes;
+  let attributes = req.body.payload.attributes;
+  console.log("(TILEDESK) ATTRIBUTES: ", JSON.stringify(attributes, null, 2))
   if (log) {
-    console.log("(TILEDESK) ATTRIBUTES: ", attributes)
+  }
+
+  let commands;
+  if (attributes && attributes.commands) {
+    commands = attributes.commands;
+    console.log("commands: ", JSON.stringify(commands, null, 2));
   }
 
   var sender_id = req.body.payload.sender;
@@ -467,7 +480,12 @@ router.post('/tiledesk', async (req, res) => {
     return res.send(200);
   }
 
-  console.log("/tiledesk ---> tiledeskChannelMessage: " + JSON.stringify(req.body.payload));
+  // Redirect for testing bots
+  //if (text.startsWith("#td")) {
+  //  return res.redirect('/testitout');
+  //}
+
+  //console.log("/tiledesk ---> tiledeskChannelMessage: " + JSON.stringify(req.body.payload));
 
   let recipient_id = tiledeskChannelMessage.recipient;
   console.log("(Tiledesk) Recipient_id: ", recipient_id);
@@ -482,10 +500,134 @@ router.post('/tiledesk', async (req, res) => {
   let phone_number_id = recipient_id.substring(recipient_id.lastIndexOf("wab-") + 4, recipient_id.lastIndexOf("-"));
   console.log("(Tiledesk) phone_number_id: ", phone_number_id)
 
+  console.log("-----> (Tiledesk) ANSWER: ", tiledeskChannelMessage.answer)
+
+  const messageHandler = new MessageHandler({ tiledeskChannelMessage: tiledeskChannelMessage });
   const tlr = new TiledeskWhatsappTranslator();
 
+  if (commands) {
+    const that = this;
+    let i = 0;
+    async function execute(command) {
+      // message
+      console.log/("----> next command: ", command);
+      if (command.type === "message") {
+        let tiledeskCommandMessage = await messageHandler.generateMessageObject(command);
+        console.log("message generated!\ntiledeskCommandMessage: ", tiledeskCommandMessage)
+
+        let whatsappJsonMessage = await tlr.toWhatsapp(tiledeskCommandMessage, whatsapp_receiver);
+        console.log('\x1b[34m%s\x1b[0m', 'whatsappJsonMessage', whatsappJsonMessage)
+
+        
+        if (whatsappJsonMessage) {
+        const twClient = new TiledeskWhatsapp({ token: settings.wab_token, GRAPH_URL: GRAPH_URL });
+        twClient.sendMessage(phone_number_id, whatsappJsonMessage).then((response) => {
+            //console.log("Send message response: ", response.status, response.statusText);
+            i += 1;
+            if (i < commands.length) {
+              execute(commands[i]);
+            } else {
+              console.log("End of commands")
+            }
+          }).catch((err) => {
+            console.error("ERROR Send message: ", err);
+          })
+        } else {
+          console.error("Whatsapp Json Message is undefined!")
+        }
+        
+      }
+
+      //wait
+      if (command.type === "wait") {
+        setTimeout(() => {
+          console.log("wait for " + command.time + " s")
+          i += 1;
+          if (i < commands.length) {
+            execute(commands[i]);
+          } else {
+            console.log("End of commands")
+          }
+        }, command.time)
+      }
+    }
+    execute(commands[0]);
+  }
+
+  else if (tiledeskChannelMessage.text) {
+
+    console.log("tiledeskChannelMessage.text: ", tiledeskChannelMessage.text)
+
+    let whatsappJsonMessage = await tlr.toWhatsapp(tiledeskChannelMessage, whatsapp_receiver);
+    console.log('\x1b[34m%s\x1b[0m', 'whatsappJsonMessage', whatsappJsonMessage)
+    //console.log("whatsappJsonMessage: ", whatsappJsonMessage);
+
+    if (whatsappJsonMessage) {
+      const twClient = new TiledeskWhatsapp({ token: settings.wab_token, GRAPH_URL: GRAPH_URL });
+  
+      twClient.sendMessage(phone_number_id, whatsappJsonMessage).then((response) => {
+        console.log("Send message response: ", response.status, response.statusText);
+      }).catch((err) => {
+        console.error("ERROR Send message: ", err);
+      })
+  
+      /*
+      sendMessage(phone_number_id, whatsappJsonMessage, wab_token).then((response) => {
+        console.log("sendMessage() response: ", response);
+      }).catch((err) => {
+        console.log("ERROR sendMessage(): ", err);
+      })
+      */
+    } else {
+      console.error("Whatsapp Json Message is undefined!")
+    }
+    
+  } else {
+    console.log("no command, no text --> skip")
+  }
+
+
+    
+
+  /*
+  if (commands) {
+    commands.forEach( async (command) => {
+      console.log("\ncommand: ", command);
+      if (command.type === "message") {
+        let tiledeskCommandMessage = await messageHandler.generateMessageObject(command);
+        console.log("message generated!\ntiledeskCommandMessage: ", tiledeskCommandMessage)
+
+        let whatsappJsonMessage = await tlr.toWhatsapp(tiledeskCommandMessage, whatsapp_receiver);
+        console.log('\x1b[34m%s\x1b[0m', 'whatsappJsonMessage', whatsappJsonMessage)
+
+        
+        if (whatsappJsonMessage) {
+        const twClient = new TiledeskWhatsapp({ token: settings.wab_token, GRAPH_URL: GRAPH_URL });
+          twClient.sendMessage(phone_number_id, whatsappJsonMessage).then((response) => {
+            console.log("Send message response: ", response.status, response.statusText);
+          }).catch((err) => {
+            console.error("ERROR Send message: ", err);
+          })
+        } else {
+          console.error("Whatsapp Json Message is undefined!")
+        }
+        
+      }
+      if (command.type === "wait") {
+        setTimeout(() => {
+          console.log("wait for " + command.time + " s")
+          console.log("Next command")
+        }, command.time)
+      }
+    })
+  }
+    */
+  //new_tiledesk_message = addCommandmessage(commands[0]);
+
+  /*
   let whatsappJsonMessage = await tlr.toWhatsapp(tiledeskChannelMessage, whatsapp_receiver);
-  console.log("whatsappJsonMessage: ", whatsappJsonMessage);
+  console.log('\x1b[34m%s\x1b[0m', 'whatsappJsonMessage', whatsappJsonMessage)
+  //console.log("whatsappJsonMessage: ", whatsappJsonMessage);
 
   if (whatsappJsonMessage) {
     const twClient = new TiledeskWhatsapp({ token: settings.wab_token, GRAPH_URL: GRAPH_URL });
@@ -503,9 +645,12 @@ router.post('/tiledesk', async (req, res) => {
       console.log("ERROR sendMessage(): ", err);
     })
     */
+
+  /*
   } else {
     console.error("Whatsapp Json Message is undefined!")
   }
+  */
   // richiamo toWhatsapp;
   // sendMessage
   //callSendAPI(project_id, phone_number_id, to, payload);
@@ -515,6 +660,7 @@ router.post('/tiledesk', async (req, res) => {
 // Endpoint for Whatsapp Business
 // Accepts POST requests at /webhook endpoint
 router.post("/webhook/:project_id", async (req, res) => {
+  
   // Parse the request body from the POST
   let body = req.body;
   let projectId = req.params.project_id;
@@ -542,6 +688,25 @@ router.post("/webhook/:project_id", async (req, res) => {
       //let originalWhatsappMessage = req.body;
       let whatsappChannelMessage = req.body.entry[0].changes[0].value.messages[0];
 
+      if (whatsappChannelMessage.text && whatsappChannelMessage.text.body.startsWith("#td")) { 
+        return res.redirect(307, '/testitout/' + projectId);
+      }
+      
+      // check redis
+      /*
+      let foo = await redis_client.get('foo');
+      console.log(foo);
+      */
+
+      /*
+      await redis_client.get('foo', (err, reply) => {
+        if (err) {
+          console.log("redis get error: ", err)
+        }
+        console.log("redis get reply: ", reply)
+      })
+      */
+      
 
       let firstname = req.body.entry[0].changes[0].value.contacts[0].profile.name;
       console.log("(WAB) firstname: ", firstname)
@@ -581,7 +746,6 @@ router.post("/webhook/:project_id", async (req, res) => {
       else if (whatsappChannelMessage.type == 'interactive') {
         console.log("message type interactive")
         tiledeskJsonMessage = tlr.toTiledesk(whatsappChannelMessage, firstname);
-
       }
       else if ((whatsappChannelMessage.type == 'image') || (whatsappChannelMessage.type == 'video') || (whatsappChannelMessage.type == 'document')) {
         let media;
@@ -720,12 +884,108 @@ router.get("/webhook/:project_id", async (req, res) => {
 
 });
 
+function getRandomName() {
+
+  let hexString = uuidv4();
+  console.log("hex: ", hexString);
+  
+  // remove decoration
+  hexString = hexString.replace(/-/g, '');
+  
+  let base64String = Buffer.from(hexString, 'hex').toString('base64')
+  console.log("base64: ", base64String);
+  
+  return base64String;
+}
+
+
+router.post("/newtest", async (req, res) => {
+  //bottest:bot_id:code
+  console.log("/newtest body: ", JSON.stringify(req.body, null, 2));
+  let project_id = req.body.project_id;
+  let bot_id = req.body.bot_id;
+
+  let info = {
+    project_id: project_id,
+    bot_id: bot_id
+  }
+
+  //let short_uid = getRandomName();
+  let short_uid = uuidv4().substring(0, 8)
+  let TEST_KEY = "bottest:" + short_uid;
+
+  await redis_client.json.set(TEST_KEY, '.', info);
+  const value = await redis_client.json.get(TEST_KEY)
+  console.log("get --> value: ", value)
+  /*
+  const value = await redis_client.json.get(TEST_KEY, {
+    // JSON Path: .node = the element called 'node' at root level.
+    path: '.nodell',
+  });
+  */
+  res.status(200).send({short_uid: short_uid});
+})
+
+router.post("/testitout/:project_id", async (req, res) => {
+
+  //console.log("\n/(testitout): ", JSON.stringify(req.body, null, 2));
+  console.log("\n/(testitout)");
+  let projectId = req.params.project_id;
+  console.log("(testitout) projectId: ", projectId)
+
+  let whatsappChannelMessage = req.body.entry[0].changes[0].value.messages[0];
+  console.log("(testitout) whatsappChannelMessage: ", whatsappChannelMessage);
+
+  let whatsappContact = req.body.entry[0].changes[0].value.contacts[0];
+
+  let REDIS_KEY = "bottest:" + whatsappChannelMessage.text.body.substring(3);
+  console.log("(testitout) key: ", REDIS_KEY);
+
+  const info = await redis_client.json.get(REDIS_KEY);
+  console.log("(testitout) info: ", info);
+  
+  let message_info = {
+    channel: "whatsapp",
+    whatsapp: {
+      phone_number_id: req.body.entry[0].changes[0].value.metadata.phone_number_id,
+      from: whatsappChannelMessage.from,
+      firstname: whatsappContact.profile.name,
+      lastname: " "
+    }
+  }
+  console.log("(testitout) message_info: ", message_info)
+  
+  let CONTENT_KEY = "whatsapp-" + projectId;
+  let settings = await db.get(CONTENT_KEY);
+  if (log) {
+    console.log("[KVDB] settings: ", settings);
+  }
+
+  if (!settings) {
+    console.log("No settings found. Exit..");
+    res.sendStatus(200);
+    return;
+  }
+  
+  const tlr = new TiledeskWhatsappTranslator();
+
+  whatsappChannelMessage.text.body = "/start";
+  let tiledeskJsonMessage = tlr.toTiledesk(whatsappChannelMessage, whatsappContact.profile.name);
+  console.log("(testitout) tiledeskJsonMessage: ", tiledeskJsonMessage)
+  
+  const tdChannel = new TiledeskChannel({ settings: settings, API_URL: API_URL })
+  const response = await tdChannel.sendAndAddBot(tiledeskJsonMessage, message_info, info.bot_id)
+  console.log("testitout --> send response: ", response)
+  
+  res.status(200).send("testitout")
+})
+
 
 // *****************************
 // ********* FUNCTIONS *********
 // *****************************
 
-function startApp(settings, callback) {
+async function startApp(settings, callback) {
   console.log("Starting Whatsapp App");
 
   if (!settings.MONGODB_URL) {
@@ -764,8 +1024,36 @@ function startApp(settings, callback) {
     log = settings.log;
   }
 
+  console.log("try to create client")
+  redis_client = redis.createClient({
+    socket: {
+        host: 'redis-19390.c6.eu-west-1-1.ec2.cloud.redislabs.com',
+        port: 19390,
+    },
+    password: process.env.REDIS_PASSWORD
+  });
+  redis_client.on('connect', () => {
+    console.log('Redis Connected!'); // Connected!
+  });
+  await redis_client.connect();
+  redis_client.on('error', err => {
+    console.log('Error ' + err);
+  })
+
   db.connect(settings.MONGODB_URL, () => {
     console.log("KVBaseMongo successfully connected.");
+
+    //const Redis = require('ioredis');
+    //const fs = require('fs');
+
+    /*
+    const redis = new Redis({
+        host: 'redis-19390.c6.eu-west-1-1.ec2.cloud.redislabs.com',
+        port: 19390,
+        password: 'wAU4boYxtS5120tscd2BDjIL22vae7d9'
+    });
+    */
+    
 
     if (callback) {
       callback();

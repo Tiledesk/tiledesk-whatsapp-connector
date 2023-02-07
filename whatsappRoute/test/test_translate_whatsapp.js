@@ -15,7 +15,7 @@ describe('Test Translator\n', function() {
         userFullname: 'John Doe'
       }
     }
-    let whatsapp_receiver = tiledeskChannelMessage.recipient.substring(tiledeskChannelMessage.recipient.lastIndexOf("tel") + 1)
+    let whatsapp_receiver = tiledeskChannelMessage.recipient.substring(tiledeskChannelMessage.recipient.lastIndexOf("-") + 1)
 
     const tlr = new TiledeskWhatsappTranslator();
     assert(tlr != null);
@@ -45,7 +45,7 @@ describe('Test Translator\n', function() {
         userFullname: 'John Doe'
       }
     }
-    let whatsapp_receiver = tiledeskChannelMessage.recipient.substring(tiledeskChannelMessage.recipient.lastIndexOf("tel") + 3)
+    let whatsapp_receiver = tiledeskChannelMessage.recipient.substring(tiledeskChannelMessage.recipient.lastIndexOf("-") + 1)
 
     const tlr = new TiledeskWhatsappTranslator();
     assert(tlr != null);
@@ -57,8 +57,8 @@ describe('Test Translator\n', function() {
     assert(whatsappJsonMessage.image);
     assert(whatsappJsonMessage.image.link === tiledeskChannelMessage.metadata.src);
     assert(whatsappJsonMessage.image.caption === tiledeskChannelMessage.text);
+    console.log("(test) whatsappJsonMessage: ", whatsappJsonMessage);
     if (log) {
-      console.log("(test) whatsappJsonMessage: ", whatsappJsonMessage);
     }
   })
 
@@ -78,7 +78,7 @@ describe('Test Translator\n', function() {
         userFullname: 'John Doe'
       }
     }
-    let whatsapp_receiver = tiledeskChannelMessage.recipient.substring(tiledeskChannelMessage.recipient.lastIndexOf("tel") + 3)
+    let whatsapp_receiver = tiledeskChannelMessage.recipient.substring(tiledeskChannelMessage.recipient.lastIndexOf("-") + 1)
 
     const tlr = new TiledeskWhatsappTranslator();
     assert(tlr != null);
@@ -111,7 +111,7 @@ describe('Test Translator\n', function() {
         userFullname: 'John Doe'
       }
     }
-    let whatsapp_receiver = tiledeskChannelMessage.recipient.substring(tiledeskChannelMessage.recipient.lastIndexOf("tel") + 3)
+    let whatsapp_receiver = tiledeskChannelMessage.recipient.substring(tiledeskChannelMessage.recipient.lastIndexOf("-") + 1)
 
     const tlr = new TiledeskWhatsappTranslator();
     assert(tlr != null);
@@ -144,7 +144,7 @@ describe('Test Translator\n', function() {
         }
       }
     }
-    let whatsapp_receiver = tiledeskChannelMessage.recipient.substring(tiledeskChannelMessage.recipient.lastIndexOf("tel") + 3)
+    let whatsapp_receiver = tiledeskChannelMessage.recipient.substring(tiledeskChannelMessage.recipient.lastIndexOf("-") + 1)
 
     const tlr = new TiledeskWhatsappTranslator();
     assert(tlr != null);

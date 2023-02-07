@@ -29,7 +29,7 @@ const path = require('path');
     console.log("this.tiledeskChannelMessage: ", this.tiledeskChannelMessage);
     */
 
-    this.log = true;
+    this.log = false;
 
 
   }

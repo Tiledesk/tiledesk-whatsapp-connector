@@ -32,7 +32,7 @@ class TiledeskChannel {
       throw new Error('config.API_URL is mandatory');
     }
 
-    this.log = true;
+    this.log = false;
     if (config.log) {
       this.log = config.log;
     }
@@ -142,6 +142,80 @@ class TiledeskChannel {
       console.error("[Tiledesk Channel ERROR] sign in error: " + err);
     })
   }
+
+  async sendAndAddBot(tiledeskMessage, messageInfo, bot_id) {
+    
+    let channel;
+    let new_request_id;
+    tiledeskMessage.participants = ["bot_" + bot_id]
+
+    if (messageInfo.channel == "whatsapp") {
+      channel = messageInfo.whatsapp;
+      new_request_id = "support-group-" + this.settings.project_id + "-" + uuidv4().substring(0, 8) + "-wab-" + channel.phone_number_id + "-" + channel.from;
+    } else {
+      console.log("[Tiledesk Channel] Channel not supported")
+      return null;
+    }
+
+    var payload = {
+      _id: 'wab-' + channel.from,
+      first_name: channel.firstname,
+      last_name: channel.lastname,
+      email: 'na@whatsapp.com',
+      sub: 'userexternal',
+      aud: 'https://tiledesk.com/subscriptions/' + this.settings.subscriptionId
+    }
+
+    var customToken = jwt.sign(payload, this.settings.secret);
+
+    return await axios({
+      url: this.API_URL + "/auth/signinWithCustomToken",
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'JWT ' + customToken
+      },
+      data: {},
+      method: 'POST'
+    }).then((response) => {
+      let token = response.data.token;
+
+      return axios({
+        url: this.API_URL + `/${this.settings.project_id}/requests/${new_request_id}/messages`,
+        //url: this.API_URL + `/${this.settings.project_id}/requests/${new_request_id}/participants`,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': token
+        },
+        data: tiledeskMessage,
+        method: 'POST'
+      }).then((response) => {
+        console.log(response)
+        return response.data
+
+        /*
+        return axios({
+          url: this.API_URL + `/${this.settings.project_id}/requests/${new_request_id}/participants`,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': token
+          },
+          data: { member: bot_id },
+          method: 'POST'
+        }).then((response) => {
+          console.log("response: ", response.data)
+          return response.data
+        }).catch((err) => {
+          console.error("[Tiledesk Channel ERROR] add participant: ", err);
+        })
+        */
+      }).catch((err) => {
+        console.error("[Tiledesk Channel ERROR] send message (open conversation): " + err);
+      })
+    }).catch((err) => {
+      console.error("[Tiledesk Channel ERROR] sign in error: " + err);
+    })
+  }
+  
 
 }
 
