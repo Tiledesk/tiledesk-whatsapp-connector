@@ -33,11 +33,14 @@ router.use(bodyParser.urlencoded({ extended: true }));
 router.use(express.static(path.join(__dirname, 'template')));
 router.use(cors());
 
-var API_URL = null;
-var GRAPH_URL = null;
-var BASE_URL = null;
-var APPS_API_URL = null;
-var log = false;
+let API_URL = null;
+let GRAPH_URL = null;
+let BASE_URL = null;
+let APPS_API_URL = null;
+let REDIS_HOST = null;
+let REDIS_PORT = null;
+let REDIS_PASSWORD = null;
+let log = false;
 
 
 router.get('/', async (req, res) => {
@@ -431,7 +434,6 @@ router.post('/disconnect', async (req, res) => {
 })
 
 router.post('/tiledesk', async (req, res) => {
-
   console.log("\n/tiledesk")
   //if (log) {
   //console.log("/tiledesk ---> tiledeskChannelMessage: " + JSON.stringify(req.body.payload));
@@ -691,22 +693,6 @@ router.post("/webhook/:project_id", async (req, res) => {
       if (whatsappChannelMessage.text && whatsappChannelMessage.text.body.startsWith("#td")) { 
         return res.redirect(307, '/testitout/' + projectId);
       }
-      
-      // check redis
-      /*
-      let foo = await redis_client.get('foo');
-      console.log(foo);
-      */
-
-      /*
-      await redis_client.get('foo', (err, reply) => {
-        if (err) {
-          console.log("redis get error: ", err)
-        }
-        console.log("redis get reply: ", reply)
-      })
-      */
-      
 
       let firstname = req.body.entry[0].changes[0].value.contacts[0].profile.name;
       console.log("(WAB) firstname: ", firstname)
@@ -1020,6 +1006,27 @@ async function startApp(settings, callback) {
     console.log("APPS_API_URL: ", APPS_API_URL);
   }
 
+  if (!settings.REDIS_HOST) {
+    throw new Error("!settings.REDIS_HOST is mandatory");
+  } else {
+    REDIS_HOST = settings.REDIS_HOST;
+    console.log("REDIS_HOST: ", REDIS_HOST);
+  }
+
+  if (!settings.REDIS_PORT) {
+    throw new Error("!settings.REDIS_PORT is mandatory");
+  } else {
+    REDIS_PORT = settings.REDIS_PORT;
+    console.log("REDIS_PORT: ", REDIS_PORT);
+  }
+
+  if (!settings.REDIS_PASSWORD) {
+    throw new Error("!settings.REDIS_PASSWORD is mandatory");
+  } else {
+    REDIS_PASSWORD = settings.REDIS_PASSWORD;
+    console.log("REDIS_PASSWORD: *************");
+  }
+
   if (settings.log) {
     log = settings.log;
   }
@@ -1027,10 +1034,10 @@ async function startApp(settings, callback) {
   console.log("try to create client")
   redis_client = redis.createClient({
     socket: {
-        host: 'redis-19390.c6.eu-west-1-1.ec2.cloud.redislabs.com',
-        port: 19390,
+        host: REDIS_HOST,
+        port: REDIS_PORT,
     },
-    password: process.env.REDIS_PASSWORD
+    password: REDIS_PASSWORD
   });
   redis_client.on('connect', () => {
     console.log('Redis Connected!'); // Connected!
@@ -1042,19 +1049,7 @@ async function startApp(settings, callback) {
 
   db.connect(settings.MONGODB_URL, () => {
     console.log("KVBaseMongo successfully connected.");
-
-    //const Redis = require('ioredis');
-    //const fs = require('fs');
-
-    /*
-    const redis = new Redis({
-        host: 'redis-19390.c6.eu-west-1-1.ec2.cloud.redislabs.com',
-        port: 19390,
-        password: 'wAU4boYxtS5120tscd2BDjIL22vae7d9'
-    });
-    */
     
-
     if (callback) {
       callback();
     }
