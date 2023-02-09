@@ -1031,7 +1031,6 @@ async function startApp(settings, callback) {
     log = settings.log;
   }
 
-  console.log("try to create client")
   redis_client = redis.createClient({
     socket: {
         host: REDIS_HOST,
@@ -1042,7 +1041,7 @@ async function startApp(settings, callback) {
   redis_client.on('connect', () => {
     console.log('Redis Connected!'); // Connected!
   });
-  await redis_client.connect();
+  //await redis_client.connect(); // only for v4
   redis_client.on('error', err => {
     console.log('Error ' + err);
   })
