@@ -1,6 +1,6 @@
 var assert = require('assert');
 const { TiledeskWhatsappTranslator } = require('../tiledesk/TiledeskWhatsappTranslator');
-const log = true;
+const log = false;
 
 
 describe('Test Translator\n', function() {
@@ -15,7 +15,7 @@ describe('Test Translator\n', function() {
         userFullname: 'John Doe'
       }
     }
-    let whatsapp_receiver = tiledeskChannelMessage.recipient.substring(tiledeskChannelMessage.recipient.lastIndexOf("tel") + 1)
+    let whatsapp_receiver = tiledeskChannelMessage.recipient.substring(tiledeskChannelMessage.recipient.lastIndexOf("-") + 1)
 
     const tlr = new TiledeskWhatsappTranslator();
     assert(tlr != null);
@@ -45,7 +45,7 @@ describe('Test Translator\n', function() {
         userFullname: 'John Doe'
       }
     }
-    let whatsapp_receiver = tiledeskChannelMessage.recipient.substring(tiledeskChannelMessage.recipient.lastIndexOf("tel") + 3)
+    let whatsapp_receiver = tiledeskChannelMessage.recipient.substring(tiledeskChannelMessage.recipient.lastIndexOf("-") + 1)
 
     const tlr = new TiledeskWhatsappTranslator();
     assert(tlr != null);
@@ -78,7 +78,7 @@ describe('Test Translator\n', function() {
         userFullname: 'John Doe'
       }
     }
-    let whatsapp_receiver = tiledeskChannelMessage.recipient.substring(tiledeskChannelMessage.recipient.lastIndexOf("tel") + 3)
+    let whatsapp_receiver = tiledeskChannelMessage.recipient.substring(tiledeskChannelMessage.recipient.lastIndexOf("-") + 1)
 
     const tlr = new TiledeskWhatsappTranslator();
     assert(tlr != null);
@@ -111,7 +111,7 @@ describe('Test Translator\n', function() {
         userFullname: 'John Doe'
       }
     }
-    let whatsapp_receiver = tiledeskChannelMessage.recipient.substring(tiledeskChannelMessage.recipient.lastIndexOf("tel") + 3)
+    let whatsapp_receiver = tiledeskChannelMessage.recipient.substring(tiledeskChannelMessage.recipient.lastIndexOf("-") + 1)
 
     const tlr = new TiledeskWhatsappTranslator();
     assert(tlr != null);
@@ -144,7 +144,7 @@ describe('Test Translator\n', function() {
         }
       }
     }
-    let whatsapp_receiver = tiledeskChannelMessage.recipient.substring(tiledeskChannelMessage.recipient.lastIndexOf("tel") + 3)
+    let whatsapp_receiver = tiledeskChannelMessage.recipient.substring(tiledeskChannelMessage.recipient.lastIndexOf("-") + 1)
 
     const tlr = new TiledeskWhatsappTranslator();
     assert(tlr != null);
@@ -202,6 +202,53 @@ describe('Test Translator\n', function() {
     assert(whatsappJsonMessage.interactive.action.sections[0].rows.length === 4);
     assert(whatsappJsonMessage.interactive.action.sections[1].rows.length === 1);
     if (log) {
+      console.log("(test) whatsappJsonMessage: ", whatsappJsonMessage);
+    }
+  })
+
+
+  it("Translates a message with BUTTONS (more than 10) from Tiledesk to Whatsapp", function() {
+
+    let tiledeskChannelMessage = {
+      text: 'Test Message',
+      recipient: 'support-group-62c3f10152dc7400352bab0d-86a2293e-wab-104777398965560-393484506627',
+      attributes: {
+        attachment: {
+          buttons: [
+            { type: 'text', value: 'Button 1' },
+            { type: 'text', value: 'Button 2' },
+            { type: 'text', value: 'Button 3' },
+            { type: 'text', value: 'Button 4' },
+            { type: 'text', value: 'Button 6' },
+            { type: 'text', value: 'Button 7' },
+            { type: 'text', value: 'Button 8' },
+            { type: 'text', value: 'Button 9' },
+            { type: 'text', value: 'Button 10' },
+            { type: 'text', value: 'Button 11' },
+            { type: 'action', value: '↩︎ Back', action: 'main_menu' }
+          ]
+        },
+        _raw_message: 'Raw message'
+      }
+    }
+    let whatsapp_receiver = tiledeskChannelMessage.recipient.substring(tiledeskChannelMessage.recipient.lastIndexOf("-") + 1)
+
+    const tlr = new TiledeskWhatsappTranslator();
+    assert(tlr != null);
+    const whatsappJsonMessage = tlr.toWhatsapp(tiledeskChannelMessage, whatsapp_receiver);
+    assert(whatsappJsonMessage != null);
+    assert(whatsappJsonMessage.messaging_product === TiledeskWhatsappTranslator.WHATSAPP_MESSAGING_PRODUCT);
+    /*
+    assert(!whatsappJsonMessage.text);
+    assert(whatsappJsonMessage.type === "interactive");
+    assert(whatsappJsonMessage.interactive);
+    assert(whatsappJsonMessage.interactive.type === "list");
+    assert(whatsappJsonMessage.interactive.body.text === tiledeskChannelMessage.text);
+    assert(whatsappJsonMessage.interactive.action);
+    assert(whatsappJsonMessage.interactive.action.button === 'Choose an option');
+    assert(whatsappJsonMessage.interactive.action.sections);
+    */
+    if (!log) {
       console.log("(test) whatsappJsonMessage: ", whatsappJsonMessage);
     }
   })
