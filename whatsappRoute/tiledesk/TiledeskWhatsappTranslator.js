@@ -285,6 +285,7 @@ const path = require('path');
             // Option 2: Cut buttons array -> display first 10 buttons only
             // Option 3: Send message with *buttons (questa)
 
+            console.log("\n\ntiledeskChannelMessage.attributes._raw_message: ", JSON.stringify(tiledeskChannelMessage))
             whatsapp_message.text = { body: tiledeskChannelMessage.attributes._raw_message };
 
             if (this.log) {

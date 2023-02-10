@@ -1032,19 +1032,24 @@ async function startApp(settings, callback) {
   }
 
   redis_client = redis.createClient({
-    socket: {
         host: REDIS_HOST,
         port: REDIS_PORT,
-    },
     password: REDIS_PASSWORD
   });
-  redis_client.on('connect', () => {
-    console.log('Redis Connected!'); // Connected!
-  });
-  //await redis_client.connect(); // only for v4
+
   redis_client.on('error', err => {
     console.log('Error ' + err);
   })
+  /*
+  redis_client.on('connect', () => {
+    console.log('Redis Connected!'); // Connected!
+  });
+  */
+  redis_client.on('ready', () => {
+    console.log("Redis ready")
+  })
+  //await redis_client.connect(); // only for v4
+  
 
   db.connect(settings.MONGODB_URL, () => {
     console.log("KVBaseMongo successfully connected.");
