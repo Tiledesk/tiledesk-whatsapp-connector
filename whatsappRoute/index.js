@@ -900,14 +900,22 @@ router.post("/newtest", async (req, res) => {
   let short_uid = uuidv4().substring(0, 8)
   let key = "bottest:" + short_uid;
 
+  if (!redis_client) {
+    return res.status(500).send({ message: "Test it out on Whatsapp not available. Redis not ready."})
+  }
+
+  //console.log("redis_client: ", redis_client)
+
   await redis_client.set(key, JSON.stringify(info));
   //const value = await redis_client.get(key)
   //console.log("get --> value: ", value)
   redis_client.get(key, (err, value) => {
     if (err) {
       console.log("get err: ", err)
+      return res.status(500).send({success: "false", message: "No info found on redis"});
     } else {
       console.log("get value: ", value)
+      return res.status(200).send({short_uid: short_uid});
     }
   })
   /*
@@ -916,7 +924,7 @@ router.post("/newtest", async (req, res) => {
     path: '.nodell',
   });
   */
-  res.status(200).send({short_uid: short_uid});
+  //res.status(200).send({short_uid: short_uid});
 })
 
 router.post("/testitout/:project_id", async (req, res) => {
@@ -1038,12 +1046,6 @@ async function startApp(settings, callback) {
     log = settings.log;
   }
 
-  redis_client = redis.createClient({
-        host: REDIS_HOST,
-        port: REDIS_PORT,
-    password: REDIS_PASSWORD
-  });
-
   db.connect(settings.MONGODB_URL, () => {
     console.log("(whatsapp) KVBaseMongo successfully connected.");
     
@@ -1057,7 +1059,7 @@ function connectRedis() {
   redis_client = redis.createClient({
     host: REDIS_HOST,
     port: REDIS_PORT,
-    password: REDIS_PASSWORD
+    password: REDIS_PASSWORD 
   });
 
   redis_client.on('error', err => {
