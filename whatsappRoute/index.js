@@ -898,13 +898,20 @@ router.post("/newtest", async (req, res) => {
 
   //let short_uid = getRandomName();
   let short_uid = uuidv4().substring(0, 8)
-  let TEST_KEY = "bottest:" + short_uid;
+  let key = "bottest:" + short_uid;
 
-  await redis_client.json.set(TEST_KEY, '.', info);
-  const value = await redis_client.json.get(TEST_KEY)
-  console.log("get --> value: ", value)
+  await redis_client.set(key, JSON.stringify(info));
+  //const value = await redis_client.get(key)
+  //console.log("get --> value: ", value)
+  redis_client.get(key, (err, value) => {
+    if (err) {
+      console.log("get err: ", err)
+    } else {
+      console.log("get value: ", value)
+    }
+  })
   /*
-  const value = await redis_client.json.get(TEST_KEY, {
+  const value = await redis_client.json.get(key, {
     // JSON Path: .node = the element called 'node' at root level.
     path: '.nodell',
   });
@@ -924,11 +931,23 @@ router.post("/testitout/:project_id", async (req, res) => {
 
   let whatsappContact = req.body.entry[0].changes[0].value.contacts[0];
 
-  let REDIS_KEY = "bottest:" + whatsappChannelMessage.text.body.substring(3);
-  console.log("(testitout) key: ", REDIS_KEY);
+  let key = "bottest:" + whatsappChannelMessage.text.body.substring(3);
+  console.log("(testitout) key: ", key);
 
+  /*
   const info = await redis_client.json.get(REDIS_KEY);
   console.log("(testitout) info: ", info);
+  */
+  let test_info;
+  redis_client.get(key, (err, value) => {
+    if (err) {
+      console.log("No info found on redis. Exit..");
+      res.sendStatus(200);
+    } else {
+      test_info = JSON.parse(value)
+      console.log("test_info: ", test_info)
+    }
+  })
   
   let message_info = {
     channel: "whatsapp",
@@ -960,7 +979,7 @@ router.post("/testitout/:project_id", async (req, res) => {
   console.log("(testitout) tiledeskJsonMessage: ", tiledeskJsonMessage)
   
   const tdChannel = new TiledeskChannel({ settings: settings, API_URL: API_URL })
-  const response = await tdChannel.sendAndAddBot(tiledeskJsonMessage, message_info, info.bot_id)
+  const response = await tdChannel.sendAndAddBot(tiledeskJsonMessage, message_info, test_info.bot_id)
   console.log("testitout --> send response: ", response)
   
   res.status(200).send("testitout")
@@ -972,7 +991,7 @@ router.post("/testitout/:project_id", async (req, res) => {
 // *****************************
 
 async function startApp(settings, callback) {
-  console.log("Starting Whatsapp App");
+  console.log("(whatsapp) Starting Whatsapp App");
 
   if (!settings.MONGODB_URL) {
     throw new Error("settings.MONGODB_URL is mandatory");
@@ -982,49 +1001,37 @@ async function startApp(settings, callback) {
     throw new Error("settings.API_URL is mandatory");
   } else {
     API_URL = settings.API_URL;
-    console.log("API_URL: ", API_URL);
+    console.log("(whatsapp) API_URL: ", API_URL);
   }
 
   if (!settings.BASE_URL) {
     throw new Error("settings.BASE_URL is mandatory");
   } else {
     BASE_URL = settings.BASE_URL;
-    console.log("BASE_URL: ", BASE_URL);
+    console.log("(whatsapp) BASE_URL: ", BASE_URL);
   }
 
   if (!settings.GRAPH_URL) {
     throw new Error("settings.GRAPH_URL is mandatory");
   } else {
     GRAPH_URL = settings.GRAPH_URL;
-    console.log("GRAPH_URL: ", GRAPH_URL);
+    console.log("(whatsapp) GRAPH_URL: ", GRAPH_URL);
   }
 
   if (!settings.APPS_API_URL) {
     throw new Error("settings.APPS_API_URL is mandatory");
   } else {
     APPS_API_URL = settings.APPS_API_URL;
-    console.log("APPS_API_URL: ", APPS_API_URL);
+    console.log("(whatsapp) APPS_API_URL: ", APPS_API_URL);
   }
 
-  if (!settings.REDIS_HOST) {
-    throw new Error("!settings.REDIS_HOST is mandatory");
-  } else {
+  if (settings.REDIS_HOST && settings.REDIS_PORT && settings.REDIS_PASSWORD) {
     REDIS_HOST = settings.REDIS_HOST;
-    console.log("REDIS_HOST: ", REDIS_HOST);
-  }
-
-  if (!settings.REDIS_PORT) {
-    throw new Error("!settings.REDIS_PORT is mandatory");
-  } else {
     REDIS_PORT = settings.REDIS_PORT;
-    console.log("REDIS_PORT: ", REDIS_PORT);
-  }
-
-  if (!settings.REDIS_PASSWORD) {
-    throw new Error("!settings.REDIS_PASSWORD is mandatory");
-  } else {
     REDIS_PASSWORD = settings.REDIS_PASSWORD;
-    console.log("REDIS_PASSWORD: *************");
+    connectRedis();
+  } else {
+    console.log("(whatsapp) Missing redis parameters --> Test it out on WhatsApp disabled");
   }
 
   if (settings.log) {
@@ -1037,22 +1044,8 @@ async function startApp(settings, callback) {
     password: REDIS_PASSWORD
   });
 
-  redis_client.on('error', err => {
-    console.log('Error ' + err);
-  })
-  /*
-  redis_client.on('connect', () => {
-    console.log('Redis Connected!'); // Connected!
-  });
-  */
-  redis_client.on('ready', () => {
-    console.log("Redis ready")
-  })
-  //await redis_client.connect(); // only for v4
-  
-
   db.connect(settings.MONGODB_URL, () => {
-    console.log("KVBaseMongo successfully connected.");
+    console.log("(whatsapp) KVBaseMongo successfully connected.");
     
     if (callback) {
       callback();
@@ -1060,8 +1053,30 @@ async function startApp(settings, callback) {
   })
 }
 
+function connectRedis() {
+  redis_client = redis.createClient({
+    host: REDIS_HOST,
+    port: REDIS_PORT,
+    password: REDIS_PASSWORD
+  });
+
+  redis_client.on('error', err => {
+    console.log('(whatsapp) Connect Redis Error ' + err);
+  })
+  /*
+  redis_client.on('connect', () => {
+    console.log('Redis Connected!'); // Connected!
+  });
+  */
+  redis_client.on('ready', () => {
+    console.log("(whatsapp) Redis ready!")
+  })
+  //await redis_client.connect(); // only for v4
+
+}
+
 function readHTMLFile(templateName, callback) {
-  console.log("Reading file: ", templateName)
+  //console.log("Reading file: ", templateName)
   fs.readFile(__dirname + '/template' + templateName, { encoding: 'utf-8' },
     function(err, html) {
       if (err) {
