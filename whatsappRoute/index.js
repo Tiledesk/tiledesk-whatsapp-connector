@@ -1033,6 +1033,16 @@ async function startApp(settings, callback) {
     console.log("(whatsapp) APPS_API_URL: ", APPS_API_URL);
   }
 
+  if (settings.REDIS_HOST && settings.REDIS_PORT) {
+    REDIS_HOST = settings.REDIS_HOST;
+    REDIS_PORT = settings.REDIS_PORT;
+    REDIS_PASSWORD = settings.REDIS_PASSWORD;
+    connectRedis();
+  } else {
+    console.log("(whatsapp) Missing redis parameters --> Test it out on WhatsApp disabled");
+  }
+
+  /*
   if (settings.REDIS_HOST && settings.REDIS_PORT && settings.REDIS_PASSWORD) {
     REDIS_HOST = settings.REDIS_HOST;
     REDIS_PORT = settings.REDIS_PORT;
@@ -1041,6 +1051,7 @@ async function startApp(settings, callback) {
   } else {
     console.log("(whatsapp) Missing redis parameters --> Test it out on WhatsApp disabled");
   }
+  */
 
   if (settings.log) {
     log = settings.log;
