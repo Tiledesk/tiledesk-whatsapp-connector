@@ -51,7 +51,7 @@ const path = require('path');
    * @param {Object} tiledeskChannelMessage - The message in Tiledesk format.
    * @param {string} whatsapp_receiver - The Whatsapp recipient fo the message.
   */
-  async toWhatsapp(tiledeskChannelMessage, whatsapp_receiver) {
+  toWhatsapp(tiledeskChannelMessage, whatsapp_receiver) {
 
     // to --> recipient
     if (this.log) {
