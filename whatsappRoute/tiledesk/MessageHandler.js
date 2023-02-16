@@ -36,7 +36,7 @@ class MessageHandler {
 
   async generateMessageObject(command) {
     console.log("[MessageHandler] command: ", command);
-    console.log("[MessageHandler] tiledeskChannelMessage: ", this.tiledeskChannelMessage);
+    //console.log("[MessageHandler] tiledeskChannelMessage: ", this.tiledeskChannelMessage);
     let tiledeskCommandMessage = command.message;
 
     tiledeskCommandMessage.recipient = this.tiledeskChannelMessage.recipient;

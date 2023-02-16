@@ -189,7 +189,6 @@ class TiledeskChannel {
         data: tiledeskMessage,
         method: 'POST'
       }).then((response) => {
-        console.log(response)
         return response.data
 
         /*

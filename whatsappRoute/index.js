@@ -18,6 +18,7 @@ const { TiledeskWhatsapp } = require('./tiledesk/TiledeskWhatsapp');
 const { TiledeskChannel } = require('./tiledesk/TiledeskChannel');
 const { TiledeskAppsClient } = require('./tiledesk/TiledeskAppsClient');
 const { MessageHandler } = require('./tiledesk/MessageHandler');
+const { TiledeskBotTester } = require('./tiledesk/TiledeskBotTester');
 
 // mongo
 const { KVBaseMongo } = require('@tiledesk/tiledesk-kvbasemongo');
@@ -42,7 +43,6 @@ let REDIS_PORT = null;
 let REDIS_PASSWORD = null;
 let log = false;
 
-
 router.get('/', async (req, res) => {
   res.send('Welcome to Tiledesk-WhatsApp Business connector!')
 })
@@ -63,7 +63,7 @@ router.get('/detail', async (req, res) => {
 
   readHTMLFile('/detail.html', (err, html) => {
     if (err) {
-      console.log("(ERROR) Read html file: ", err);
+      console.log("(whatsapp) error read html file: ", err);
     }
 
     var template = handlebars.compile(html);
@@ -73,9 +73,6 @@ router.get('/detail', async (req, res) => {
       token: token,
       app_id: app_id,
       installed: installed
-    }
-    if (log) {
-      console.log("Replacements: ", replacements);
     }
     var html = template(replacements);
     res.send(html);
@@ -88,28 +85,25 @@ router.post('/install', async (req, res) => {
   let app_id = req.body.app_id;
   let token = req.body.token;
 
-  console.log("Install app " + app_id + " for project id " + project_id);
+  console.log("(whatsapp) Install app " + app_id + " for project id " + project_id);
   let installation_info = {
     project_id: project_id,
     app_id: app_id,
     createdAt: Date.now()
   };
 
-  console.log("installation info: ", installation_info)
-
   const appClient = new TiledeskAppsClient({ APPS_API_URL: APPS_API_URL });
-  //let installation = await appClient.install(installation_info);
   appClient.install(installation_info).then((installation) => {
 
     if (log) {
-      console.log("installation response: ", installation);
+      console.log("(whatsapp) installation response: ", installation);
     }
 
     let installed = true;
 
     readHTMLFile('/detail.html', (err, html) => {
       if (err) {
-        console.log("(ERROR) Read html file: ", err);
+        console.log("(whatsapp) error read html file: ", err);
       }
 
       var template = handlebars.compile(html);
@@ -120,15 +114,12 @@ router.post('/install', async (req, res) => {
         app_id: app_id,
         installed: installed
       }
-      if (log) {
-        console.log("Replacements: ", replacements);
-      }
       var html = template(replacements);
       res.send(html);
     })
 
   }).catch((err) => {
-    console.error("installation error: ", err.data)
+    console.error("(whatsapp) installation error: ", err.data)
     res.send("An error occurred during the installation");
   })
 
@@ -143,14 +134,14 @@ router.post('/uninstall', async (req, res) => {
   appClient.uninstall(project_id, app_id).then((response) => {
 
     if (log) {
-      console.log("uninstallation response: ", response);
+      console.log("(whatsapp) uninstallation response: ", response);
     }
 
     let installed = false;
 
     readHTMLFile('/detail.html', (err, html) => {
       if (err) {
-        console.log("(ERROR) Read html file: ", err);
+        console.log("(whatsapp) error read html file: ", err);
       }
 
       var template = handlebars.compile(html);
@@ -161,23 +152,20 @@ router.post('/uninstall', async (req, res) => {
         app_id: app_id,
         installed: installed
       }
-      if (log) {
-        console.log("Replacements: ", replacements);
-      }
       var html = template(replacements);
       res.send(html);
     })
 
   }).catch((err) => {
-    console.error("uninsallation error: ", err.data)
+    console.error("(whatsapp) uninsallation error: ", err.data)
     res.send("An error occurred during the uninstallation");
   })
 })
 
 router.get('/configure', async (req, res) => {
-  console.log("\n/configure");
+  console.log("\n(whatsapp) /configure");
   if (log) {
-    console.log("/configure query: ", req.query);
+    console.log("(whatsapp) /configure query: ", req.query);
   }
 
   let projectId = "";
@@ -191,13 +179,15 @@ router.get('/configure', async (req, res) => {
   let CONTENT_KEY = "whatsapp-" + projectId;
   
   let settings = await db.get(CONTENT_KEY);
-  console.log("[KVDB] settings: ", settings);
+  if (log) {
+    console.log("(whatsapp) kvdb settings: ", settings);
+  }
 
   if (settings) {
 
     readHTMLFile('/configure.html', (err, html) => {
       if (err) {
-        console.log("(ERROR) Read html file: ", err);
+        console.log("(whatsapp) error read html file: ", err);
       }
 
       var template = handlebars.compile(html);
@@ -210,9 +200,6 @@ router.get('/configure', async (req, res) => {
         verify_token: settings.verify_token,
         subscription_id: settings.subscriptionId,
       }
-      if (log) {
-        console.log("Replacements: ", replacements);
-      }
       var html = template(replacements);
       res.send(html);
 
@@ -223,7 +210,7 @@ router.get('/configure', async (req, res) => {
     readHTMLFile('/configure.html', (err, html) => {
 
       if (err) {
-        console.log("(ERROR) Read html file: ", err);
+        console.log("(whatsapp) error read html file: ", err);
       }
 
       var template = handlebars.compile(html);
@@ -233,9 +220,6 @@ router.get('/configure', async (req, res) => {
         token: token,
         proxy_url: proxy_url,
       }
-      if (log) {
-        console.log("Replacements: ", replacements);
-      }
       var html = template(replacements);
       res.send(html);
 
@@ -244,9 +228,9 @@ router.get('/configure', async (req, res) => {
 })
 
 router.post('/update', async (req, res) => {
-  console.log("\n/update");
+  console.log("\n(whatsapp) /update");
   if (log) {
-    console.log("/update body: ", req.body);
+    console.log("(whatsapp) /update body: ", req.body);
   }
 
   let projectId = req.body.project_id;
@@ -268,7 +252,7 @@ router.post('/update', async (req, res) => {
 
     readHTMLFile('/configure.html', (err, html) => {
       if (err) {
-        console.log("(ERROR) Read html file: ", err);
+        console.log("(whatsapp) error read html file: ", err);
       }
 
       var template = handlebars.compile(html);
@@ -282,10 +266,6 @@ router.post('/update', async (req, res) => {
         verify_token: settings.verify_token,
         subscription_id: settings.subscriptionId,
       }
-      if (log) {
-        console.log("Replacements: ", replacements);
-      }
-
       var html = template(replacements);
       res.send(html);
     })
@@ -310,7 +290,7 @@ router.post('/update', async (req, res) => {
     tdClient.subscribe(subscription_info).then((data) => {
       let subscription = data;
       if (log) {
-        console.log("\nSubscription: ", subscription)
+        console.log("\n(whatsapp) Subscription: ", subscription)
       }
 
       let settings = {
@@ -328,7 +308,7 @@ router.post('/update', async (req, res) => {
 
       readHTMLFile('/configure.html', (err, html) => {
         if (err) {
-          console.log("(ERROR) Read html file: ", err);
+          console.log("(whatsapp) error read html file: ", err);
         }
 
         var template = handlebars.compile(html);
@@ -342,10 +322,6 @@ router.post('/update', async (req, res) => {
           verify_token: settings.verify_token,
           subscription_id: settings.subscriptionId,
         }
-        if (log) {
-          console.log("Replacements: ", replacements);
-        }
-
         var html = template(replacements);
         res.send(html);
       })
@@ -354,7 +330,7 @@ router.post('/update', async (req, res) => {
 
       readHTMLFile('/configure.html', (err, html) => {
         if (err) {
-          console.log("(ERROR) Read html file: ", err);
+          console.log("(whatsapp) error read html file: ", err);
         }
 
         var template = handlebars.compile(html);
@@ -365,10 +341,6 @@ router.post('/update', async (req, res) => {
           proxy_url: proxy_url,
           show_error_modal: true
         }
-        if (log) {
-          console.log("Replacements: ", replacements);
-        }
-
         var html = template(replacements);
         res.send(html);
       })
@@ -378,20 +350,19 @@ router.post('/update', async (req, res) => {
 })
 
 router.post('/disconnect', async (req, res) => {
-  console.log("\n/disconnect")
+  console.log("\n(whatsapp) /disconnect")
   if (log) {
-    console.log("/disconnect body: ", req.body)
+    console.log("(whatsapp) /disconnect body: ", req.body)
   }
 
   let projectId = req.body.project_id;
   let token = req.body.token;
   let subscriptionId = req.body.subscription_id;
 
-  console.log("uninstall --> subscriptionId: ", subscriptionId)
 
   let CONTENT_KEY = "whatsapp-" + projectId;
   await db.remove(CONTENT_KEY);
-  console.log("Content deleted.");
+  console.log("(whatsapp) Content deleted.");
 
   let proxy_url = BASE_URL + "/webhook/" + projectId;
 
@@ -409,7 +380,7 @@ router.post('/disconnect', async (req, res) => {
     readHTMLFile('/configure.html', (err, html) => {
 
       if (err) {
-        console.log("(ERROR) Read html file: ", err);
+        console.log("(whatsapp) error read html file: ", err);
       }
 
       var template = handlebars.compile(html);
@@ -419,31 +390,25 @@ router.post('/disconnect', async (req, res) => {
         token: token,
         proxy_url: proxy_url,
       }
-      if (log) {
-        console.log("Replacements: ", replacements);
-      }
-
       var html = template(replacements);
       res.send(html);
     })
 
   }).catch((err) => {
-    console.error("(ERROR) Unsubscribe: ", err);
+    console.error("(whatsapp) error unsubscribe: ", err);
   })
 
 })
 
 router.post('/tiledesk', async (req, res) => {
-  console.log("\n/tiledesk")
-  //if (log) {
-  //console.log("/tiledesk ---> tiledeskChannelMessage: " + JSON.stringify(req.body.payload));
-  //}
+  console.log("\n(whatsapp) /tiledesk")
+  if (log) {
+    console.log("(whatsapp) /tiledesk ---> tiledeskChannelMessage: " + JSON.stringify(req.body.payload));
+  }
 
   var tiledeskChannelMessage = req.body.payload;
-  console.log("(TILEDESK) Payload: ", JSON.stringify(req.body.payload));
-
+  
   var projectId = req.body.payload.id_project;
-  console.log("(TILEDESK) PROJECT ID: ", projectId);
 
   // get settings from mongo
   let CONTENT_KEY = "whatsapp-" + projectId;
@@ -451,21 +416,22 @@ router.post('/tiledesk', async (req, res) => {
   let wab_token = settings.wab_token;
 
   var text = req.body.payload.text;
-  console.log("(TILEDESK) TEXT: ", text);
+  if (log) {
+    console.log("(whatsapp) /tiledesk text: ", text);
+  }
 
   let attributes = req.body.payload.attributes;
-  console.log("(TILEDESK) ATTRIBUTES: ", JSON.stringify(attributes, null, 2))
   if (log) {
+    console.log("(whatsapp) /tiledesk attributes: ", JSON.stringify(attributes))
   }
 
   let commands;
   if (attributes && attributes.commands) {
     commands = attributes.commands;
-    console.log("commands: ", JSON.stringify(commands, null, 2));
   }
 
   var sender_id = req.body.payload.sender;
-  console.log("(TILEDESK) SENDER ID: ", sender_id);
+  console.log("(whatsapp) /tiledesk sender_id: ", sender_id);
 
   if (sender_id.indexOf("wab") > -1) {
     console.log("Skip same sender");
@@ -473,69 +439,58 @@ router.post('/tiledesk', async (req, res) => {
   }
 
   if (attributes && attributes.subtype === "info") {
-    console.log("(TILEDESK) Skip subtype (info) ");
+    console.log("(whatsapp) /tiledesk Skip subtype (info)");
     return res.send(200);
   }
 
   if (attributes && attributes.subtype === 'info/support') {
-    console.log("Skip subtype: ", attributes.subtype);
+    console.log("(whatsapp) /tiledesk Skip subtype: ", attributes.subtype);
     return res.send(200);
   }
 
-  // Redirect for testing bots
-  //if (text.startsWith("#td")) {
-  //  return res.redirect('/testitout');
-  //}
-
-  //console.log("/tiledesk ---> tiledeskChannelMessage: " + JSON.stringify(req.body.payload));
-
   let recipient_id = tiledeskChannelMessage.recipient;
-  console.log("(Tiledesk) Recipient_id: ", recipient_id);
-
-  //let last = recipient_id.lastIndexOf("-");
+  if (log) {
+    console.log("(whatsapp) /tiledesk Recipient_id: ", recipient_id);
+  }
 
   let whatsapp_receiver = recipient_id.substring(recipient_id.lastIndexOf("-") + 1);
-  console.log("(Tiledesk) whatsapp_receiver: ", whatsapp_receiver);
-
-  //let last2 = recipient_id.lastIndexOf("wab-");
+  if (log) {
+    console.log("(whatsapp) /tiledesk whatsapp_receiver: ", whatsapp_receiver);
+  }
 
   let phone_number_id = recipient_id.substring(recipient_id.lastIndexOf("wab-") + 4, recipient_id.lastIndexOf("-"));
-  console.log("(Tiledesk) phone_number_id: ", phone_number_id)
-
-  console.log("-----> (Tiledesk) ANSWER: ", tiledeskChannelMessage.answer)
+  if (log) {
+    console.log("(Tiledesk) phone_number_id: ", phone_number_id)
+  }
 
   const messageHandler = new MessageHandler({ tiledeskChannelMessage: tiledeskChannelMessage });
   const tlr = new TiledeskWhatsappTranslator();
 
   if (commands) {
-    const that = this;
     let i = 0;
     async function execute(command) {
       // message
-      console.log/("----> next command: ", command);
       if (command.type === "message") {
         let tiledeskCommandMessage = await messageHandler.generateMessageObject(command);
-        console.log("message generated!\ntiledeskCommandMessage: ", tiledeskCommandMessage)
+        console.log("(whatsapp) message generated\ntiledeskCommandMessage: ", JSON.stringify(tiledeskCommandMessage))
 
         let whatsappJsonMessage = await tlr.toWhatsapp(tiledeskCommandMessage, whatsapp_receiver);
-        console.log('\x1b[34m%s\x1b[0m', 'whatsappJsonMessage', whatsappJsonMessage)
+        console.log("🟢 whatsappJsonMessage", JSON.stringify(whatsappJsonMessage))
 
-        
         if (whatsappJsonMessage) {
-        const twClient = new TiledeskWhatsapp({ token: settings.wab_token, GRAPH_URL: GRAPH_URL });
-        twClient.sendMessage(phone_number_id, whatsappJsonMessage).then((response) => {
-            //console.log("Send message response: ", response.status, response.statusText);
+          const twClient = new TiledeskWhatsapp({ token: settings.wab_token, GRAPH_URL: GRAPH_URL });
+          twClient.sendMessage(phone_number_id, whatsappJsonMessage).then((response) => {
             i += 1;
             if (i < commands.length) {
               execute(commands[i]);
             } else {
-              console.log("End of commands")
+              console.log("(whatsapp) End of commands")
             }
           }).catch((err) => {
-            console.error("ERROR Send message: ", err);
+            console.error("(whatsapp) error send message: ", err);
           })
         } else {
-          console.error("Whatsapp Json Message is undefined!")
+          console.error("(whatsapp) Whatsapp Json Message is undefined!")
         }
         
       }
@@ -543,12 +498,11 @@ router.post('/tiledesk', async (req, res) => {
       //wait
       if (command.type === "wait") {
         setTimeout(() => {
-          console.log("wait for " + command.time + " s")
           i += 1;
           if (i < commands.length) {
             execute(commands[i]);
           } else {
-            console.log("End of commands")
+            console.log("(whatsapp) End of commands")
           }
         }, command.time)
       }
@@ -558,104 +512,26 @@ router.post('/tiledesk', async (req, res) => {
 
   else if (tiledeskChannelMessage.text) {
 
-    console.log("tiledeskChannelMessage.text: ", tiledeskChannelMessage.text)
-
     let whatsappJsonMessage = await tlr.toWhatsapp(tiledeskChannelMessage, whatsapp_receiver);
-    console.log('\x1b[34m%s\x1b[0m', 'whatsappJsonMessage', whatsappJsonMessage)
-    //console.log("whatsappJsonMessage: ", whatsappJsonMessage);
+    console.log("🟢 whatsappJsonMessage", JSON.stringify(whatsappJsonMessage))
 
     if (whatsappJsonMessage) {
       const twClient = new TiledeskWhatsapp({ token: settings.wab_token, GRAPH_URL: GRAPH_URL });
   
       twClient.sendMessage(phone_number_id, whatsappJsonMessage).then((response) => {
-        console.log("Send message response: ", response.status, response.statusText);
+        console.log("(whatsapp) Send message response: ", response.status, response.statusText);
       }).catch((err) => {
-        console.error("ERROR Send message: ", err);
+        console.error("(whatsapp) error send message: ", err);
       })
   
-      /*
-      sendMessage(phone_number_id, whatsappJsonMessage, wab_token).then((response) => {
-        console.log("sendMessage() response: ", response);
-      }).catch((err) => {
-        console.log("ERROR sendMessage(): ", err);
-      })
-      */
     } else {
-      console.error("Whatsapp Json Message is undefined!")
+      console.error("(whatsapp) Whatsapp Json Message is undefined!")
     }
     
   } else {
-    console.log("no command, no text --> skip")
+    console.log("(whatsapp) no command, no text --> skip")
   }
 
-
-    
-
-  /*
-  if (commands) {
-    commands.forEach( async (command) => {
-      console.log("\ncommand: ", command);
-      if (command.type === "message") {
-        let tiledeskCommandMessage = await messageHandler.generateMessageObject(command);
-        console.log("message generated!\ntiledeskCommandMessage: ", tiledeskCommandMessage)
-
-        let whatsappJsonMessage = await tlr.toWhatsapp(tiledeskCommandMessage, whatsapp_receiver);
-        console.log('\x1b[34m%s\x1b[0m', 'whatsappJsonMessage', whatsappJsonMessage)
-
-        
-        if (whatsappJsonMessage) {
-        const twClient = new TiledeskWhatsapp({ token: settings.wab_token, GRAPH_URL: GRAPH_URL });
-          twClient.sendMessage(phone_number_id, whatsappJsonMessage).then((response) => {
-            console.log("Send message response: ", response.status, response.statusText);
-          }).catch((err) => {
-            console.error("ERROR Send message: ", err);
-          })
-        } else {
-          console.error("Whatsapp Json Message is undefined!")
-        }
-        
-      }
-      if (command.type === "wait") {
-        setTimeout(() => {
-          console.log("wait for " + command.time + " s")
-          console.log("Next command")
-        }, command.time)
-      }
-    })
-  }
-    */
-  //new_tiledesk_message = addCommandmessage(commands[0]);
-
-  /*
-  let whatsappJsonMessage = await tlr.toWhatsapp(tiledeskChannelMessage, whatsapp_receiver);
-  console.log('\x1b[34m%s\x1b[0m', 'whatsappJsonMessage', whatsappJsonMessage)
-  //console.log("whatsappJsonMessage: ", whatsappJsonMessage);
-
-  if (whatsappJsonMessage) {
-    const twClient = new TiledeskWhatsapp({ token: settings.wab_token, GRAPH_URL: GRAPH_URL });
-
-    twClient.sendMessage(phone_number_id, whatsappJsonMessage).then((response) => {
-      console.log("Send message response: ", response.status, response.statusText);
-    }).catch((err) => {
-      console.error("ERROR Send message: ", err);
-    })
-
-    /*
-    sendMessage(phone_number_id, whatsappJsonMessage, wab_token).then((response) => {
-      console.log("sendMessage() response: ", response);
-    }).catch((err) => {
-      console.log("ERROR sendMessage(): ", err);
-    })
-    */
-
-  /*
-  } else {
-    console.error("Whatsapp Json Message is undefined!")
-  }
-  */
-  // richiamo toWhatsapp;
-  // sendMessage
-  //callSendAPI(project_id, phone_number_id, to, payload);
   return res.send(200);
 })
 
@@ -664,12 +540,11 @@ router.post('/tiledesk', async (req, res) => {
 router.post("/webhook/:project_id", async (req, res) => {
   
   // Parse the request body from the POST
-  let body = req.body;
   let projectId = req.params.project_id;
+  //console.log("/webhook req.body: ", JSON.stringify(req.body, null, 2))
 
   // Check the Incoming webhook message
   // console.log("\n***Body: ", JSON.stringify(req.body, null, 2));
-
   // info on WhatsApp text message payload: https://developers.facebook.com/docs/whatsapp/cloud-api/webhooks/payload-examples#text-messages
   if (req.body.object) {
     if (
@@ -680,135 +555,138 @@ router.post("/webhook/:project_id", async (req, res) => {
       req.body.entry[0].changes[0].value.messages[0]
     ) {
 
-      console.log("\n***Body: ", JSON.stringify(req.body, null, 2));
+      console.log("\n(whatsapp) /whatsapp Body: ", JSON.stringify(req.body));
 
       if (req.body.entry[0].changes[0].value.messages[0].type == "system") {
-        console.log("Skip system message")
+        console.log("(whatsapp) Skip system message")
         return res.sendStatus(200);
       }
 
-      //let originalWhatsappMessage = req.body;
       let whatsappChannelMessage = req.body.entry[0].changes[0].value.messages[0];
 
-      if (whatsappChannelMessage.text && whatsappChannelMessage.text.body.startsWith("#td")) { 
-        return res.redirect(307, '/testitout/' + projectId);
-      }
-
-      let firstname = req.body.entry[0].changes[0].value.contacts[0].profile.name;
-      console.log("(WAB) firstname: ", firstname)
-
-      let message_info = {
-        channel: "whatsapp",
-        whatsapp: {
-          phone_number_id: req.body.entry[0].changes[0].value.metadata.phone_number_id,
-          from: req.body.entry[0].changes[0].value.messages[0].from,
-          firstname: req.body.entry[0].changes[0].value.contacts[0].profile.name,
-          lastname: " "
-        }
-      }
-
       let CONTENT_KEY = "whatsapp-" + projectId;
-
       let settings = await db.get(CONTENT_KEY);
       if (log) {
-        console.log("[KVDB] settings: ", settings);
+        console.log("(whatsapp) kvdb settings: ", settings);
       }
-
       if (!settings) {
-        console.log("No settings found. Exit..");
-        res.sendStatus(200);
-        return;
+        console.log("(whatsapp) No settings found. Exit..");
+        return res.sendStatus(200);
       }
-
-      let tiledeskJsonMessage;
 
       const tlr = new TiledeskWhatsappTranslator();
-
-      if ((whatsappChannelMessage.type == 'text')) {
-        console.log("message type text")
-        tiledeskJsonMessage = tlr.toTiledesk(whatsappChannelMessage, firstname);
-
-      }
-      else if (whatsappChannelMessage.type == 'interactive') {
-        console.log("message type interactive")
-        tiledeskJsonMessage = tlr.toTiledesk(whatsappChannelMessage, firstname);
-      }
-      else if ((whatsappChannelMessage.type == 'image') || (whatsappChannelMessage.type == 'video') || (whatsappChannelMessage.type == 'document')) {
-        let media;
-        const util = new TiledeskWhatsapp({ token: settings.wab_token, GRAPH_URL: GRAPH_URL })
-
-        if (whatsappChannelMessage.type == 'image') {
-          media = whatsappChannelMessage.image;
-          console.log("media_id: ", media.id);
-
-          const filename = await util.downloadMedia(media.id);
-          console.log("File position: ", filename);
-          if (!filename) {
-            console.log("Unable to download media. Message not sent.");
-            return res.status(500).send({ success: false, error: "unable to download media" })
-          }
-          let file_path = path.join(__dirname, 'tmp', filename);
-
-          const image_url = await util.uploadMedia(file_path, "images");
-          console.log("image_url: ", image_url)
-
-          tiledeskJsonMessage = tlr.toTiledesk(whatsappChannelMessage, firstname, image_url);
-
-        }
-
-        if (whatsappChannelMessage.type == 'video') {
-          media = whatsappChannelMessage.video;
-
-          const filename = await util.downloadMedia(media.id);
-          console.log("File position: ", filename);
-          if (!filename) {
-            console.log("Unable to download media. Message not sent.");
-            return res.status(500).send({ success: false, error: "unable to download media" })
-          }
-          let file_path = path.join(__dirname, 'tmp', filename);
-
-
-          const media_url = await util.uploadMedia(file_path, "files");
-          console.log("image_url: ", media_url)
-
-          tiledeskJsonMessage = tlr.toTiledesk(whatsappChannelMessage, firstname, media_url);
-        }
-
-        if (whatsappChannelMessage.type == 'document') {
-          media = whatsappChannelMessage.document;
-
-          const filename = await util.downloadMedia(media.id);
-          console.log("File position: ", filename);
-          if (!filename) {
-            console.log("Unable to download media. Message not sent.");
-            return res.status(500).send({ success: false, error: "unable to download media" })
-          }
-          let file_path = path.join(__dirname, 'tmp', filename);
-
-          const media_url = await util.uploadMedia(file_path, "files");
-          console.log("image_url: ", media_url)
-
-          tiledeskJsonMessage = tlr.toTiledesk(whatsappChannelMessage, firstname, media_url);
-        }
-
-      } else {
-        // unsupported. Try anyway to send something.
-      }
-
-      console.log("tiledeskJsonMessage: ", tiledeskJsonMessage);
-
-      // tdClient.signInWithCustomToken
-      // tdClient.getRequests 
       const tdChannel = new TiledeskChannel({ settings: settings, API_URL: API_URL })
-      const response = await tdChannel.send(tiledeskJsonMessage, message_info);
-      if (log) {
-        console.log("Send response: ", response)
-      }
 
-    }
-    res.sendStatus(200);
+      // Initialize conversation with chatbot
+      if (whatsappChannelMessage.text && whatsappChannelMessage.text.body.startsWith("#td")) { 
+
+        const bottester = new TiledeskBotTester({project_id: projectId, redis_client: redis_client, db: db, tdChannel: tdChannel, tlr: tlr});
+        bottester.startBotConversation(req.body).then((result) => {
+          return res.status(200).send('testitout');
+        }).catch((err) => {
+          return res.status(500).send(err);
+        })
+
+      // Standard message
+      } else {
+        
+        let firstname = req.body.entry[0].changes[0].value.contacts[0].profile.name;
+        if (log) {
+          console.log("(whatsapp) /whatsapp firstname: ", firstname)         
+        }
+
+        let message_info = {
+          channel: "whatsapp",
+          whatsapp: {
+            phone_number_id: req.body.entry[0].changes[0].value.metadata.phone_number_id,
+            from: req.body.entry[0].changes[0].value.messages[0].from,
+            firstname: req.body.entry[0].changes[0].value.contacts[0].profile.name,
+            lastname: " "
+          }
+        }
+  
+        let tiledeskJsonMessage;
+        
+        if ((whatsappChannelMessage.type == 'text')) {
+          console.log("(whatsapp) /whatsapp message type text")
+          tiledeskJsonMessage = tlr.toTiledesk(whatsappChannelMessage, firstname);
+  
+        }
+        else if (whatsappChannelMessage.type == 'interactive') {
+          console.log("(whatsapp) /whatsapp message type interactive")
+          tiledeskJsonMessage = tlr.toTiledesk(whatsappChannelMessage, firstname);
+        }
+
+        else if ((whatsappChannelMessage.type == 'image') || (whatsappChannelMessage.type == 'video') || (whatsappChannelMessage.type == 'document')) {
+          let media;
+          const util = new TiledeskWhatsapp({ token: settings.wab_token, GRAPH_URL: GRAPH_URL })
+  
+          if (whatsappChannelMessage.type == 'image') {
+            media = whatsappChannelMessage.image;
+            console.log("(whatsapp) /whatsapp media_id: ", media.id);
+  
+            const filename = await util.downloadMedia(media.id);
+            if (!filename) {
+              console.log("(whatsapp) /whatsapp Unable to download media. Message not sent.");
+              return res.status(500).send({ success: false, error: "unable to download media" })
+            }
+            let file_path = path.join(__dirname, 'tmp', filename);
+  
+            const image_url = await util.uploadMedia(file_path, "images");
+            console.log("(whatsapp) /whatsapp image_url: ", image_url)
+  
+            tiledeskJsonMessage = tlr.toTiledesk(whatsappChannelMessage, firstname, image_url);
+          }
+  
+          if (whatsappChannelMessage.type == 'video') {
+            media = whatsappChannelMessage.video;
+  
+            const filename = await util.downloadMedia(media.id);
+            if (!filename) {
+              console.log("(whatsapp) /whatsapp Unable to download media. Message not sent.");
+              return res.status(500).send({ success: false, error: "unable to download media" })
+            }
+            let file_path = path.join(__dirname, 'tmp', filename);
+  
+  
+            const media_url = await util.uploadMedia(file_path, "files");
+            console.log("(whatsapp) /whatsapp media_url: ", media_url)
+  
+            tiledeskJsonMessage = tlr.toTiledesk(whatsappChannelMessage, firstname, media_url);
+          }
+  
+          if (whatsappChannelMessage.type == 'document') {
+            media = whatsappChannelMessage.document;
+  
+            const filename = await util.downloadMedia(media.id);
+            if (!filename) {
+              console.log("(whatsapp) /whatsapp Unable to download media. Message not sent.");
+              return res.status(500).send({ success: false, error: "unable to download media" })
+            }
+            let file_path = path.join(__dirname, 'tmp', filename);
+  
+            const media_url = await util.uploadMedia(file_path, "files");
+            console.log("(whatsapp) /whatsapp media_url: ", media_url)
+  
+            tiledeskJsonMessage = tlr.toTiledesk(whatsappChannelMessage, firstname, media_url);
+          }
+  
+        } else {
+          // unsupported. Try anyway to send something.
+        }
+
+        console.log("🟠 tiledeskJsonMessage: ", JSON.stringify(tiledeskJsonMessage));
+        const response = await tdChannel.send(tiledeskJsonMessage, message_info);
+        if (log) {
+          console.log("(whatsapp) /whatsapp Send response: ", response)
+        }
+        
+      }
+    } 
+    res.sendStatus(200); 
   } else {
     // Return a '404 Not Found' if event is not from a WhatsApp API
+    console.log("event not from whatsapp")
     res.sendStatus(404);
   }
 });
@@ -820,33 +698,28 @@ router.get("/webhook/:project_id", async (req, res) => {
    * UPDATE YOUR VERIFY TOKEN
    *This will be the Verify Token value when you set up webhook
   **/
-  console.log("\nVerify the webhook: ", req);
-  console.log("\req.query: ", req.query);
+  console.log("\n(whatsapp) Verify the webhook... ");
+  console.log("\(whatsapp) req.query: ", req.query);
 
   // Parse params from the webhook verification request
   let mode = req.query["hub.mode"];
   let token = req.query["hub.verify_token"];
   let challenge = req.query["hub.challenge"];
 
-  console.log("**********")
-  console.log("mode: ", mode)
-  console.log("token: ", token)
-  console.log("challenge: ", challenge)
-  console.log("**********")
-
   let CONTENT_KEY = "whatsapp-" + req.params.project_id;
-  console.log("\CONTENT_KEY: ", CONTENT_KEY);
 
   let settings = await db.get(CONTENT_KEY);
 
   if (!settings || !settings.verify_token) {
-    console.error("No settings found! Unable to verify token.")
+    console.error("(whatsapp) No settings found! Unable to verify token.")
     res.sendStatus(403);
   } else {
     let VERIFY_TOKEN = settings.verify_token;
 
-    console.log("token: ", token);
-    console.log("verify token: ", VERIFY_TOKEN);
+    if (log) {
+      console.log("token: ", token);
+      console.log("verify token: ", VERIFY_TOKEN);
+    }
 
     // Check if a token and mode were sent
     if (mode && token) {
@@ -854,15 +727,15 @@ router.get("/webhook/:project_id", async (req, res) => {
       if (mode === "subscribe" && token === VERIFY_TOKEN) {
 
         // Respond with 200 OK and challenge token from the request
-        console.log("WEBHOOK_VERIFIED");
+        console.log("(whatsapp) WEBHOOK_VERIFIED");
         res.status(200).send(challenge);
       } else {
         // Responds with '403 Forbidden' if verify tokens do not match
-        console.error("mode is not 'subscribe' or token do not match");
+        console.error("(whatsapp) mode is not 'subscribe' or token do not match");
         res.sendStatus(403);
       }
     } else {
-      console.error("mode or token undefined");
+      console.error("(whatsapp) mode or token undefined");
       res.status(400).send("impossible to verify the webhook: mode or token undefined.")
     }
 
@@ -870,24 +743,10 @@ router.get("/webhook/:project_id", async (req, res) => {
 
 });
 
-function getRandomName() {
-
-  let hexString = uuidv4();
-  console.log("hex: ", hexString);
-  
-  // remove decoration
-  hexString = hexString.replace(/-/g, '');
-  
-  let base64String = Buffer.from(hexString, 'hex').toString('base64')
-  console.log("base64: ", base64String);
-  
-  return base64String;
-}
-
 
 router.post("/newtest", async (req, res) => {
-  //bottest:bot_id:code
-  console.log("/newtest body: ", JSON.stringify(req.body, null, 2));
+
+  console.log("(whatsapp) /newtest body: ", JSON.stringify(req.body));
   let project_id = req.body.project_id;
   let bot_id = req.body.bot_id;
 
@@ -896,7 +755,6 @@ router.post("/newtest", async (req, res) => {
     bot_id: bot_id
   }
 
-  //let short_uid = getRandomName();
   let short_uid = uuidv4().substring(0, 8)
   let key = "bottest:" + short_uid;
 
@@ -904,95 +762,18 @@ router.post("/newtest", async (req, res) => {
     return res.status(500).send({ message: "Test it out on Whatsapp not available. Redis not ready."})
   }
 
-  //console.log("redis_client: ", redis_client)
-
-  await redis_client.set(key, JSON.stringify(info));
-  //const value = await redis_client.get(key)
-  //console.log("get --> value: ", value)
+  await redis_client.set(key, JSON.stringify(info), 'EX', 604800);
   redis_client.get(key, (err, value) => {
     if (err) {
-      console.log("get err: ", err)
-      return res.status(500).send({success: "false", message: "No info found on redis"});
+      console.log("(whatsapp) redis get err: ", err)
+      return res.status(500).send({success: "false", message: "Testing info could not be saved"});
     } else {
-      console.log("get value: ", value)
+      console.log("redis get value: ", value)
       return res.status(200).send({short_uid: short_uid});
     }
   })
-  /*
-  const value = await redis_client.json.get(key, {
-    // JSON Path: .node = the element called 'node' at root level.
-    path: '.nodell',
-  });
-  */
-  //res.status(200).send({short_uid: short_uid});
+
 })
-
-router.post("/testitout/:project_id", async (req, res) => {
-
-  //console.log("\n/(testitout): ", JSON.stringify(req.body, null, 2));
-  console.log("\n/(testitout)");
-  let projectId = req.params.project_id;
-  console.log("(testitout) projectId: ", projectId)
-
-  let whatsappChannelMessage = req.body.entry[0].changes[0].value.messages[0];
-  console.log("(testitout) whatsappChannelMessage: ", whatsappChannelMessage);
-
-  let whatsappContact = req.body.entry[0].changes[0].value.contacts[0];
-
-  let key = "bottest:" + whatsappChannelMessage.text.body.substring(3);
-  console.log("(testitout) key: ", key);
-
-  /*
-  const info = await redis_client.json.get(REDIS_KEY);
-  console.log("(testitout) info: ", info);
-  */
-  let test_info;
-  redis_client.get(key, (err, value) => {
-    if (err) {
-      console.log("No info found on redis. Exit..");
-      res.sendStatus(200);
-    } else {
-      test_info = JSON.parse(value)
-      console.log("test_info: ", test_info)
-    }
-  })
-  
-  let message_info = {
-    channel: "whatsapp",
-    whatsapp: {
-      phone_number_id: req.body.entry[0].changes[0].value.metadata.phone_number_id,
-      from: whatsappChannelMessage.from,
-      firstname: whatsappContact.profile.name,
-      lastname: " "
-    }
-  }
-  console.log("(testitout) message_info: ", message_info)
-  
-  let CONTENT_KEY = "whatsapp-" + projectId;
-  let settings = await db.get(CONTENT_KEY);
-  if (log) {
-    console.log("[KVDB] settings: ", settings);
-  }
-
-  if (!settings) {
-    console.log("No settings found. Exit..");
-    res.sendStatus(200);
-    return;
-  }
-  
-  const tlr = new TiledeskWhatsappTranslator();
-
-  whatsappChannelMessage.text.body = "/start";
-  let tiledeskJsonMessage = tlr.toTiledesk(whatsappChannelMessage, whatsappContact.profile.name);
-  console.log("(testitout) tiledeskJsonMessage: ", tiledeskJsonMessage)
-  
-  const tdChannel = new TiledeskChannel({ settings: settings, API_URL: API_URL })
-  const response = await tdChannel.sendAndAddBot(tiledeskJsonMessage, message_info, test_info.bot_id)
-  console.log("testitout --> send response: ", response)
-  
-  res.status(200).send("testitout")
-})
-
 
 // *****************************
 // ********* FUNCTIONS *********
@@ -1041,17 +822,6 @@ async function startApp(settings, callback) {
   } else {
     console.log("(whatsapp) Missing redis parameters --> Test it out on WhatsApp disabled");
   }
-
-  /*
-  if (settings.REDIS_HOST && settings.REDIS_PORT && settings.REDIS_PASSWORD) {
-    REDIS_HOST = settings.REDIS_HOST;
-    REDIS_PORT = settings.REDIS_PORT;
-    REDIS_PASSWORD = settings.REDIS_PASSWORD;
-    connectRedis();
-  } else {
-    console.log("(whatsapp) Missing redis parameters --> Test it out on WhatsApp disabled");
-  }
-  */
 
   if (settings.log) {
     log = settings.log;
@@ -1102,3 +872,77 @@ function readHTMLFile(templateName, callback) {
 }
 
 module.exports = { router: router, startApp: startApp };
+
+/*
+router.post("/testitout/:project_id", async (req, res) => {
+
+  console.log("\n/(testitout)");
+  let projectId = req.params.project_id;
+  console.log("(testitout) projectId: ", projectId)
+
+  let whatsappChannelMessage = req.body.entry[0].changes[0].value.messages[0];
+  console.log("(testitout) whatsappChannelMessage: ", whatsappChannelMessage);
+
+  let whatsappContact = req.body.entry[0].changes[0].value.contacts[0];
+
+  let key = "bottest:" + whatsappChannelMessage.text.body.substring(3);
+  console.log("(testitout) key: ", key);
+
+
+  let test_info;
+  redis_client.get(key, (err, value) => {
+    if (err) {
+      console.log("An error occured on redis. Exit..");
+      return res.status(500).send({ success: false, error: err})
+    } else {
+      if (!value) {
+        console.log("No test info found on redis. Exit..");
+        return res.status(200).send({ success: false, message: "No test info found on redis"})
+      }
+      test_info = JSON.parse(value)
+      console.log("test_info: ", test_info)
+    }
+  })
+  
+  let message_info = {
+    channel: "whatsapp",
+    whatsapp: {
+      phone_number_id: req.body.entry[0].changes[0].value.metadata.phone_number_id,
+      from: whatsappChannelMessage.from,
+      firstname: whatsappContact.profile.name,
+      lastname: " "
+    }
+  }
+  console.log("(testitout) message_info: ", message_info)
+  
+  let CONTENT_KEY = "whatsapp-" + projectId;
+  let settings = await db.get(CONTENT_KEY);
+  if (log) {
+    console.log("[KVDB] settings: ", settings);
+  }
+
+  if (!settings) {
+    console.log("No settings found. Exit..");
+    res.sendStatus(200);
+    return;
+  }
+  
+  const tlr = new TiledeskWhatsappTranslator();
+
+  whatsappChannelMessage.text.body = "/start";
+  let tiledeskJsonMessage = tlr.toTiledesk(whatsappChannelMessage, whatsappContact.profile.name);
+  console.log("(testitout) tiledeskJsonMessage: ", tiledeskJsonMessage)
+  
+  const tdChannel = new TiledeskChannel({ settings: settings, API_URL: API_URL })
+
+  if (test_info) {
+    const response = await tdChannel.sendAndAddBot(tiledeskJsonMessage, message_info, test_info.bot_id)
+    console.log("testitout --> send response: ", response)
+    res.status(200).send("testitout")
+  } else {
+    console.log("testitout --> no bot selected, skip test: ")
+    res.status(200).send("Test skipped")
+  }
+  
+})
+*/
