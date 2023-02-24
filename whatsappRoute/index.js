@@ -510,7 +510,7 @@ router.post('/tiledesk', async (req, res) => {
     execute(commands[0]);
   }
 
-  else if (tiledeskChannelMessage.text) {
+  else if (tiledeskChannelMessage.text  || tiledeskChannelMessage.metadata) {
 
     let whatsappJsonMessage = await tlr.toWhatsapp(tiledeskChannelMessage, whatsapp_receiver);
     console.log("🟢 whatsappJsonMessage", JSON.stringify(whatsappJsonMessage))
@@ -580,11 +580,15 @@ router.post("/webhook/:project_id", async (req, res) => {
       // Initialize conversation with chatbot
       if (whatsappChannelMessage.text && whatsappChannelMessage.text.body.startsWith("#td")) { 
 
+        console.log("\nwhatsappChannelMessage.text.body: ", whatsappChannelMessage.text.body)
+        let code = whatsappChannelMessage.text.body.split(' ')[0];
+        console.log("code: ", code)
+
         const bottester = new TiledeskBotTester({project_id: projectId, redis_client: redis_client, db: db, tdChannel: tdChannel, tlr: tlr});
-        bottester.startBotConversation(req.body).then((result) => {
-          return res.status(200).send('testitout');
+        bottester.startBotConversation(req.body, code).then((result) => {
+          console.log("(whatsapp) startBotConversation result: ", result);
         }).catch((err) => {
-          return res.status(500).send(err);
+          console.log("(whatsapp) startBotConversation result: ", err);
         })
 
       // Standard message
@@ -699,7 +703,7 @@ router.get("/webhook/:project_id", async (req, res) => {
    *This will be the Verify Token value when you set up webhook
   **/
   console.log("\n(whatsapp) Verify the webhook... ");
-  console.log("\(whatsapp) req.query: ", req.query);
+  console.log("(whatsapp) req.query: ", req.query);
 
   // Parse params from the webhook verification request
   let mode = req.query["hub.mode"];

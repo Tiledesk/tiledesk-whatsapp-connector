@@ -47,7 +47,7 @@ class TiledeskBotTester {
 
   }
 
-  async startBotConversation(body) {
+  async startBotConversation(body, code) {
 
     return new Promise( async (resolve, reject) => {
       console.log("\n/startBotConversation()");
@@ -61,7 +61,7 @@ class TiledeskBotTester {
     
       let whatsappContact = body.entry[0].changes[0].value.contacts[0];
     
-      let key = "bottest:" + whatsappChannelMessage.text.body.substring(3);
+      let key = "bottest:" + code.substring(3);
       console.log("(testitout) key: ", key);
 
       let test_info;
