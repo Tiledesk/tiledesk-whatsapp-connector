@@ -12,7 +12,6 @@
   "license": "ISC",
   "dependencies": {
     "@tiledesk/tiledesk-client": "^0.8.29",
-    "@tiledesk/tiledesk-kvbasemongo": "^1.0.0",
     "@tiledesk/tiledesk-whatsapp-connector": "0.1.32",
     "app-root-path": "^3.1.0",
     "axios": "^0.27.2",
@@ -25,6 +24,7 @@
     "handlebars": "^4.7.7",
     "ioredis": "^5.2.4",
     "jsonwebtoken": "^8.5.1",
+    "mongodb": "^5.1.0",
     "redis": "^3.1.2",
     "uuid": "^9.0.0"
   },

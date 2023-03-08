@@ -42,10 +42,14 @@ class TiledeskChannel {
 
   }
 
-  async send(tiledeskMessage, messageInfo) {
+  async send(tiledeskMessage, messageInfo, department_id) {
 
     let channel;
     let new_request_id;
+
+    if (department_id) {
+      tiledeskMessage.departmentid = department_id;
+    }
 
     if (messageInfo.channel == "whatsapp") {
       channel = messageInfo.whatsapp;
@@ -143,6 +147,28 @@ class TiledeskChannel {
     })
   }
 
+
+  async getDepartments() {
+
+    console.log("[Tiledesk Channel] getDepartments");
+
+    return await axios({
+      url: this.API_URL + "/" + this.settings.project_id + "/departments/allstatus",
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': this.settings.token 
+      },
+      method: 'GET'
+    }).then((response) => {
+      if (this.log) {
+        console.log("\nget departments response.data: ", response.data)
+      }
+      return response.data;
+    }).catch((err) => {
+      console.error("\nget departments error: ", err);
+    })
+  }
+
   async sendAndAddBot(tiledeskMessage, messageInfo, bot_id) {
     
     let channel;
@@ -181,7 +207,6 @@ class TiledeskChannel {
 
       return axios({
         url: this.API_URL + `/${this.settings.project_id}/requests/${new_request_id}/messages`,
-        //url: this.API_URL + `/${this.settings.project_id}/requests/${new_request_id}/participants`,
         headers: {
           'Content-Type': 'application/json',
           'Authorization': token
@@ -190,23 +215,6 @@ class TiledeskChannel {
         method: 'POST'
       }).then((response) => {
         return response.data
-
-        /*
-        return axios({
-          url: this.API_URL + `/${this.settings.project_id}/requests/${new_request_id}/participants`,
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': token
-          },
-          data: { member: bot_id },
-          method: 'POST'
-        }).then((response) => {
-          console.log("response: ", response.data)
-          return response.data
-        }).catch((err) => {
-          console.error("[Tiledesk Channel ERROR] add participant: ", err);
-        })
-        */
       }).catch((err) => {
         console.error("[Tiledesk Channel ERROR] send message (open conversation): " + err);
       })

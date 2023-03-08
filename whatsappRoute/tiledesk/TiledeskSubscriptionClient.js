@@ -127,7 +127,7 @@ class TiledeskSubscriptionClient {
         }
       }
     }).catch((err) => {
-      console.error("An error occured: ", err);
+      //console.error("An error occured: ", err);
       if (callback) {
         callback(err, null, null);
       }

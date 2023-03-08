@@ -11,7 +11,7 @@ const { v4: uuidv4 } = require('uuid');
 const cors = require('cors');
 
 // tiledesk clients
-const { TiledeskClient } = require('@tiledesk/tiledesk-client');
+//const { TiledeskClient } = require('@tiledesk/tiledesk-client');
 const { TiledeskWhatsappTranslator } = require('./tiledesk/TiledeskWhatsappTranslator');
 const { TiledeskSubscriptionClient } = require('./tiledesk/TiledeskSubscriptionClient');
 const { TiledeskWhatsapp } = require('./tiledesk/TiledeskWhatsapp');
@@ -21,9 +21,9 @@ const { MessageHandler } = require('./tiledesk/MessageHandler');
 const { TiledeskBotTester } = require('./tiledesk/TiledeskBotTester');
 
 // mongo
-const { KVBaseMongo } = require('@tiledesk/tiledesk-kvbasemongo');
+const { KVBaseMongo } = require('./tiledesk/KVBaseMongo');
 const kvbase_collection = 'kvstore';
-const db = new KVBaseMongo(kvbase_collection);
+const db = new KVBaseMongo({KVBASE_COLLECTION: kvbase_collection, log: false});
 
 // redis
 var redis = require('redis')
@@ -42,6 +42,15 @@ let REDIS_HOST = null;
 let REDIS_PORT = null;
 let REDIS_PASSWORD = null;
 let log = false;
+
+// Handlebars register helpers
+handlebars.registerHelper('isEqual', (a, b) => {
+  if (a == b) {
+    return true
+  } else {
+    return false
+  }
+})
 
 router.get('/', async (req, res) => {
   res.send('Welcome to Tiledesk-WhatsApp Business connector!')
@@ -183,6 +192,13 @@ router.get('/configure', async (req, res) => {
     console.log("(whatsapp) kvdb settings: ", settings);
   }
 
+  // get departments
+  const tdChannel = new TiledeskChannel({ settings: { project_id: projectId, token: token }, API_URL: API_URL })
+  let departments = await tdChannel.getDepartments(token);
+  if (log) {
+    console.log("departments: ", JSON.stringify(departments))
+  }
+
   if (settings) {
 
     readHTMLFile('/configure.html', (err, html) => {
@@ -199,6 +215,8 @@ router.get('/configure', async (req, res) => {
         wab_token: settings.wab_token,
         verify_token: settings.verify_token,
         subscription_id: settings.subscriptionId,
+        department_id: settings.department_id,
+        departments: departments
       }
       var html = template(replacements);
       res.send(html);
@@ -219,6 +237,7 @@ router.get('/configure', async (req, res) => {
         project_id: projectId,
         token: token,
         proxy_url: proxy_url,
+        departments: departments
       }
       var html = template(replacements);
       res.send(html);
@@ -229,24 +248,33 @@ router.get('/configure', async (req, res) => {
 
 router.post('/update', async (req, res) => {
   console.log("\n(whatsapp) /update");
-  if (log) {
     console.log("(whatsapp) /update body: ", req.body);
+  if (log) {
   }
 
   let projectId = req.body.project_id;
   let token = req.body.token;
   let wab_token = req.body.wab_token;
   let verify_token = req.body.verify_token;
+  let department_id = req.body.department;
 
   let CONTENT_KEY = "whatsapp-" + projectId;
   let settings = await db.get(CONTENT_KEY);
 
   let proxy_url = BASE_URL + "/webhook/" + projectId;
 
+  // get departments
+  const tdChannel = new TiledeskChannel({ settings: { project_id: projectId, token: token }, API_URL: API_URL })
+  let departments = await tdChannel.getDepartments(token);
+  if (log) {
+    console.log("departments: ", JSON.stringify(departments))
+  }
+
   if (settings) {
 
     settings.wab_token = wab_token;
     settings.verify_token = verify_token;
+    settings.department_id = department_id;
 
     await db.set(CONTENT_KEY, settings);
 
@@ -265,6 +293,8 @@ router.post('/update', async (req, res) => {
         show_success_modal: true,
         verify_token: settings.verify_token,
         subscription_id: settings.subscriptionId,
+        department_id: settings.department_id,
+        departments: departments
       }
       var html = template(replacements);
       res.send(html);
@@ -301,6 +331,7 @@ router.post('/update', async (req, res) => {
         secret: subscription.secret,
         wab_token: wab_token,
         verify_token: verify_token,
+        department_id: department_id
       }
 
       db.set(CONTENT_KEY, settings)
@@ -321,6 +352,8 @@ router.post('/update', async (req, res) => {
           wab_token: settings.wab_token,
           verify_token: settings.verify_token,
           subscription_id: settings.subscriptionId,
+          department_id: settings.department_id,
+          departments: departments
         }
         var html = template(replacements);
         res.send(html);
@@ -339,6 +372,7 @@ router.post('/update', async (req, res) => {
           project_id: projectId,
           token: token,
           proxy_url: proxy_url,
+          departments: departments,
           show_error_modal: true
         }
         var html = template(replacements);
@@ -367,6 +401,12 @@ router.post('/disconnect', async (req, res) => {
   let proxy_url = BASE_URL + "/webhook/" + projectId;
 
   const tdClient = new TiledeskSubscriptionClient({ API_URL: API_URL, project_id: projectId, token: token, log: false })
+  // get departments
+  const tdChannel = new TiledeskChannel({ settings: { project_id: projectId, token: token }, API_URL: API_URL })
+  let departments = await tdChannel.getDepartments(token);
+  if (log) {
+    console.log("departments: ", JSON.stringify(departments))
+  }
 
   /*
   // callback
@@ -389,6 +429,7 @@ router.post('/disconnect', async (req, res) => {
         project_id: projectId,
         token: token,
         proxy_url: proxy_url,
+        departments: departments
       }
       var html = template(replacements);
       res.send(html);
@@ -402,8 +443,8 @@ router.post('/disconnect', async (req, res) => {
 
 router.post('/tiledesk', async (req, res) => {
   console.log("\n(whatsapp) /tiledesk")
+  console.log("(whatsapp) /tiledesk ---> tiledeskChannelMessage: " + JSON.stringify(req.body.payload));
   if (log) {
-    console.log("(whatsapp) /tiledesk ---> tiledeskChannelMessage: " + JSON.stringify(req.body.payload));
   }
 
   var tiledeskChannelMessage = req.body.payload;
@@ -680,7 +721,7 @@ router.post("/webhook/:project_id", async (req, res) => {
         }
 
         console.log("🟠 tiledeskJsonMessage: ", JSON.stringify(tiledeskJsonMessage));
-        const response = await tdChannel.send(tiledeskJsonMessage, message_info);
+        const response = await tdChannel.send(tiledeskJsonMessage, message_info, settings.department_id);
         if (log) {
           console.log("(whatsapp) /whatsapp Send response: ", response)
         }
