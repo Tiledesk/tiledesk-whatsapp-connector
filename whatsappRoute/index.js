@@ -21,9 +21,11 @@ const { MessageHandler } = require('./tiledesk/MessageHandler');
 const { TiledeskBotTester } = require('./tiledesk/TiledeskBotTester');
 
 // mongo
-const { KVBaseMongo } = require('./tiledesk/KVBaseMongo');
+//const { KVBaseMongo } = require('./tiledesk/KVBaseMongo');
+const { KVBaseMongo } = require('@tiledesk/tiledesk-kvbasemongo')
 const kvbase_collection = 'kvstore';
-const db = new KVBaseMongo({KVBASE_COLLECTION: kvbase_collection, log: false});
+//const db = new KVBaseMongo({KVBASE_COLLECTION: kvbase_collection, log: false});
+const db = new KVBaseMongo(kvbase_collection);
 
 // redis
 var redis = require('redis')
