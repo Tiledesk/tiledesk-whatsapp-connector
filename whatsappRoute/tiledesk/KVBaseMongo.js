@@ -34,7 +34,7 @@ class KVBaseMongo {
         this.db.collection(this.KV_COLLECTION).createIndex(
           { "key": 1 }, { unique: true }
         );
-        console.log("[mongodb] db: ", this.db);
+        //console.log("[mongodb] db: ", this.db);
         callback();
       }
     });
