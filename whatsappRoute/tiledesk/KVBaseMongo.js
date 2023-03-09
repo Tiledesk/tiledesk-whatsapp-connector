@@ -16,6 +16,7 @@ class KVBaseMongo {
       throw new Error('KVBASE_COLLECTION (the name of the Mongodb collection used as key-value store) is mandatory.');
     }
     this.KV_COLLECTION = config.KVBASE_COLLECTION;
+    console.log("KV_COLLECTION: ", this.KV_COLLECTION)
 
     this.log = false;
     if (config.log) {
