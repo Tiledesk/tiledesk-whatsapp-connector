@@ -488,8 +488,8 @@ const path = require('path');
         type: "location",
         metadata: {
           location: {
-            latitude: latitude,
-            longitude: longitude
+            latitude: whatsappChannelMessage.location.latitude,
+            longitude: whatsappChannelMessage.location.longitude
           }
         }
       }
