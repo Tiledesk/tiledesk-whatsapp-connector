@@ -89,9 +89,9 @@ class TiledeskChannel {
       data: {},
       method: 'POST'
     }).then((response) => {
-
+  
       let token = response.data.token;
-
+    
       return axios({
         url: this.API_URL + `/${this.settings.project_id}/requests/me?channel=${messageInfo.channel}`,
         headers: {
@@ -118,6 +118,7 @@ class TiledeskChannel {
           console.log("[Tiledesk Channel] tiledeskMessage:", tiledeskMessage);
         }
 
+        
         return axios({
           url: this.API_URL + `/${this.settings.project_id}/requests/${request_id}/messages`,
           headers: {
@@ -173,7 +174,10 @@ class TiledeskChannel {
     
     let channel;
     let new_request_id;
-    tiledeskMessage.participants = ["bot_" + bot_id]
+    tiledeskMessage.participants = ["bot_" + bot_id];
+    tiledeskMessage.attributes = {
+      sourcePage: "whatsapp://&td_draft=true"
+    }
 
     if (messageInfo.channel == "whatsapp") {
       channel = messageInfo.whatsapp;
@@ -214,6 +218,7 @@ class TiledeskChannel {
         data: tiledeskMessage,
         method: 'POST'
       }).then((response) => {
+        console.log("##### response: ", JSON.stringify(response.data));
         return response.data
       }).catch((err) => {
         console.error("[Tiledesk Channel ERROR] send message (open conversation): " + err);

@@ -35,15 +35,17 @@ class MessageHandler {
   }
 
   async generateMessageObject(command) {
-    console.log("[MessageHandler] command: ", command);
-    //console.log("[MessageHandler] tiledeskChannelMessage: ", this.tiledeskChannelMessage);
-    let tiledeskCommandMessage = command.message;
+    if (this.log) {
+      console.log("[MessageHandler] command: ", JSON.stringify(command));
+    }
 
+    let tiledeskCommandMessage = command.message;
     tiledeskCommandMessage.recipient = this.tiledeskChannelMessage.recipient;
     
     return tiledeskCommandMessage;
   }
 
+  /*
   generateMessageObjectOriginal(command_message) {
       let parentUid = this.tiledeskChannelMessage.uid
       //command_message.uid = this.tiledeskChannelMessage.uid + "_" + index;
@@ -65,6 +67,7 @@ class MessageHandler {
 
     return command_message
   }
+  */
 
   
 

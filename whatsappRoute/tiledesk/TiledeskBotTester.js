@@ -51,11 +51,7 @@ class TiledeskBotTester {
 
     return new Promise( async (resolve, reject) => {
       console.log("\n/startBotConversation()");
-      /*  
-      let projectId = req.params.project_id;
-      console.log("(testitout) projectId: ", projectId)
-      */
-        
+      
       let whatsappChannelMessage = body.entry[0].changes[0].value.messages[0];
       console.log("(testitout) whatsappChannelMessage: ", whatsappChannelMessage);
     

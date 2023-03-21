@@ -54,7 +54,7 @@ const path = require('path');
   toWhatsapp(tiledeskChannelMessage, whatsapp_receiver) {
 
     // to --> recipient
-    if (this.log) {
+    if (!this.log) {
       console.log("[Translator] tiledesk message: ", tiledeskChannelMessage)
     }
 
@@ -70,7 +70,18 @@ const path = require('path');
       to: whatsapp_receiver,
     }
 
-    if (tiledeskChannelMessage.metadata) {
+    if (tiledeskChannelMessage.type === 'frame') {
+      text = text + "\n\n👉 " + tiledeskChannelMessage.metadata.src
+      whatsapp_message.text = { body: text };
+
+      if (this.log) {
+        console.log("[Translator] whatsapp message: ", whatsapp_message)
+      }
+      return whatsapp_message
+    }
+
+    else if (tiledeskChannelMessage.metadata) {
+
 
       if ((tiledeskChannelMessage.metadata.type && tiledeskChannelMessage.metadata.type.startsWith('image')) || tiledeskChannelMessage.type.startsWith('image')) {
 
@@ -213,7 +224,8 @@ const path = require('path');
                   id: "quick" + uuidv4().substring(0,4) + "_"+ btn.value,
                   title: title
                 }
-                option_rows.push(row);
+                //option_rows.push(row);
+                action_rows.push(row);
               }
 
               if (btn.type == 'action') {
@@ -258,7 +270,7 @@ const path = require('path');
             if (option_rows.length == 0 && action_rows.length > 0) {
               sections = [
                 {
-                  title: "Actions",
+                  //title: "Menu",
                   rows: action_rows
                 }
               ]

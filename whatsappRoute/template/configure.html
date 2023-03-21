@@ -204,29 +204,6 @@
             <!-- Departments -->
             <div class="form-group" style="width: 522px;">
               <label class="input-label" for="department">Department <span style="font-weight: normal;">(Optional)</span></label>
-
-
-
-
-
-              <!--
-              <div class="dep-container">
-                {{#each departments}}
-
-                  {{#if (isEqual _id department_id)}}
-                    <div class="selected-department-div" onclick="submitInputSelected.click()">
-                      <img class="tick-image" src="https://static.vecteezy.com/system/resources/previews/010/152/436/original/tick-check-mark-icon-sign-symbol-design-free-png.png" width="18" height="auto">
-                      {{ name }}
-                    </div>
-                  {{else}}
-                    <div class="department-div">
-                      {{ name }}
-                    </div>
-                  {{/if}}
-                {{/each}}
-              </div>
-              -->
-
               <div style="display: flex; flex-direction: row; align-items: center;">
                 <select class="custom-select" name="department" class="form-control">
                 {{#each departments}}
@@ -243,7 +220,6 @@
                 </i>
               </span>
               </div>
-
             </div>
 
             <input type="hidden" name="project_id" value="{{ project_id }}" />

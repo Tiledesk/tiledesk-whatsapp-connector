@@ -253,8 +253,8 @@ router.get('/configure', async (req, res) => {
 
 router.post('/update', async (req, res) => {
   console.log("\n(whatsapp) /update");
-    console.log("(whatsapp) /update body: ", req.body);
   if (log) {
+    console.log("(whatsapp) /update body: ", req.body);
   }
 
   let projectId = req.body.project_id;
@@ -448,8 +448,8 @@ router.post('/disconnect', async (req, res) => {
 
 router.post('/tiledesk', async (req, res) => {
   console.log("\n(whatsapp) /tiledesk")
-  console.log("(whatsapp) /tiledesk ---> tiledeskChannelMessage: " + JSON.stringify(req.body.payload));
   if (log) {
+    console.log("(whatsapp) /tiledesk ---> tiledeskChannelMessage: " + JSON.stringify(req.body.payload));
   }
 
   var tiledeskChannelMessage = req.body.payload;
