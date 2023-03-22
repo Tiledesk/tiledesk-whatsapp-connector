@@ -30,13 +30,16 @@ class MessageHandler {
     }
 
     this.tiledeskChannelMessage = config.tiledeskChannelMessage;
-    this.log = true;
+    this.log = false;
+    if (config.log) {
+      this.log = config.log;
+    }
 
   }
 
   async generateMessageObject(command) {
     if (this.log) {
-      console.log("[MessageHandler] command: ", JSON.stringify(command));
+      console.log("(wab) [MessageHandler] command: ", JSON.stringify(command));
     }
 
     let tiledeskCommandMessage = command.message;
@@ -68,8 +71,6 @@ class MessageHandler {
     return command_message
   }
   */
-
-  
 
 }
 

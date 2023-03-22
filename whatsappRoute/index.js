@@ -76,10 +76,7 @@ router.get('/detail', async (req, res) => {
   }
 
   readHTMLFile('/detail.html', (err, html) => {
-    if (err) {
-      console.log("(whatsapp) error read html file: ", err);
-    }
-
+    if (err) { console.log("(wab) error read html file: ", err); }
     var template = handlebars.compile(html);
     var replacements = {
       app_version: pjson.version,
@@ -99,7 +96,7 @@ router.post('/install', async (req, res) => {
   let app_id = req.body.app_id;
   let token = req.body.token;
 
-  console.log("(whatsapp) Install app " + app_id + " for project id " + project_id);
+  console.log("(wab) Install app " + app_id + " for project id " + project_id);
   let installation_info = {
     project_id: project_id,
     app_id: app_id,
@@ -110,14 +107,14 @@ router.post('/install', async (req, res) => {
   appClient.install(installation_info).then((installation) => {
 
     if (log) {
-      console.log("(whatsapp) installation response: ", installation);
+      console.log("(wab) installation response: ", installation);
     }
 
     let installed = true;
 
     readHTMLFile('/detail.html', (err, html) => {
       if (err) {
-        console.log("(whatsapp) error read html file: ", err);
+        console.log("(wab) error read html file: ", err);
       }
 
       var template = handlebars.compile(html);
@@ -133,7 +130,7 @@ router.post('/install', async (req, res) => {
     })
 
   }).catch((err) => {
-    console.error("(whatsapp) installation error: ", err.data)
+    console.error("(wab) installation error: ", err.data)
     res.send("An error occurred during the installation");
   })
 
@@ -148,14 +145,14 @@ router.post('/uninstall', async (req, res) => {
   appClient.uninstall(project_id, app_id).then((response) => {
 
     if (log) {
-      console.log("(whatsapp) uninstallation response: ", response);
+      console.log("(wab) uninstallation response: ", response);
     }
 
     let installed = false;
 
     readHTMLFile('/detail.html', (err, html) => {
       if (err) {
-        console.log("(whatsapp) error read html file: ", err);
+        console.log("(wab) error read html file: ", err);
       }
 
       var template = handlebars.compile(html);
@@ -171,15 +168,15 @@ router.post('/uninstall', async (req, res) => {
     })
 
   }).catch((err) => {
-    console.error("(whatsapp) uninsallation error: ", err.data)
+    console.error("(wab) uninsallation error: ", err.data)
     res.send("An error occurred during the uninstallation");
   })
 })
 
 router.get('/configure', async (req, res) => {
-  console.log("\n(whatsapp) /configure");
+  console.log("(wab) /configure");
   if (log) {
-    console.log("(whatsapp) /configure query: ", req.query);
+    console.log("(wab) /configure query: ", req.query);
   }
 
   let projectId = "";
@@ -194,21 +191,21 @@ router.get('/configure', async (req, res) => {
   
   let settings = await db.get(CONTENT_KEY);
   if (log) {
-    console.log("(whatsapp) kvdb settings: ", settings);
+    console.log("(wab) settings: ", settings);
   }
 
   // get departments
   const tdChannel = new TiledeskChannel({ settings: { project_id: projectId, token: token }, API_URL: API_URL })
   let departments = await tdChannel.getDepartments(token);
+  console.log("(wab) found " + departments.length + " departments")
   if (log) {
-    console.log("departments: ", JSON.stringify(departments))
   }
 
   if (settings) {
 
     readHTMLFile('/configure.html', (err, html) => {
       if (err) {
-        console.log("(whatsapp) error read html file: ", err);
+        console.log("(wab) error read html file: ", err);
       }
 
       var template = handlebars.compile(html);
@@ -233,7 +230,7 @@ router.get('/configure', async (req, res) => {
     readHTMLFile('/configure.html', (err, html) => {
 
       if (err) {
-        console.log("(whatsapp) error read html file: ", err);
+        console.log("(departments) error read html file: ", err);
       }
 
       var template = handlebars.compile(html);
@@ -252,9 +249,9 @@ router.get('/configure', async (req, res) => {
 })
 
 router.post('/update', async (req, res) => {
-  console.log("\n(whatsapp) /update");
+  console.log("(wab) /update");
   if (log) {
-    console.log("(whatsapp) /update body: ", req.body);
+    console.log("(wab) body: ", req.body);
   }
 
   let projectId = req.body.project_id;
@@ -271,10 +268,7 @@ router.post('/update', async (req, res) => {
   // get departments
   const tdChannel = new TiledeskChannel({ settings: { project_id: projectId, token: token }, API_URL: API_URL })
   let departments = await tdChannel.getDepartments(token);
-  if (log) {
-    console.log("departments: ", JSON.stringify(departments))
-  }
-
+  
   if (settings) {
 
     settings.wab_token = wab_token;
@@ -285,7 +279,7 @@ router.post('/update', async (req, res) => {
 
     readHTMLFile('/configure.html', (err, html) => {
       if (err) {
-        console.log("(whatsapp) error read html file: ", err);
+        console.log("(wab) error read html file: ", err);
       }
 
       var template = handlebars.compile(html);
@@ -325,7 +319,7 @@ router.post('/update', async (req, res) => {
     tdClient.subscribe(subscription_info).then((data) => {
       let subscription = data;
       if (log) {
-        console.log("\n(whatsapp) Subscription: ", subscription)
+        console.log("\n(wab) Subscription: ", subscription)
       }
 
       let settings = {
@@ -344,7 +338,7 @@ router.post('/update', async (req, res) => {
 
       readHTMLFile('/configure.html', (err, html) => {
         if (err) {
-          console.log("(whatsapp) error read html file: ", err);
+          console.log("(wab) error read html file: ", err);
         }
 
         var template = handlebars.compile(html);
@@ -368,7 +362,7 @@ router.post('/update', async (req, res) => {
 
       readHTMLFile('/configure.html', (err, html) => {
         if (err) {
-          console.log("(whatsapp) error read html file: ", err);
+          console.log("(wab) error read html file: ", err);
         }
 
         var template = handlebars.compile(html);
@@ -389,9 +383,9 @@ router.post('/update', async (req, res) => {
 })
 
 router.post('/disconnect', async (req, res) => {
-  console.log("\n(whatsapp) /disconnect")
+  console.log("\n(wab) /disconnect")
   if (log) {
-    console.log("(whatsapp) /disconnect body: ", req.body)
+    console.log("(wab) body: ", req.body)
   }
 
   let projectId = req.body.project_id;
@@ -401,7 +395,7 @@ router.post('/disconnect', async (req, res) => {
 
   let CONTENT_KEY = "whatsapp-" + projectId;
   await db.remove(CONTENT_KEY);
-  console.log("(whatsapp) Content deleted.");
+  console.log("(wab) Content deleted.");
 
   let proxy_url = BASE_URL + "/webhook/" + projectId;
 
@@ -409,10 +403,7 @@ router.post('/disconnect', async (req, res) => {
   // get departments
   const tdChannel = new TiledeskChannel({ settings: { project_id: projectId, token: token }, API_URL: API_URL })
   let departments = await tdChannel.getDepartments(token);
-  if (log) {
-    console.log("departments: ", JSON.stringify(departments))
-  }
-
+  
   /*
   // callback
   tdClient.unsubsribe(projectId, subscriptionId, (err, data) => {
@@ -425,7 +416,7 @@ router.post('/disconnect', async (req, res) => {
     readHTMLFile('/configure.html', (err, html) => {
 
       if (err) {
-        console.log("(whatsapp) error read html file: ", err);
+        console.log("(wab) error read html file: ", err);
       }
 
       var template = handlebars.compile(html);
@@ -441,19 +432,18 @@ router.post('/disconnect', async (req, res) => {
     })
 
   }).catch((err) => {
-    console.error("(whatsapp) error unsubscribe: ", err);
+    console.error("(wab) unsubscribe error: ", err);
   })
 
 })
 
 router.post('/tiledesk', async (req, res) => {
-  console.log("\n(whatsapp) /tiledesk")
+  console.log("(wab) Message received from Tiledesk")
   if (log) {
-    console.log("(whatsapp) /tiledesk ---> tiledeskChannelMessage: " + JSON.stringify(req.body.payload));
+    console.log("(wab) tiledeskChannelMessage: ", JSON.stringify(req.body.payload));
   }
 
   var tiledeskChannelMessage = req.body.payload;
-  
   var projectId = req.body.payload.id_project;
 
   // get settings from mongo
@@ -462,51 +452,40 @@ router.post('/tiledesk', async (req, res) => {
   let wab_token = settings.wab_token;
 
   var text = req.body.payload.text;
-  if (log) {
-    console.log("(whatsapp) /tiledesk text: ", text);
-  }
-
   let attributes = req.body.payload.attributes;
-  if (log) {
-    console.log("(whatsapp) /tiledesk attributes: ", JSON.stringify(attributes))
-  }
-
   let commands;
   if (attributes && attributes.commands) {
     commands = attributes.commands;
   }
 
   var sender_id = req.body.payload.sender;
-  console.log("(whatsapp) /tiledesk sender_id: ", sender_id);
 
   if (sender_id.indexOf("wab") > -1) {
-    console.log("Skip same sender");
-    return res.send(200);
+    console.log("(wab) Skip same sender");
+    return res.sendStatus(200);
   }
 
   if (attributes && attributes.subtype === "info") {
-    console.log("(whatsapp) /tiledesk Skip subtype (info)");
-    return res.send(200);
+    console.log("(wab) Skip subtype (info)");
+    return res.sendStatus(200);
   }
 
   if (attributes && attributes.subtype === 'info/support') {
-    console.log("(whatsapp) /tiledesk Skip subtype: ", attributes.subtype);
-    return res.send(200);
+    console.log("(wab) Skip subtype: ", attributes.subtype);
+    return res.sendStatus(200);
   }
 
   let recipient_id = tiledeskChannelMessage.recipient;
-  if (log) {
-    console.log("(whatsapp) /tiledesk Recipient_id: ", recipient_id);
-  }
-
   let whatsapp_receiver = recipient_id.substring(recipient_id.lastIndexOf("-") + 1);
-  if (log) {
-    console.log("(whatsapp) /tiledesk whatsapp_receiver: ", whatsapp_receiver);
-  }
-
   let phone_number_id = recipient_id.substring(recipient_id.lastIndexOf("wab-") + 4, recipient_id.lastIndexOf("-"));
+  
   if (log) {
-    console.log("(Tiledesk) phone_number_id: ", phone_number_id)
+    console.log("(wab) text: ", text);
+    console.log("(wab) attributes: ", JSON.stringify(attributes))
+    console.log("(wab) tiledesk sender_id: ", sender_id);
+    console.log("(wab) recipient_id: ", recipient_id);
+    console.log("(wab) whatsapp_receiver: ", whatsapp_receiver);
+    console.log("(wab) phone_number_id: ", phone_number_id)
   }
 
   const messageHandler = new MessageHandler({ tiledeskChannelMessage: tiledeskChannelMessage });
@@ -518,25 +497,28 @@ router.post('/tiledesk', async (req, res) => {
       // message
       if (command.type === "message") {
         let tiledeskCommandMessage = await messageHandler.generateMessageObject(command);
-        console.log("(whatsapp) message generated\ntiledeskCommandMessage: ", JSON.stringify(tiledeskCommandMessage))
+        if (log) {
+          console.log("(wab) message generated from commanf: ", JSON.stringify(tiledeskCommandMessage))
+        }
 
         let whatsappJsonMessage = await tlr.toWhatsapp(tiledeskCommandMessage, whatsapp_receiver);
-        console.log("🟢 whatsappJsonMessage", JSON.stringify(whatsappJsonMessage))
+        console.log("(wab) 🟢 whatsappJsonMessage", JSON.stringify(whatsappJsonMessage))
 
         if (whatsappJsonMessage) {
           const twClient = new TiledeskWhatsapp({ token: settings.wab_token, GRAPH_URL: GRAPH_URL });
           twClient.sendMessage(phone_number_id, whatsappJsonMessage).then((response) => {
+            console.log("(wab) Message sent to WhatsApp! ", response.status, response.statusText);
             i += 1;
             if (i < commands.length) {
               execute(commands[i]);
             } else {
-              console.log("(whatsapp) End of commands")
+              console.log("(wab) End of commands")
             }
           }).catch((err) => {
-            console.error("(whatsapp) error send message: ", err);
+            console.error("(wab) send message error: ", err);
           })
         } else {
-          console.error("(whatsapp) Whatsapp Json Message is undefined!")
+          console.error("(wab) WhatsappJsonMessage is undefined!")
         }
         
       }
@@ -548,7 +530,7 @@ router.post('/tiledesk', async (req, res) => {
           if (i < commands.length) {
             execute(commands[i]);
           } else {
-            console.log("(whatsapp) End of commands")
+            console.log("(wab) End of commands")
           }
         }, command.time)
       }
@@ -559,23 +541,23 @@ router.post('/tiledesk', async (req, res) => {
   else if (tiledeskChannelMessage.text  || tiledeskChannelMessage.metadata) {
 
     let whatsappJsonMessage = await tlr.toWhatsapp(tiledeskChannelMessage, whatsapp_receiver);
-    console.log("🟢 whatsappJsonMessage", JSON.stringify(whatsappJsonMessage))
+    console.log("(wab) 🟢 whatsappJsonMessage", JSON.stringify(whatsappJsonMessage))
 
     if (whatsappJsonMessage) {
       const twClient = new TiledeskWhatsapp({ token: settings.wab_token, GRAPH_URL: GRAPH_URL });
   
       twClient.sendMessage(phone_number_id, whatsappJsonMessage).then((response) => {
-        console.log("(whatsapp) Send message response: ", response.status, response.statusText);
+        console.log("(wab) Message sent to WhatsApp! ", response.status, response.statusText);
       }).catch((err) => {
-        console.error("(whatsapp) error send message: ", err);
+        console.error("(wab) error send message: ", err);
       })
   
     } else {
-      console.error("(whatsapp) Whatsapp Json Message is undefined!")
+      console.error("(wab) Whatsapp Json Message is undefined!")
     }
     
   } else {
-    console.log("(whatsapp) no command, no text --> skip")
+    console.log("(wab) no command, no text --> skip")
   }
 
   return res.send(200);
@@ -601,10 +583,13 @@ router.post("/webhook/:project_id", async (req, res) => {
       req.body.entry[0].changes[0].value.messages[0]
     ) {
 
-      console.log("\n(whatsapp) /whatsapp Body: ", JSON.stringify(req.body));
+      console.log("(wab) Message received from WhatsApp");
+      if (log) {
+        console.log("\n(wab) body: ", JSON.stringify(req.body));
+      }
 
       if (req.body.entry[0].changes[0].value.messages[0].type == "system") {
-        console.log("(whatsapp) Skip system message")
+        console.log("(wab) Skip system message")
         return res.sendStatus(200);
       }
 
@@ -613,10 +598,10 @@ router.post("/webhook/:project_id", async (req, res) => {
       let CONTENT_KEY = "whatsapp-" + projectId;
       let settings = await db.get(CONTENT_KEY);
       if (log) {
-        console.log("(whatsapp) kvdb settings: ", settings);
+        console.log("(wab) kvdb settings: ", settings);
       }
       if (!settings) {
-        console.log("(whatsapp) No settings found. Exit..");
+        console.log("(wab) No settings found. Exit..");
         return res.sendStatus(200);
       }
 
@@ -626,25 +611,24 @@ router.post("/webhook/:project_id", async (req, res) => {
       // Initialize conversation with chatbot
       if (whatsappChannelMessage.text && whatsappChannelMessage.text.body.startsWith("#td")) { 
 
-        console.log("\nwhatsappChannelMessage.text.body: ", whatsappChannelMessage.text.body)
         let code = whatsappChannelMessage.text.body.split(' ')[0];
-        console.log("code: ", code)
+        console.log("(wab) test code: ", code)
 
         const bottester = new TiledeskBotTester({project_id: projectId, redis_client: redis_client, db: db, tdChannel: tdChannel, tlr: tlr});
         bottester.startBotConversation(req.body, code).then((result) => {
-          console.log("(whatsapp) startBotConversation result: ", result);
+          console.log("(wab) test conversation started");
+          if (log) {
+            console.log("(wab) result: ", result);
+          }
         }).catch((err) => {
-          console.log("(whatsapp) startBotConversation result: ", err);
+          console.error("(wab) start test onversation error: ", err);
         })
 
       // Standard message
       } else {
         
         let firstname = req.body.entry[0].changes[0].value.contacts[0].profile.name;
-        if (log) {
-          console.log("(whatsapp) /whatsapp firstname: ", firstname)         
-        }
-
+        
         let message_info = {
           channel: "whatsapp",
           whatsapp: {
@@ -658,13 +642,13 @@ router.post("/webhook/:project_id", async (req, res) => {
         let tiledeskJsonMessage;
         
         if ((whatsappChannelMessage.type == 'text')) {
-          console.log("(whatsapp) /whatsapp message type text")
-          tiledeskJsonMessage = tlr.toTiledesk(whatsappChannelMessage, firstname);
-  
+          console.log("(wab) message type: text")
+          tiledeskJsonMessage = await tlr.toTiledesk(whatsappChannelMessage, firstname);
         }
+          
         else if (whatsappChannelMessage.type == 'interactive') {
-          console.log("(whatsapp) /whatsapp message type interactive")
-          tiledeskJsonMessage = tlr.toTiledesk(whatsappChannelMessage, firstname);
+          console.log("(wab) message type: interactive")
+          tiledeskJsonMessage = await tlr.toTiledesk(whatsappChannelMessage, firstname);
         }
 
         else if ((whatsappChannelMessage.type == 'image') || (whatsappChannelMessage.type == 'video') || (whatsappChannelMessage.type == 'document')) {
@@ -673,19 +657,17 @@ router.post("/webhook/:project_id", async (req, res) => {
   
           if (whatsappChannelMessage.type == 'image') {
             media = whatsappChannelMessage.image;
-            console.log("(whatsapp) /whatsapp media_id: ", media.id);
-  
             const filename = await util.downloadMedia(media.id);
             if (!filename) {
-              console.log("(whatsapp) /whatsapp Unable to download media. Message not sent.");
+              console.log("(wab) Unable to download media with id " + media.id + ". Message not sent.");
               return res.status(500).send({ success: false, error: "unable to download media" })
             }
             let file_path = path.join(__dirname, 'tmp', filename);
   
             const image_url = await util.uploadMedia(file_path, "images");
-            console.log("(whatsapp) /whatsapp image_url: ", image_url)
+            console.log("(wab) image_url: ", image_url)
   
-            tiledeskJsonMessage = tlr.toTiledesk(whatsappChannelMessage, firstname, image_url);
+            tiledeskJsonMessage = await tlr.toTiledesk(whatsappChannelMessage, firstname, image_url);
           }
   
           if (whatsappChannelMessage.type == 'video') {
@@ -693,16 +675,15 @@ router.post("/webhook/:project_id", async (req, res) => {
   
             const filename = await util.downloadMedia(media.id);
             if (!filename) {
-              console.log("(whatsapp) /whatsapp Unable to download media. Message not sent.");
+              console.log("(wab) Unable to download media with id " + media.id + ". Message not sent.");
               return res.status(500).send({ success: false, error: "unable to download media" })
             }
             let file_path = path.join(__dirname, 'tmp', filename);
   
-  
             const media_url = await util.uploadMedia(file_path, "files");
-            console.log("(whatsapp) /whatsapp media_url: ", media_url)
+            console.log("(wab) media_url: ", media_url)
   
-            tiledeskJsonMessage = tlr.toTiledesk(whatsappChannelMessage, firstname, media_url);
+            tiledeskJsonMessage = await tlr.toTiledesk(whatsappChannelMessage, firstname, media_url);
           }
   
           if (whatsappChannelMessage.type == 'document') {
@@ -710,33 +691,40 @@ router.post("/webhook/:project_id", async (req, res) => {
   
             const filename = await util.downloadMedia(media.id);
             if (!filename) {
-              console.log("(whatsapp) /whatsapp Unable to download media. Message not sent.");
+              console.log("(wab) Unable to download media with id " + media.id + ". Message not sent.");
               return res.status(500).send({ success: false, error: "unable to download media" })
             }
             let file_path = path.join(__dirname, 'tmp', filename);
   
             const media_url = await util.uploadMedia(file_path, "files");
-            console.log("(whatsapp) /whatsapp media_url: ", media_url)
+            console.log("(wab) media_url: ", media_url)
   
-            tiledeskJsonMessage = tlr.toTiledesk(whatsappChannelMessage, firstname, media_url);
+            tiledeskJsonMessage = await tlr.toTiledesk(whatsappChannelMessage, firstname, media_url);
           }
   
         } else {
           // unsupported. Try anyway to send something.
+          console.log("(wab) unsupported message")
         }
 
-        console.log("🟠 tiledeskJsonMessage: ", JSON.stringify(tiledeskJsonMessage));
-        const response = await tdChannel.send(tiledeskJsonMessage, message_info, settings.department_id);
-        if (log) {
-          console.log("(whatsapp) /whatsapp Send response: ", response)
+        if (tiledeskJsonMessage) {
+          console.log("(wab) 🟠 tiledeskJsonMessage: ", JSON.stringify(tiledeskJsonMessage));
+          const response = await tdChannel.send(tiledeskJsonMessage, message_info, settings.department_id);
+          console.log("(wab) Message sent to Tiledesk!")
+          if (log) {
+            console.log("(wab) response: ", response)
+          }
+        } else {
+          console.log("(wab) tiledeskJsonMessage is undefined")
         }
         
       }
     } 
     res.sendStatus(200); 
+    
   } else {
     // Return a '404 Not Found' if event is not from a WhatsApp API
-    console.log("event not from whatsapp")
+    console.log("(wab) event not from whatsapp")
     res.sendStatus(404);
   }
 });
@@ -748,8 +736,8 @@ router.get("/webhook/:project_id", async (req, res) => {
    * UPDATE YOUR VERIFY TOKEN
    *This will be the Verify Token value when you set up webhook
   **/
-  console.log("\n(whatsapp) Verify the webhook... ");
-  console.log("(whatsapp) req.query: ", req.query);
+  console.log("(wab) Verify the webhook... ");
+  console.log("(wab) req.query: ", req.query);
 
   // Parse params from the webhook verification request
   let mode = req.query["hub.mode"];
@@ -761,7 +749,7 @@ router.get("/webhook/:project_id", async (req, res) => {
   let settings = await db.get(CONTENT_KEY);
 
   if (!settings || !settings.verify_token) {
-    console.error("(whatsapp) No settings found! Unable to verify token.")
+    console.error("(wab) No settings found! Unable to verify token.")
     res.sendStatus(403);
   } else {
     let VERIFY_TOKEN = settings.verify_token;
@@ -777,15 +765,15 @@ router.get("/webhook/:project_id", async (req, res) => {
       if (mode === "subscribe" && token === VERIFY_TOKEN) {
 
         // Respond with 200 OK and challenge token from the request
-        console.log("(whatsapp) WEBHOOK_VERIFIED");
+        console.log("(wab) WEBHOOK_VERIFIED");
         res.status(200).send(challenge);
       } else {
         // Responds with '403 Forbidden' if verify tokens do not match
-        console.error("(whatsapp) mode is not 'subscribe' or token do not match");
+        console.error("(wab) mode is not 'subscribe' or token do not match");
         res.sendStatus(403);
       }
     } else {
-      console.error("(whatsapp) mode or token undefined");
+      console.error("(wab) mode or token undefined");
       res.status(400).send("impossible to verify the webhook: mode or token undefined.")
     }
 
@@ -796,7 +784,8 @@ router.get("/webhook/:project_id", async (req, res) => {
 
 router.post("/newtest", async (req, res) => {
 
-  console.log("(whatsapp) /newtest body: ", JSON.stringify(req.body));
+  console.log("(wab) initializing new test..");
+  
   let project_id = req.body.project_id;
   let bot_id = req.body.bot_id;
 
@@ -815,10 +804,10 @@ router.post("/newtest", async (req, res) => {
   await redis_client.set(key, JSON.stringify(info), 'EX', 604800);
   redis_client.get(key, (err, value) => {
     if (err) {
-      console.log("(whatsapp) redis get err: ", err)
+      console.log("(wab) redis get err: ", err)
       return res.status(500).send({success: "false", message: "Testing info could not be saved"});
     } else {
-      console.log("redis get value: ", value)
+      console.log("(wab) new test initialized with id: ", short_uid)
       return res.status(200).send({short_uid: short_uid});
     }
   })
@@ -830,7 +819,7 @@ router.post("/newtest", async (req, res) => {
 // *****************************
 
 async function startApp(settings, callback) {
-  console.log("(whatsapp) Starting Whatsapp App");
+  console.log("(wab) Starting Whatsapp App");
 
   if (!settings.MONGODB_URL) {
     throw new Error("settings.MONGODB_URL is mandatory");
@@ -840,28 +829,28 @@ async function startApp(settings, callback) {
     throw new Error("settings.API_URL is mandatory");
   } else {
     API_URL = settings.API_URL;
-    console.log("(whatsapp) API_URL: ", API_URL);
+    console.log("(wab) API_URL: ", API_URL);
   }
 
   if (!settings.BASE_URL) {
     throw new Error("settings.BASE_URL is mandatory");
   } else {
     BASE_URL = settings.BASE_URL;
-    console.log("(whatsapp) BASE_URL: ", BASE_URL);
+    console.log("(wab) BASE_URL: ", BASE_URL);
   }
 
   if (!settings.GRAPH_URL) {
     throw new Error("settings.GRAPH_URL is mandatory");
   } else {
     GRAPH_URL = settings.GRAPH_URL;
-    console.log("(whatsapp) GRAPH_URL: ", GRAPH_URL);
+    console.log("(wab) GRAPH_URL: ", GRAPH_URL);
   }
 
   if (!settings.APPS_API_URL) {
     throw new Error("settings.APPS_API_URL is mandatory");
   } else {
     APPS_API_URL = settings.APPS_API_URL;
-    console.log("(whatsapp) APPS_API_URL: ", APPS_API_URL);
+    console.log("(wab) APPS_API_URL: ", APPS_API_URL);
   }
 
   if (settings.REDIS_HOST && settings.REDIS_PORT) {
@@ -870,7 +859,7 @@ async function startApp(settings, callback) {
     REDIS_PASSWORD = settings.REDIS_PASSWORD;
     connectRedis();
   } else {
-    console.log("(whatsapp) Missing redis parameters --> Test it out on WhatsApp disabled");
+    console.log("(wab) Missing redis parameters --> Test it out on WhatsApp disabled");
   }
 
   if (settings.log) {
@@ -878,7 +867,7 @@ async function startApp(settings, callback) {
   }
 
   db.connect(settings.MONGODB_URL, () => {
-    console.log("(whatsapp) KVBaseMongo successfully connected.");
+    console.log("(wab) KVBaseMongo successfully connected.");
     
     if (callback) {
       callback();
@@ -894,7 +883,7 @@ function connectRedis() {
   });
 
   redis_client.on('error', err => {
-    console.log('(whatsapp) Connect Redis Error ' + err);
+    console.log('(wab) Connect Redis Error ' + err);
   })
   /*
   redis_client.on('connect', () => {
@@ -902,7 +891,7 @@ function connectRedis() {
   });
   */
   redis_client.on('ready', () => {
-    console.log("(whatsapp) Redis ready!")
+    console.log("(wab) Redis ready!")
   })
   //await redis_client.connect(); // only for v4
 

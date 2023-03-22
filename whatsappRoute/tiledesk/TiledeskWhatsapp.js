@@ -42,9 +42,9 @@ class TiledeskWhatsapp {
 
   async sendMessage(phone_number_id, message) {
     if (this.log) {
-      console.log("[Tiledesk Whatsapp] Sending message...", message);
+      console.log("(wab) [TiledeskWhatsapp] Sending message...", message);
     } else {
-      console.log("[Tiledesk Whatsapp] Sending message...");
+      console.log("(wab) [TiledeskWhatsapp] Sending message...");
     }
 
     return await axios({
@@ -55,19 +55,16 @@ class TiledeskWhatsapp {
       data: message,
       method: "POST"
     }).then((response) => {
-      console.log("[Tiledesk Whatsapp] Message sent!");
+      console.log("(wab) [TiledeskWhatsapp] Message sent!");
       return response
     }).catch((err) => {
-      console.error("[Tiledesk Whatsapp ERROR] Send message: ", err.response.data);
+      console.error("(wab) [TiledeskWhatsapp] Send message error: ", err.response.data);
       throw err;
     })
   }
 
   async downloadMedia(mediaId) {
-    if (this.log) {
-      console.log("[Tiledesk Whatsapp] Download media with id: ", mediaId);
-    }
-
+    
     return await axios({
       url: this.GRAPH_URL + mediaId,
       headers: {
@@ -75,7 +72,6 @@ class TiledeskWhatsapp {
         'Authorization': "Bearer " + this.token
       }
     }).then(async (response) => {
-      console.log("response: ", response.data)
 
       let download_url = response.data.url;
       let mime_type = response.data.mime_type;
@@ -84,10 +80,8 @@ class TiledeskWhatsapp {
       let type = "media-" + tid + "." + extension;
 
       let example_path = path.join(__dirname, '..', 'tmp', type);
-      console.log("read file: ", example_path)
-
       const writeStream = fs.createWriteStream(example_path);
-      console.log("[Tiledesk Whatsapp] Downloading file...");
+      console.log("(wab) [TiledeskWhatsapp] Downloading file...", example_path);
 
       return await axios({
         url: download_url,
@@ -104,27 +98,27 @@ class TiledeskWhatsapp {
           writeStream.on('error', err => {
             error = err;
             writeStream.close();
-            console.log("[Tiledesk Whatsapp] Download failed!")
+            console.log("(wab) [TiledeskWhatsapp] Download failed")
             reject(err);
           });
           writeStream.on('close', () => {
             if (!error) {
-              console.log("[Tiledesk Whatsapp] Download completed")
+              console.log("(wab) [TiledeskWhatsapp] Download completed")
               resolve(type);
             }
           })
         })
       }).catch((err) => {
-        console.log("axios err: ", err.data);
+        console.log("(wab) [TiledeskWhatsapp] download file error: ", err.data);
       })
     }).catch((err) => {
-      console.log("axios err: ", err.data);
+      console.log("(wab) [TiledeskWhatsapp] get file error: ", err.data);
     })
   }
 
   async uploadMedia(path, type) {
     let url = "https://tiledesk-server-pre.herokuapp.com/" + type + "/public";
-    console.log("[Tiledesk Whatsapp] Uploading file...");
+    console.log("(wab) [TiledeskWhatsapp] Uploading file...");
 
     const form = new FormData();
     form.append('file', fs.createReadStream(path));
@@ -138,7 +132,7 @@ class TiledeskWhatsapp {
 
     return await axios.post(url, form, request_config).then((response) => {
       if (this.log) {
-        console.log("[Tiledesk Whatsapp] upload response: ", response.data);
+        console.log("(wab) [TiledeskWhatsapp] upload response: ", response.data);
       }
 
       if (type == "images") {
@@ -155,10 +149,7 @@ class TiledeskWhatsapp {
 
   // HTTP REQUEST
   static async myrequest(options, callback, log) {
-    if (this.log) {
-      console.log("API URL: ", options.url);
-      console.log("** Options: ", options);
-    }
+    
     return await axios({
       url: options.url,
       method: options.method,
@@ -166,10 +157,6 @@ class TiledeskWhatsapp {
       params: options.params,
       headers: options.headers
     }).then((res) => {
-      if (this.log) {
-        console.log("Response for url:", options.url);
-        console.log("Response headers:\n", res.headers);
-      }
       if (res && res.status == 200 && res.data) {
         if (callback) {
           callback(null, res.data);

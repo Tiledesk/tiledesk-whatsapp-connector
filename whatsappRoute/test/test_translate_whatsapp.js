@@ -201,7 +201,7 @@ describe('Test Translator\n', function() {
     assert(whatsappJsonMessage.interactive.action.sections);
     assert(whatsappJsonMessage.interactive.action.sections[0].rows.length === 4);
     assert(whatsappJsonMessage.interactive.action.sections[1].rows.length === 1);
-    if (!log) {
+    if (log) {
       console.log("(test) whatsappJsonMessage: ", whatsappJsonMessage);
     }
   })
@@ -250,7 +250,7 @@ describe('Test Translator\n', function() {
     assert(whatsappJsonMessage.interactive.action.sections[0].rows.length === 4);
     assert(whatsappJsonMessage.interactive.action.sections[1].rows.length === 1);
     */
-    if (!log) {
+    if (log) {
       console.log("(test) whatsappJsonMessage: ", whatsappJsonMessage);
     }
   })
@@ -335,7 +335,6 @@ describe('Test Translator\n', function() {
     assert(tiledeskJsonMessage.attributes.subtype);
     assert(tiledeskJsonMessage.attributes.subtype === "info");
     assert(tiledeskJsonMessage.senderFullname === fullname);
-
     if (log) {
       console.log("(test) tiledeskJsonMessage: ", tiledeskJsonMessage);
     }

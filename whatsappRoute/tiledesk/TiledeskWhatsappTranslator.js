@@ -19,8 +19,7 @@ const path = require('path');
   static CHANNEL_NAME = "whatsapp";
 
   constructor() {
-
-
+    
     /*
     if (!config.tiledeskChannelMessage) {
       throw new Error('config.tiledeskChannelMessage is mandatory');
@@ -30,8 +29,6 @@ const path = require('path');
     */
 
     this.log = false;
-
-
   }
 
 
@@ -53,16 +50,13 @@ const path = require('path');
   */
   toWhatsapp(tiledeskChannelMessage, whatsapp_receiver) {
 
-    // to --> recipient
     if (!this.log) {
-      console.log("[Translator] tiledesk message: ", tiledeskChannelMessage)
+      console.log("(wab) [Translator] tiledesk message: ", JSON.stringify(tiledeskChannelMessage));
     }
 
     let text = '';
     if (tiledeskChannelMessage.text) {
       text = tiledeskChannelMessage.text;
-      //text = tiledeskChannelMessage.text.replace(/-{1,}/g, '');
-      //text = text.replace(/\*{2,}/g, '*')
     }
 
     let whatsapp_message = {
@@ -73,48 +67,30 @@ const path = require('path');
     if (tiledeskChannelMessage.type === 'frame') {
       text = text + "\n\n👉 " + tiledeskChannelMessage.metadata.src
       whatsapp_message.text = { body: text };
-
-      if (this.log) {
-        console.log("[Translator] whatsapp message: ", whatsapp_message)
-      }
       return whatsapp_message
     }
 
     else if (tiledeskChannelMessage.metadata) {
 
-
       if ((tiledeskChannelMessage.metadata.type && tiledeskChannelMessage.metadata.type.startsWith('image')) || tiledeskChannelMessage.type.startsWith('image')) {
-
         var imgUrl = tiledeskChannelMessage.metadata.src;
         whatsapp_message.type = 'image'
         whatsapp_message.image = {
           link: imgUrl,
           caption: text
         }
-
       }
 
-
-
       else if ((tiledeskChannelMessage.metadata.type && tiledeskChannelMessage.metadata.type.startsWith('video')) || tiledeskChannelMessage.type.startsWith('video')) {
-        //if (tiledeskChannelMessage.metadata.type.startsWith('video/')) {
         var videoUrl = tiledeskChannelMessage.metadata.src;
         whatsapp_message.type = 'video'
         whatsapp_message.video = {
           link: videoUrl,
           caption: tiledeskChannelMessage.metadata.name || tiledeskChannelMessage.text
         }
-        /*
-        data.type = 'video'
-        data.video = {
-          link: videoUrl,
-          caption: text
-        }
-        */
       }
 
       else if (tiledeskChannelMessage.metadata.type.startsWith('application')) {
-        //if (tiledeskChannelMessage.metadata.type.startsWith('application/')) {
         var doc = tiledeskChannelMessage.metadata.src;
         whatsapp_message.type = 'document'
         whatsapp_message.document = {
@@ -124,13 +100,10 @@ const path = require('path');
       }
 
       else {
-        console.log("file type not supported")
+        console.log("(wab) [Translator] file type not supported")
         return null
       }
 
-      if (this.log) {
-        console.log("[Translator] whatsapp message: ", whatsapp_message)
-      }
       return whatsapp_message;
 
     } else if (tiledeskChannelMessage.attributes) {
@@ -159,12 +132,7 @@ const path = require('path');
             }
 
             whatsapp_message.text = { body: text };
-
-            if (this.log) {
-              console.log("[Translator] whatsapp message: ", whatsapp_message)
-            }
             return whatsapp_message;
-
           }
 
           if (buttons_count > 0 && buttons_count < 4) {
@@ -176,7 +144,6 @@ const path = require('path');
                 let text_btn = {
                   type: "reply",
                   reply: {
-                    //id: "quick_" + btn.value,
                     id: "quick" + uuidv4().substring(0,4) + "_"+ btn.value,
                     title: title
                   }
@@ -188,7 +155,6 @@ const path = require('path');
                 let action_btn = {
                   type: "reply",
                   reply: {
-                    //id: "action" + "_" + btn.action,
                     id: "action" + uuidv4().substring(0, 4) + "_" + btn.action,
                     title: title
                   }
@@ -207,10 +173,6 @@ const path = require('path');
               body: { text: text },
               action: { buttons: quick_replies }
             };
-
-            if (this.log) {
-              console.log("[Translator] whatsapp message: ", whatsapp_message)
-            }
             return whatsapp_message;
           }
 
@@ -284,10 +246,6 @@ const path = require('path');
                 sections: sections
               }
             }
-
-            if (this.log) {
-              console.log("[Translator] whatsapp message: ", whatsapp_message)
-            }
             return whatsapp_message;
           }
 
@@ -297,53 +255,32 @@ const path = require('path');
             // Option 2: Cut buttons array -> display first 10 buttons only
             // Option 3: Send message with *buttons (questa)
 
-            console.log("\n\ntiledeskChannelMessage.attributes._raw_message: ", JSON.stringify(tiledeskChannelMessage))
             whatsapp_message.text = { body: tiledeskChannelMessage.attributes._raw_message };
-
-            if (this.log) {
-              console.log("[Translator] whatsapp message: ", whatsapp_message)
-            }
             return whatsapp_message;
-
           }
 
         } else {
 
           whatsapp_message.text = { body: text };
-
-          if (this.log) {
-            console.log("[Translator] whatsapp message: ", whatsapp_message)
-          }
           return whatsapp_message;
         }
 
       } else {
 
         whatsapp_message.text = { body: text };
-
-        if (this.log) {
-          console.log("[Translator] simple whatsapp message: ", whatsapp_message)
-        }
         return whatsapp_message;
       }
 
     } else {
       whatsapp_message.text = { body: text };
-
-      if (this.log) {
-        console.log("[Translator] whatsapp message: ", whatsapp_message)
-      }
       return whatsapp_message;
-
-
-      //return null
     }
   }
 
-  toTiledesk(whatsappChannelMessage, from, media_url) {
+  async toTiledesk(whatsappChannelMessage, from, media_url) {
 
     if (this.log) {
-      console.log("[Translator] whatsapp message: ", whatsappChannelMessage)
+      console.log("(wab) [Translator] whatsapp message: ", JSON.stringify(whatsappChannelMessage));
     }
 
     // text message

@@ -66,7 +66,7 @@ class TiledeskChannel {
       //new_request_id = hased_request_id = "support-group-" + projectId + "-" + uuidv4() + "-" + sender_id + "-" + webhook_event.recipient.id;
 
     } else {
-      console.log("[Tiledesk Channel] Channel not supported")
+      console.log("(wab) [TiledeskChannel] Channel not supported")
     }
 
     var payload = {
@@ -102,20 +102,20 @@ class TiledeskChannel {
       }).then((response) => {
 
         if (this.log) {
-          console.log("[Tiledesk Channel] get request response: ", response.data);
+          console.log("(wab) [TiledeskChannel] get request response: ", response.data);
         }
 
         let request_id;
         if (response.data.requests[0]) {
           request_id = response.data.requests[0].request_id;
-          console.log("Old request id: ", request_id);
+          console.log("(wab) [TiledeskChannel] Old request_id: ", request_id);
         } else {
           request_id = new_request_id;
-          console.log("New request id: ", request_id);
+          console.log("(wab) [TiledeskChannel] New request_id: ", request_id);
         }
 
         if (this.log) {
-          console.log("[Tiledesk Channel] tiledeskMessage:", tiledeskMessage);
+          console.log("(wab) [TiledeskChannel] tiledeskMessage:", tiledeskMessage);
         }
 
         
@@ -130,28 +130,26 @@ class TiledeskChannel {
         }).then((response) => {
 
           if (this.log) {
-            console.log("[Tiledesk Channel] send message response: ", response.data);  
+            console.log("(wab) [TiledeskChannel] send message response: ", response.data);  
           }
           
           return response.data;
 
         }).catch((err) => {
-          console.error("[Tiledesk Channel ERROR] send message: " + err);
+          console.error("(wab) [TiledeskChannel] send message: " + err);
         })
       }).catch((err) => {
-        console.error("[Tiledesk Channel ERROR]  get requests: " + err);
+        console.error("(wab) [TiledeskChannel]  get requests: " + err);
       })
 
 
     }).catch((err) => {
-      console.error("[Tiledesk Channel ERROR] sign in error: " + err);
+      console.error("(wab) [TiledeskChannel] sign in error: " + err);
     })
   }
 
 
   async getDepartments() {
-
-    console.log("[Tiledesk Channel] getDepartments");
 
     return await axios({
       url: this.API_URL + "/" + this.settings.project_id + "/departments/allstatus",
@@ -162,11 +160,11 @@ class TiledeskChannel {
       method: 'GET'
     }).then((response) => {
       if (this.log) {
-        console.log("\nget departments response.data: ", response.data)
+        console.log("(wab) [TiledeskChannel] get departments response.data: ", response.data)
       }
       return response.data;
     }).catch((err) => {
-      console.error("\nget departments error: ", err);
+      console.error("(wab) [TiledeskChannel] get departments error: ", err);
     })
   }
 
@@ -183,7 +181,7 @@ class TiledeskChannel {
       channel = messageInfo.whatsapp;
       new_request_id = "support-group-" + this.settings.project_id + "-" + uuidv4().substring(0, 8) + "-wab-" + channel.phone_number_id + "-" + channel.from;
     } else {
-      console.log("[Tiledesk Channel] Channel not supported")
+      console.log("(wab) [TiledeskChannel] Channel not supported")
       return null;
     }
 
@@ -218,13 +216,12 @@ class TiledeskChannel {
         data: tiledeskMessage,
         method: 'POST'
       }).then((response) => {
-        console.log("##### response: ", JSON.stringify(response.data));
         return response.data
       }).catch((err) => {
-        console.error("[Tiledesk Channel ERROR] send message (open conversation): " + err);
+        console.error("(wab) [TiledeskChannel] send message (open conversation) error: " + err);
       })
     }).catch((err) => {
-      console.error("[Tiledesk Channel ERROR] sign in error: " + err);
+      console.error("(wab) [TiledeskChannel] sign in error: " + err);
     })
   }
   

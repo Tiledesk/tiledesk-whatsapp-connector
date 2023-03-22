@@ -50,21 +50,18 @@ class TiledeskBotTester {
   async startBotConversation(body, code) {
 
     return new Promise( async (resolve, reject) => {
-      console.log("\n/startBotConversation()");
+      console.log("(wab) [TiledeskBotTester] starting bot conversation");
       
       let whatsappChannelMessage = body.entry[0].changes[0].value.messages[0];
-      console.log("(testitout) whatsappChannelMessage: ", whatsappChannelMessage);
-    
       let whatsappContact = body.entry[0].changes[0].value.contacts[0];
     
       let key = "bottest:" + code.substring(3);
-      console.log("(testitout) key: ", key);
 
       let test_info;
       
       this.redis_client.get(key, async (err, value) => {
         if (err) {
-          console.log("An error occured on redis. Exit..");
+          console.error("An error occured on redis. Exit..");
           return reject(err);
         } else {
           
@@ -72,11 +69,9 @@ class TiledeskBotTester {
             console.log("No test info found on redis. Exit..");
             reject("No test info found on redis");
             return;
+            
           } else {
-            
             test_info = JSON.parse(value)
-            console.log("test_info: ", test_info)
-            
             let message_info = {
               channel: "whatsapp",
               whatsapp: {
@@ -86,13 +81,9 @@ class TiledeskBotTester {
                 lastname: " "
               }
             }
-            console.log("(testitout) message_info: ", message_info)
 
             let CONTENT_KEY = "whatsapp-" + this.project_id;
             let settings = await this.db.get(CONTENT_KEY);
-            if (this.log) {
-              console.log("[KVDB] settings: ", settings);
-            }
           
             if (!settings) {
               console.log("No settings found. Exit..");
@@ -101,29 +92,18 @@ class TiledeskBotTester {
             
             whatsappChannelMessage.text.body = "/start";
             let tiledeskJsonMessage = await this.tlr.toTiledesk(whatsappChannelMessage, whatsappContact.profile.name);
-            console.log("(testitout) tiledeskJsonMessage: ", tiledeskJsonMessage)
           
             if (test_info) {
               const response = await this.tdChannel.sendAndAddBot(tiledeskJsonMessage, message_info, test_info.bot_id)
-              console.log("testitout --> send response: ", response)
-              return resolve()
+              return resolve(response)
             } else {
-              console.log("testitout --> no bot selected, skip test: ")
+              console.log("(wab) No bot selected for test. Exit..")
               return reject("Test skipped")
             }
-
-
-
-            
+ 
           }
-
-          
-
-          
-          
         }
       })
-      
     })
   }
 

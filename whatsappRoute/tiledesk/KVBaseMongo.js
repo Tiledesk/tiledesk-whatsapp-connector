@@ -60,7 +60,7 @@ class KVBaseMongo {
       if (this.log) {
         console.log("Searching on ", this.db)
       }
-      console.log("Searching on Collection", this.KV_COLLECTION)
+      //console.log("Searching on Collection", this.KV_COLLECTION)
       
       this.db.collection(this.KV_COLLECTION).findOne({ key: k }, function(err, doc) {
         if (err) {
@@ -69,7 +69,7 @@ class KVBaseMongo {
         }
         else {
           if (doc) {
-            console.log("Doc found with key -->", doc.key);
+            console.log("Doc found with key: ", doc.key);
             resolve(doc.value);
           }
           else {

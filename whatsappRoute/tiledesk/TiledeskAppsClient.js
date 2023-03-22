@@ -27,7 +27,7 @@ class TiledeskAppsClient {
 
     this.APPS_API_URL = config.APPS_API_URL;
     
-    this.log = true;
+    this.log = false;
     if (config.log) {
       this.log = config.log;
     }
