@@ -50,7 +50,7 @@ const path = require('path');
   */
   toWhatsapp(tiledeskChannelMessage, whatsapp_receiver) {
 
-    if (!this.log) {
+    if (this.log) {
       console.log("(wab) [Translator] tiledesk message: ", JSON.stringify(tiledeskChannelMessage));
     }
 
@@ -229,6 +229,7 @@ const path = require('path');
               ]
             }
 
+            // only available at the moment --> all buttons are now "actions"
             if (option_rows.length == 0 && action_rows.length > 0) {
               sections = [
                 {

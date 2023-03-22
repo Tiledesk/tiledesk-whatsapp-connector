@@ -30,7 +30,6 @@ describe('Test Translator\n', function() {
     }
   })
 
-
   it("Translates a message containing an IMAGE from Tiledesk to Whatsapp", function() {
 
     let tiledeskChannelMessage = {
@@ -61,7 +60,6 @@ describe('Test Translator\n', function() {
       console.log("(test) whatsappJsonMessage: ", whatsappJsonMessage);
     }
   })
-
 
   it("Translates a message containing a VIDEO message from Tiledesk to Whatsapp", function() {
 
@@ -95,7 +93,6 @@ describe('Test Translator\n', function() {
     }
   })
 
-
   it("Translates a message containing a DOCUMENT from Tiledesk to Whatsapp", function() {
 
     let tiledeskChannelMessage = {
@@ -127,7 +124,6 @@ describe('Test Translator\n', function() {
       console.log("(test) whatsappJsonMessage: ", whatsappJsonMessage);
     }
   })
-
 
   it("Translates a message with BUTTONS (max. 3) from Tiledesk to Whatsapp", function() {
 
@@ -166,7 +162,6 @@ describe('Test Translator\n', function() {
     }
   })
 
-
   it("Translates a message with BUTTONS (min. 4 - max 10) from Tiledesk to Whatsapp", function() {
 
     let tiledeskChannelMessage = {
@@ -199,8 +194,8 @@ describe('Test Translator\n', function() {
     assert(whatsappJsonMessage.interactive.action);
     assert(whatsappJsonMessage.interactive.action.button === 'Choose an option');
     assert(whatsappJsonMessage.interactive.action.sections);
-    assert(whatsappJsonMessage.interactive.action.sections[0].rows.length === 4);
-    assert(whatsappJsonMessage.interactive.action.sections[1].rows.length === 1);
+    assert(whatsappJsonMessage.interactive.action.sections[0].rows.length === 5);
+    //assert(whatsappJsonMessage.interactive.action.sections[1].rows.length === 1);
     if (log) {
       console.log("(test) whatsappJsonMessage: ", whatsappJsonMessage);
     }
@@ -258,7 +253,7 @@ describe('Test Translator\n', function() {
 
   // WHATSAPP >>>>>>>>> TILEDESK
 
-  it("Translates a TEXT message from Whatsapp to Tiledesk", function() {
+  it("Translates a TEXT message from Whatsapp to Tiledesk", async () => {
 
     let whatsappChannelMessage = {
       text: {
@@ -270,7 +265,7 @@ describe('Test Translator\n', function() {
 
     const tlr = new TiledeskWhatsappTranslator();
     assert(tlr != null);
-    const tiledeskJsonMessage = tlr.toTiledesk(whatsappChannelMessage, fullname, null)
+    const tiledeskJsonMessage = await tlr.toTiledesk(whatsappChannelMessage, fullname, null)
     assert(tiledeskJsonMessage != null);
     assert(tiledeskJsonMessage.channel.name === TiledeskWhatsappTranslator.CHANNEL_NAME);
     assert(tiledeskJsonMessage.text === whatsappChannelMessage.text.body);
@@ -280,8 +275,7 @@ describe('Test Translator\n', function() {
     }
   })
 
-
-  it("Translates a message with QUICK REPLY (list_reply) from Whatsapp to Tiledesk", function() {
+  it("Translates a message with QUICK REPLY (list_reply) from Whatsapp to Tiledesk", async () => {
 
     let whatsappChannelMessage = {
       type: "interactive",
@@ -297,7 +291,7 @@ describe('Test Translator\n', function() {
 
     const tlr = new TiledeskWhatsappTranslator();
     assert(tlr != null);
-    const tiledeskJsonMessage = tlr.toTiledesk(whatsappChannelMessage, fullname, null)
+    const tiledeskJsonMessage = await tlr.toTiledesk(whatsappChannelMessage, fullname, null)
     assert(tiledeskJsonMessage != null);
     assert(tiledeskJsonMessage.channel.name === TiledeskWhatsappTranslator.CHANNEL_NAME);
     assert(tiledeskJsonMessage.text === whatsappChannelMessage.interactive.list_reply.title);
@@ -307,8 +301,7 @@ describe('Test Translator\n', function() {
     }
   })
 
-
-  it("Translates a message with ACTION BUTTON (list_reply) from Whatsapp to Tiledesk", function() {
+  it("Translates a message with ACTION BUTTON (list_reply) from Whatsapp to Tiledesk", async () => {
 
     let whatsappChannelMessage = {
       type: "interactive",
@@ -324,7 +317,7 @@ describe('Test Translator\n', function() {
 
     const tlr = new TiledeskWhatsappTranslator();
     assert(tlr != null);
-    const tiledeskJsonMessage = tlr.toTiledesk(whatsappChannelMessage, fullname, null)
+    const tiledeskJsonMessage = await tlr.toTiledesk(whatsappChannelMessage, fullname, null)
     assert(tiledeskJsonMessage != null);
     assert(tiledeskJsonMessage.channel.name === TiledeskWhatsappTranslator.CHANNEL_NAME);
     assert(tiledeskJsonMessage.text === ' ');
@@ -341,8 +334,7 @@ describe('Test Translator\n', function() {
 
   })
 
-
-  it("Translates a message with QUICK REPLY (button_reply) from Whatsapp to Tiledesk", function() {
+  it("Translates a message with QUICK REPLY (button_reply) from Whatsapp to Tiledesk", async () => {
 
     let whatsappChannelMessage = {
       type: "interactive",
@@ -358,7 +350,7 @@ describe('Test Translator\n', function() {
 
     const tlr = new TiledeskWhatsappTranslator();
     assert(tlr != null);
-    const tiledeskJsonMessage = tlr.toTiledesk(whatsappChannelMessage, fullname, null)
+    const tiledeskJsonMessage = await tlr.toTiledesk(whatsappChannelMessage, fullname, null)
     assert(tiledeskJsonMessage != null);
     assert(tiledeskJsonMessage.channel.name === TiledeskWhatsappTranslator.CHANNEL_NAME);
     assert(tiledeskJsonMessage.text === whatsappChannelMessage.interactive.button_reply.title);
@@ -368,8 +360,7 @@ describe('Test Translator\n', function() {
     }
   })
 
-
-  it("Translates a message with ACTION BUTTON (button_reply) from Whatsapp to Tiledesk", function() {
+  it("Translates a message with ACTION BUTTON (button_reply) from Whatsapp to Tiledesk", async () => {
 
     let whatsappChannelMessage = {
       type: "interactive",
@@ -385,7 +376,7 @@ describe('Test Translator\n', function() {
 
     const tlr = new TiledeskWhatsappTranslator();
     assert(tlr != null);
-    const tiledeskJsonMessage = tlr.toTiledesk(whatsappChannelMessage, fullname, null)
+    const tiledeskJsonMessage = await tlr.toTiledesk(whatsappChannelMessage, fullname, null)
     assert(tiledeskJsonMessage != null);
     assert(tiledeskJsonMessage.channel.name === TiledeskWhatsappTranslator.CHANNEL_NAME);
     assert(tiledeskJsonMessage.text === ' ');
@@ -401,8 +392,7 @@ describe('Test Translator\n', function() {
     }
   })
 
-
-  it("Translates a message containing an IMAGE from Whatsapp to Tiledesk", function() {
+  it("Translates a message containing an IMAGE from Whatsapp to Tiledesk", async () => {
     let whatsappChannelMessage = {
       type: "image",
       image: {
@@ -414,15 +404,14 @@ describe('Test Translator\n', function() {
 
     const tlr = new TiledeskWhatsappTranslator();
     assert(tlr != null);
-    const tiledeskJsonMessage = tlr.toTiledesk(whatsappChannelMessage, fullname, media_url);
+    const tiledeskJsonMessage = await tlr.toTiledesk(whatsappChannelMessage, fullname, media_url);
     assert(tiledeskJsonMessage != null);
     if (log) {
       console.log("(test) tiledeskJsonMessage: ", tiledeskJsonMessage);
     }
   })
 
-
-  it("Translates a message containing a VIDEO from Whatsapp to Tiledesk", function() {
+  it("Translates a message containing a VIDEO from Whatsapp to Tiledesk", async () => {
     let whatsappChannelMessage = {
       type: "video",
       video: {
@@ -434,15 +423,14 @@ describe('Test Translator\n', function() {
 
     const tlr = new TiledeskWhatsappTranslator();
     assert(tlr != null);
-    const tiledeskJsonMessage = tlr.toTiledesk(whatsappChannelMessage, fullname, media_url);
+    const tiledeskJsonMessage = await tlr.toTiledesk(whatsappChannelMessage, fullname, media_url);
     assert(tiledeskJsonMessage != null);
     if (log) {
       console.log("(test) tiledeskJsonMessage: ", tiledeskJsonMessage);
     }
   })
 
-
-  it("Translates a message containing a DOCUMENT from Whatsapp to Tiledesk", function() {
+  it("Translates a message containing a DOCUMENT from Whatsapp to Tiledesk", async () => {
     let whatsappChannelMessage = {
       type: "document",
       document: {
@@ -454,7 +442,7 @@ describe('Test Translator\n', function() {
 
     const tlr = new TiledeskWhatsappTranslator();
     assert(tlr != null);
-    const tiledeskJsonMessage = tlr.toTiledesk(whatsappChannelMessage, fullname, media_url);
+    const tiledeskJsonMessage = await tlr.toTiledesk(whatsappChannelMessage, fullname, media_url);
     assert(tiledeskJsonMessage != null);
     if (log) {
       console.log("(test) tiledeskJsonMessage: ", tiledeskJsonMessage);
