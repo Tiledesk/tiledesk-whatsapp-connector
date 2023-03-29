@@ -38,9 +38,9 @@ class MessageHandler {
   }
 
   async generateMessageObject(command) {
-    if (this.log) {
-      console.log("(wab) [MessageHandler] command: ", JSON.stringify(command));
-    }
+    //if (this.log) {
+      //console.log("(wab) [MessageHandler] command: ", JSON.stringify(command));
+    //}
 
     let tiledeskCommandMessage = command.message;
     tiledeskCommandMessage.recipient = this.tiledeskChannelMessage.recipient;

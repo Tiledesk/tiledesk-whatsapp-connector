@@ -50,9 +50,9 @@ const path = require('path');
   */
   toWhatsapp(tiledeskChannelMessage, whatsapp_receiver) {
 
-    if (this.log) {
-      console.log("(wab) [Translator] tiledesk message: ", JSON.stringify(tiledeskChannelMessage));
-    }
+    //if (this.log) {
+    //  console.log("(wab) [Translator] tiledesk message: ", JSON.stringify(tiledeskChannelMessage));
+    //}
 
     let text = '';
     if (tiledeskChannelMessage.text) {
@@ -100,7 +100,7 @@ const path = require('path');
       }
 
       else {
-        console.log("(wab) [Translator] file type not supported")
+        //console.log("(wab) [Translator] file type not supported")
         return null
       }
 
@@ -280,9 +280,9 @@ const path = require('path');
 
   async toTiledesk(whatsappChannelMessage, from, media_url) {
 
-    if (this.log) {
-      console.log("(wab) [Translator] whatsapp message: ", JSON.stringify(whatsappChannelMessage));
-    }
+    //if (this.log) {
+      //console.log("(wab) [Translator] whatsapp message: ", JSON.stringify(whatsappChannelMessage));
+    //}
 
     // text message
     if (whatsappChannelMessage.type == 'text') {

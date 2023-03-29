@@ -50,7 +50,7 @@ class TiledeskBotTester {
   async startBotConversation(body, code) {
 
     return new Promise( async (resolve, reject) => {
-      console.log("(wab) [TiledeskBotTester] starting bot conversation");
+      //console.log("(wab) [TiledeskBotTester] starting bot conversation");
       
       let whatsappChannelMessage = body.entry[0].changes[0].value.messages[0];
       let whatsappContact = body.entry[0].changes[0].value.contacts[0];
@@ -66,7 +66,7 @@ class TiledeskBotTester {
         } else {
           
           if (!value) {
-            console.log("No test info found on redis. Exit..");
+            //console.log("No test info found on redis. Exit..");
             reject("No test info found on redis");
             return;
             
@@ -86,7 +86,7 @@ class TiledeskBotTester {
             let settings = await this.db.get(CONTENT_KEY);
           
             if (!settings) {
-              console.log("No settings found. Exit..");
+              //console.log("No settings found. Exit..");
               return reject("No settings found. Exit..")
             }
             
@@ -97,7 +97,7 @@ class TiledeskBotTester {
               const response = await this.tdChannel.sendAndAddBot(tiledeskJsonMessage, message_info, test_info.bot_id)
               return resolve(response)
             } else {
-              console.log("(wab) No bot selected for test. Exit..")
+              //console.log("(wab) No bot selected for test. Exit..")
               return reject("Test skipped")
             }
  

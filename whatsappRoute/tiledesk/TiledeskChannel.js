@@ -66,7 +66,8 @@ class TiledeskChannel {
       //new_request_id = hased_request_id = "support-group-" + projectId + "-" + uuidv4() + "-" + sender_id + "-" + webhook_event.recipient.id;
 
     } else {
-      console.log("(wab) [TiledeskChannel] Channel not supported")
+      //console.log("(wab) [TiledeskChannel] Channel not supported")
+      return null;
     }
 
     var payload = {
@@ -101,22 +102,22 @@ class TiledeskChannel {
         method: 'GET'
       }).then((response) => {
 
-        if (this.log) {
-          console.log("(wab) [TiledeskChannel] get request response: ", response.data);
-        }
+        //if (this.log) {
+         // console.log("(wab) [TiledeskChannel] get request response: ", response.data);
+        //}
 
         let request_id;
         if (response.data.requests[0]) {
           request_id = response.data.requests[0].request_id;
-          console.log("(wab) [TiledeskChannel] Old request_id: ", request_id);
+          //console.log("(wab) [TiledeskChannel] Old request_id: ", request_id);
         } else {
           request_id = new_request_id;
-          console.log("(wab) [TiledeskChannel] New request_id: ", request_id);
+          //console.log("(wab) [TiledeskChannel] New request_id: ", request_id);
         }
 
-        if (this.log) {
-          console.log("(wab) [TiledeskChannel] tiledeskMessage:", tiledeskMessage);
-        }
+        //if (this.log) {
+          //console.log("(wab) [TiledeskChannel] tiledeskMessage:", tiledeskMessage);
+        //}
 
         
         return axios({
@@ -129,9 +130,9 @@ class TiledeskChannel {
           method: 'POST'
         }).then((response) => {
 
-          if (this.log) {
-            console.log("(wab) [TiledeskChannel] send message response: ", response.data);  
-          }
+          //if (this.log) {
+          //  console.log("(wab) [TiledeskChannel] send message response: ", response.data);  
+          //}
           
           return response.data;
 
@@ -159,9 +160,9 @@ class TiledeskChannel {
       },
       method: 'GET'
     }).then((response) => {
-      if (this.log) {
-        console.log("(wab) [TiledeskChannel] get departments response.data: ", response.data)
-      }
+      //if (this.log) {
+      //  console.log("(wab) [TiledeskChannel] get departments response.data: ", response.data)
+      //}
       return response.data;
     }).catch((err) => {
       console.error("(wab) [TiledeskChannel] get departments error: ", err);
@@ -181,7 +182,7 @@ class TiledeskChannel {
       channel = messageInfo.whatsapp;
       new_request_id = "support-group-" + this.settings.project_id + "-" + uuidv4().substring(0, 8) + "-wab-" + channel.phone_number_id + "-" + channel.from;
     } else {
-      console.log("(wab) [TiledeskChannel] Channel not supported")
+      //console.log("(wab) [TiledeskChannel] Channel not supported")
       return null;
     }
 

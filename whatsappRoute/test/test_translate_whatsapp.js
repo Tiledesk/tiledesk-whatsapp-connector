@@ -419,7 +419,7 @@ describe('Test Translator\n', function() {
       }
     }
     let fullname = "John Doe";
-    let media_url = "https://fakeimageurl.com/"
+    let media_url = "https://fakevideourl.com/"
 
     const tlr = new TiledeskWhatsappTranslator();
     assert(tlr != null);

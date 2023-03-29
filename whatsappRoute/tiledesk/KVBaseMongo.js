@@ -16,7 +16,7 @@ class KVBaseMongo {
       throw new Error('KVBASE_COLLECTION (the name of the Mongodb collection used as key-value store) is mandatory.');
     }
     this.KV_COLLECTION = config.KVBASE_COLLECTION;
-    console.log("KV_COLLECTION: ", this.KV_COLLECTION)
+    //console.log("KV_COLLECTION: ", this.KV_COLLECTION)
 
     this.log = false;
     if (config.log) {
@@ -27,7 +27,7 @@ class KVBaseMongo {
   connect(MONGODB_URI, callback) {
     mongodb.MongoClient.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true }, (err, client) => {
       if (err) {
-        console.log(err);
+        console.error(err);
         process.exit(1);
       } else {
         this.db = client.db();
@@ -57,9 +57,9 @@ class KVBaseMongo {
   get(k) {
     return new Promise(resolve => {
       //this.db.get(k).then(value => {resolve(value)});
-      if (this.log) {
-        console.log("Searching on ", this.db)
-      }
+      //if (this.log) {
+        //console.log("Searching on ", this.db)
+      //}
       //console.log("Searching on Collection", this.KV_COLLECTION)
       
       this.db.collection(this.KV_COLLECTION).findOne({ key: k }, function(err, doc) {
@@ -69,11 +69,11 @@ class KVBaseMongo {
         }
         else {
           if (doc) {
-            console.log("Doc found with key: ", doc.key);
+            //console.log("Doc found with key: ", doc.key);
             resolve(doc.value);
           }
           else {
-            console.log("No Doc found!");
+            //console.log("No Doc found!");
             resolve(null);
           }
         }

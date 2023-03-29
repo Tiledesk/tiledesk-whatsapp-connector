@@ -96,7 +96,7 @@ router.post('/install', async (req, res) => {
   let app_id = req.body.app_id;
   let token = req.body.token;
 
-  console.log("(wab) Install app " + app_id + " for project id " + project_id);
+  //console.log("(wab) Install app " + app_id + " for project id " + project_id);
   let installation_info = {
     project_id: project_id,
     app_id: app_id,
@@ -106,9 +106,9 @@ router.post('/install', async (req, res) => {
   const appClient = new TiledeskAppsClient({ APPS_API_URL: APPS_API_URL });
   appClient.install(installation_info).then((installation) => {
 
-    if (log) {
-      console.log("(wab) installation response: ", installation);
-    }
+    //if (log) {
+    //  console.log("(wab) installation response: ", installation);
+    //}
 
     let installed = true;
 
@@ -144,9 +144,9 @@ router.post('/uninstall', async (req, res) => {
   const appClient = new TiledeskAppsClient({ APPS_API_URL: APPS_API_URL });
   appClient.uninstall(project_id, app_id).then((response) => {
 
-    if (log) {
-      console.log("(wab) uninstallation response: ", response);
-    }
+    //if (log) {
+      //console.log("(wab) uninstallation response: ", response);
+    //}
 
     let installed = false;
 
@@ -174,10 +174,10 @@ router.post('/uninstall', async (req, res) => {
 })
 
 router.get('/configure', async (req, res) => {
-  console.log("(wab) /configure");
-  if (log) {
-    console.log("(wab) /configure query: ", req.query);
-  }
+  //console.log("(wab) /configure");
+  //if (log) {
+    //console.log("(wab) /configure query: ", req.query);
+  //}
 
   let projectId = "";
   let token = "";
@@ -191,15 +191,13 @@ router.get('/configure', async (req, res) => {
   
   let settings = await db.get(CONTENT_KEY);
   if (log) {
-    console.log("(wab) settings: ", settings);
+    //console.log("(wab) settings: ", settings);
   }
 
   // get departments
   const tdChannel = new TiledeskChannel({ settings: { project_id: projectId, token: token }, API_URL: API_URL })
   let departments = await tdChannel.getDepartments(token);
-  console.log("(wab) found " + departments.length + " departments")
-  if (log) {
-  }
+  //console.log("(wab) found " + departments.length + " departments")
 
   if (settings) {
 
@@ -249,10 +247,10 @@ router.get('/configure', async (req, res) => {
 })
 
 router.post('/update', async (req, res) => {
-  console.log("(wab) /update");
-  if (log) {
-    console.log("(wab) body: ", req.body);
-  }
+  //console.log("(wab) /update");
+  //if (log) {
+  //  console.log("(wab) body: ", req.body);
+  //}
 
   let projectId = req.body.project_id;
   let token = req.body.token;
@@ -318,9 +316,9 @@ router.post('/update', async (req, res) => {
     // promise
     tdClient.subscribe(subscription_info).then((data) => {
       let subscription = data;
-      if (log) {
-        console.log("\n(wab) Subscription: ", subscription)
-      }
+      //if (log) {
+        //console.log("\n(wab) Subscription: ", subscription)
+      //}
 
       let settings = {
         project_id: projectId,
@@ -383,10 +381,10 @@ router.post('/update', async (req, res) => {
 })
 
 router.post('/disconnect', async (req, res) => {
-  console.log("\n(wab) /disconnect")
-  if (log) {
-    console.log("(wab) body: ", req.body)
-  }
+  //console.log("\n(wab) /disconnect")
+  //if (log) {
+    //console.log("(wab) body: ", req.body)
+  //}
 
   let projectId = req.body.project_id;
   let token = req.body.token;
@@ -395,7 +393,7 @@ router.post('/disconnect', async (req, res) => {
 
   let CONTENT_KEY = "whatsapp-" + projectId;
   await db.remove(CONTENT_KEY);
-  console.log("(wab) Content deleted.");
+  //console.log("(wab) Content deleted.");
 
   let proxy_url = BASE_URL + "/webhook/" + projectId;
 
@@ -415,9 +413,9 @@ router.post('/disconnect', async (req, res) => {
 
     readHTMLFile('/configure.html', (err, html) => {
 
-      if (err) {
-        console.log("(wab) error read html file: ", err);
-      }
+      //if (err) {
+        //console.log("(wab) error read html file: ", err);
+      //}
 
       var template = handlebars.compile(html);
       var replacements = {
@@ -438,10 +436,10 @@ router.post('/disconnect', async (req, res) => {
 })
 
 router.post('/tiledesk', async (req, res) => {
-  console.log("(wab) Message received from Tiledesk")
-  if (log) {
-    console.log("(wab) tiledeskChannelMessage: ", JSON.stringify(req.body.payload));
-  }
+  //console.log("(wab) Message received from Tiledesk")
+  //if (log) {
+    //console.log("(wab) tiledeskChannelMessage: ", JSON.stringify(req.body.payload));
+  //}
 
   var tiledeskChannelMessage = req.body.payload;
   var projectId = req.body.payload.id_project;
@@ -461,17 +459,17 @@ router.post('/tiledesk', async (req, res) => {
   var sender_id = req.body.payload.sender;
 
   if (sender_id.indexOf("wab") > -1) {
-    console.log("(wab) Skip same sender");
+    //console.log("(wab) Skip same sender");
     return res.sendStatus(200);
   }
 
   if (attributes && attributes.subtype === "info") {
-    console.log("(wab) Skip subtype (info)");
+    //console.log("(wab) Skip subtype (info)");
     return res.sendStatus(200);
   }
 
   if (attributes && attributes.subtype === 'info/support') {
-    console.log("(wab) Skip subtype: ", attributes.subtype);
+    //console.log("(wab) Skip subtype: ", attributes.subtype);
     return res.sendStatus(200);
   }
 
@@ -479,14 +477,14 @@ router.post('/tiledesk', async (req, res) => {
   let whatsapp_receiver = recipient_id.substring(recipient_id.lastIndexOf("-") + 1);
   let phone_number_id = recipient_id.substring(recipient_id.lastIndexOf("wab-") + 4, recipient_id.lastIndexOf("-"));
   
-  if (log) {
-    console.log("(wab) text: ", text);
-    console.log("(wab) attributes: ", JSON.stringify(attributes))
-    console.log("(wab) tiledesk sender_id: ", sender_id);
-    console.log("(wab) recipient_id: ", recipient_id);
-    console.log("(wab) whatsapp_receiver: ", whatsapp_receiver);
-    console.log("(wab) phone_number_id: ", phone_number_id)
-  }
+  //if (log) {
+    //console.log("(wab) text: ", text);
+    //console.log("(wab) attributes: ", JSON.stringify(attributes))
+    //console.log("(wab) tiledesk sender_id: ", sender_id);
+    //console.log("(wab) recipient_id: ", recipient_id);
+    //console.log("(wab) whatsapp_receiver: ", whatsapp_receiver);
+    //console.log("(wab) phone_number_id: ", phone_number_id)
+  //}
 
   const messageHandler = new MessageHandler({ tiledeskChannelMessage: tiledeskChannelMessage });
   const tlr = new TiledeskWhatsappTranslator();
@@ -497,22 +495,22 @@ router.post('/tiledesk', async (req, res) => {
       // message
       if (command.type === "message") {
         let tiledeskCommandMessage = await messageHandler.generateMessageObject(command);
-        if (log) {
-          console.log("(wab) message generated from commanf: ", JSON.stringify(tiledeskCommandMessage))
-        }
+        //if (log) {
+          //console.log("(wab) message generated from command: ", JSON.stringify(tiledeskCommandMessage))
+        //}
 
         let whatsappJsonMessage = await tlr.toWhatsapp(tiledeskCommandMessage, whatsapp_receiver);
-        console.log("(wab) 🟢 whatsappJsonMessage", JSON.stringify(whatsappJsonMessage))
+        //console.log("(wab) 🟢 whatsappJsonMessage", JSON.stringify(whatsappJsonMessage))
 
         if (whatsappJsonMessage) {
           const twClient = new TiledeskWhatsapp({ token: settings.wab_token, GRAPH_URL: GRAPH_URL });
           twClient.sendMessage(phone_number_id, whatsappJsonMessage).then((response) => {
-            console.log("(wab) Message sent to WhatsApp! ", response.status, response.statusText);
+            //console.log("(wab) Message sent to WhatsApp! ", response.status, response.statusText);
             i += 1;
             if (i < commands.length) {
               execute(commands[i]);
             } else {
-              console.log("(wab) End of commands")
+              //console.log("(wab) End of commands")
             }
           }).catch((err) => {
             console.error("(wab) send message error: ", err);
@@ -530,7 +528,7 @@ router.post('/tiledesk', async (req, res) => {
           if (i < commands.length) {
             execute(commands[i]);
           } else {
-            console.log("(wab) End of commands")
+            //console.log("(wab) End of commands")
           }
         }, command.time)
       }
@@ -541,13 +539,13 @@ router.post('/tiledesk', async (req, res) => {
   else if (tiledeskChannelMessage.text  || tiledeskChannelMessage.metadata) {
 
     let whatsappJsonMessage = await tlr.toWhatsapp(tiledeskChannelMessage, whatsapp_receiver);
-    console.log("(wab) 🟢 whatsappJsonMessage", JSON.stringify(whatsappJsonMessage))
+    //console.log("(wab) 🟢 whatsappJsonMessage", JSON.stringify(whatsappJsonMessage))
 
     if (whatsappJsonMessage) {
       const twClient = new TiledeskWhatsapp({ token: settings.wab_token, GRAPH_URL: GRAPH_URL });
   
       twClient.sendMessage(phone_number_id, whatsappJsonMessage).then((response) => {
-        console.log("(wab) Message sent to WhatsApp! ", response.status, response.statusText);
+        //console.log("(wab) Message sent to WhatsApp! ", response.status, response.statusText);
       }).catch((err) => {
         console.error("(wab) error send message: ", err);
       })
@@ -557,7 +555,7 @@ router.post('/tiledesk', async (req, res) => {
     }
     
   } else {
-    console.log("(wab) no command, no text --> skip")
+    //console.log("(wab) no command, no text --> skip")
   }
 
   return res.send(200);
@@ -569,6 +567,7 @@ router.post("/webhook/:project_id", async (req, res) => {
   
   // Parse the request body from the POST
   let projectId = req.params.project_id;
+  //console.log("(wab) Message received from WhatsApp");
   //console.log("/webhook req.body: ", JSON.stringify(req.body, null, 2))
 
   // Check the Incoming webhook message
@@ -583,13 +582,12 @@ router.post("/webhook/:project_id", async (req, res) => {
       req.body.entry[0].changes[0].value.messages[0]
     ) {
 
-      console.log("(wab) Message received from WhatsApp");
-      if (log) {
-        console.log("\n(wab) body: ", JSON.stringify(req.body));
-      }
+      //if (log) {
+      //  console.log("\n(wab) body: ", JSON.stringify(req.body));
+      //}
 
       if (req.body.entry[0].changes[0].value.messages[0].type == "system") {
-        console.log("(wab) Skip system message")
+        //console.log("(wab) Skip system message")
         return res.sendStatus(200);
       }
 
@@ -597,11 +595,11 @@ router.post("/webhook/:project_id", async (req, res) => {
 
       let CONTENT_KEY = "whatsapp-" + projectId;
       let settings = await db.get(CONTENT_KEY);
-      if (log) {
-        console.log("(wab) kvdb settings: ", settings);
-      }
+      //if (log) {
+        //console.log("(wab) kvdb settings: ", settings);
+      //}
       if (!settings) {
-        console.log("(wab) No settings found. Exit..");
+        //console.log("(wab) No settings found. Exit..");
         return res.sendStatus(200);
       }
 
@@ -612,14 +610,14 @@ router.post("/webhook/:project_id", async (req, res) => {
       if (whatsappChannelMessage.text && whatsappChannelMessage.text.body.startsWith("#td")) { 
 
         let code = whatsappChannelMessage.text.body.split(' ')[0];
-        console.log("(wab) test code: ", code)
+        //console.log("(wab) test code: ", code)
 
         const bottester = new TiledeskBotTester({project_id: projectId, redis_client: redis_client, db: db, tdChannel: tdChannel, tlr: tlr});
         bottester.startBotConversation(req.body, code).then((result) => {
-          console.log("(wab) test conversation started");
-          if (log) {
-            console.log("(wab) result: ", result);
-          }
+          //console.log("(wab) test conversation started");
+          //if (log) {
+            //console.log("(wab) result: ", result);
+          //}
         }).catch((err) => {
           console.error("(wab) start test onversation error: ", err);
         })
@@ -642,12 +640,12 @@ router.post("/webhook/:project_id", async (req, res) => {
         let tiledeskJsonMessage;
         
         if ((whatsappChannelMessage.type == 'text')) {
-          console.log("(wab) message type: text")
+          //console.log("(wab) message type: text")
           tiledeskJsonMessage = await tlr.toTiledesk(whatsappChannelMessage, firstname);
         }
           
         else if (whatsappChannelMessage.type == 'interactive') {
-          console.log("(wab) message type: interactive")
+          //console.log("(wab) message type: interactive")
           tiledeskJsonMessage = await tlr.toTiledesk(whatsappChannelMessage, firstname);
         }
 
@@ -659,13 +657,13 @@ router.post("/webhook/:project_id", async (req, res) => {
             media = whatsappChannelMessage.image;
             const filename = await util.downloadMedia(media.id);
             if (!filename) {
-              console.log("(wab) Unable to download media with id " + media.id + ". Message not sent.");
+              //console.log("(wab) Unable to download media with id " + media.id + ". Message not sent.");
               return res.status(500).send({ success: false, error: "unable to download media" })
             }
             let file_path = path.join(__dirname, 'tmp', filename);
   
             const image_url = await util.uploadMedia(file_path, "images");
-            console.log("(wab) image_url: ", image_url)
+            //console.log("(wab) image_url: ", image_url)
   
             tiledeskJsonMessage = await tlr.toTiledesk(whatsappChannelMessage, firstname, image_url);
           }
@@ -675,13 +673,13 @@ router.post("/webhook/:project_id", async (req, res) => {
   
             const filename = await util.downloadMedia(media.id);
             if (!filename) {
-              console.log("(wab) Unable to download media with id " + media.id + ". Message not sent.");
+              //console.log("(wab) Unable to download media with id " + media.id + ". Message not sent.");
               return res.status(500).send({ success: false, error: "unable to download media" })
             }
             let file_path = path.join(__dirname, 'tmp', filename);
   
             const media_url = await util.uploadMedia(file_path, "files");
-            console.log("(wab) media_url: ", media_url)
+            //console.log("(wab) media_url: ", media_url)
   
             tiledeskJsonMessage = await tlr.toTiledesk(whatsappChannelMessage, firstname, media_url);
           }
@@ -691,31 +689,31 @@ router.post("/webhook/:project_id", async (req, res) => {
   
             const filename = await util.downloadMedia(media.id);
             if (!filename) {
-              console.log("(wab) Unable to download media with id " + media.id + ". Message not sent.");
+              //console.log("(wab) Unable to download media with id " + media.id + ". Message not sent.");
               return res.status(500).send({ success: false, error: "unable to download media" })
             }
             let file_path = path.join(__dirname, 'tmp', filename);
   
             const media_url = await util.uploadMedia(file_path, "files");
-            console.log("(wab) media_url: ", media_url)
+            //console.log("(wab) media_url: ", media_url)
   
             tiledeskJsonMessage = await tlr.toTiledesk(whatsappChannelMessage, firstname, media_url);
           }
   
         } else {
           // unsupported. Try anyway to send something.
-          console.log("(wab) unsupported message")
+          //console.log("(wab) unsupported message")
         }
 
         if (tiledeskJsonMessage) {
-          console.log("(wab) 🟠 tiledeskJsonMessage: ", JSON.stringify(tiledeskJsonMessage));
+          //console.log("(wab) 🟠 tiledeskJsonMessage: ", JSON.stringify(tiledeskJsonMessage));
           const response = await tdChannel.send(tiledeskJsonMessage, message_info, settings.department_id);
-          console.log("(wab) Message sent to Tiledesk!")
-          if (log) {
-            console.log("(wab) response: ", response)
-          }
+          //console.log("(wab) Message sent to Tiledesk!")
+          //if (log) {
+            //console.log("(wab) response: ", response)
+          //}
         } else {
-          console.log("(wab) tiledeskJsonMessage is undefined")
+          //console.log("(wab) tiledeskJsonMessage is undefined")
         }
         
       }
@@ -724,7 +722,7 @@ router.post("/webhook/:project_id", async (req, res) => {
     
   } else {
     // Return a '404 Not Found' if event is not from a WhatsApp API
-    console.log("(wab) event not from whatsapp")
+    //console.log("(wab) event not from whatsapp")
     res.sendStatus(404);
   }
 });
@@ -736,8 +734,8 @@ router.get("/webhook/:project_id", async (req, res) => {
    * UPDATE YOUR VERIFY TOKEN
    *This will be the Verify Token value when you set up webhook
   **/
-  console.log("(wab) Verify the webhook... ");
-  console.log("(wab) req.query: ", req.query);
+  //console.log("(wab) Verify the webhook... ");
+  //console.log("(wab) req.query: ", req.query);
 
   // Parse params from the webhook verification request
   let mode = req.query["hub.mode"];
@@ -754,10 +752,10 @@ router.get("/webhook/:project_id", async (req, res) => {
   } else {
     let VERIFY_TOKEN = settings.verify_token;
 
-    if (log) {
-      console.log("token: ", token);
-      console.log("verify token: ", VERIFY_TOKEN);
-    }
+    //if (log) {
+      //console.log("token: ", token);
+      //console.log("verify token: ", VERIFY_TOKEN);
+    //}
 
     // Check if a token and mode were sent
     if (mode && token) {
@@ -765,7 +763,7 @@ router.get("/webhook/:project_id", async (req, res) => {
       if (mode === "subscribe" && token === VERIFY_TOKEN) {
 
         // Respond with 200 OK and challenge token from the request
-        console.log("(wab) WEBHOOK_VERIFIED");
+        //console.log("(wab) WEBHOOK_VERIFIED");
         res.status(200).send(challenge);
       } else {
         // Responds with '403 Forbidden' if verify tokens do not match
@@ -784,7 +782,7 @@ router.get("/webhook/:project_id", async (req, res) => {
 
 router.post("/newtest", async (req, res) => {
 
-  console.log("(wab) initializing new test..");
+  //console.log("(wab) initializing new test..");
   
   let project_id = req.body.project_id;
   let bot_id = req.body.bot_id;
@@ -804,10 +802,10 @@ router.post("/newtest", async (req, res) => {
   await redis_client.set(key, JSON.stringify(info), 'EX', 604800);
   redis_client.get(key, (err, value) => {
     if (err) {
-      console.log("(wab) redis get err: ", err)
+      //console.log("(wab) redis get err: ", err)
       return res.status(500).send({success: "false", message: "Testing info could not be saved"});
     } else {
-      console.log("(wab) new test initialized with id: ", short_uid)
+      //console.log("(wab) new test initialized with id: ", short_uid)
       return res.status(200).send({short_uid: short_uid});
     }
   })

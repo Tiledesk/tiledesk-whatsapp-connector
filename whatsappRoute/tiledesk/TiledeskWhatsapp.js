@@ -41,11 +41,11 @@ class TiledeskWhatsapp {
   }
 
   async sendMessage(phone_number_id, message) {
-    if (this.log) {
-      console.log("(wab) [TiledeskWhatsapp] Sending message...", message);
-    } else {
-      console.log("(wab) [TiledeskWhatsapp] Sending message...");
-    }
+    //if (this.log) {
+      //console.log("(wab) [TiledeskWhatsapp] Sending message...", message);
+    //} else {
+      //console.log("(wab) [TiledeskWhatsapp] Sending message...");
+    //}
 
     return await axios({
       url: this.GRAPH_URL + phone_number_id + "/messages?access_token=" + this.token,
@@ -55,7 +55,7 @@ class TiledeskWhatsapp {
       data: message,
       method: "POST"
     }).then((response) => {
-      console.log("(wab) [TiledeskWhatsapp] Message sent!");
+      //console.log("(wab) [TiledeskWhatsapp] Message sent!");
       return response
     }).catch((err) => {
       console.error("(wab) [TiledeskWhatsapp] Send message error: ", err.response.data);
@@ -81,7 +81,7 @@ class TiledeskWhatsapp {
 
       let example_path = path.join(__dirname, '..', 'tmp', type);
       const writeStream = fs.createWriteStream(example_path);
-      console.log("(wab) [TiledeskWhatsapp] Downloading file...", example_path);
+      //console.log("(wab) [TiledeskWhatsapp] Downloading file...", example_path);
 
       return await axios({
         url: download_url,
@@ -98,27 +98,27 @@ class TiledeskWhatsapp {
           writeStream.on('error', err => {
             error = err;
             writeStream.close();
-            console.log("(wab) [TiledeskWhatsapp] Download failed")
+            //console.log("(wab) [TiledeskWhatsapp] Download failed")
             reject(err);
           });
           writeStream.on('close', () => {
             if (!error) {
-              console.log("(wab) [TiledeskWhatsapp] Download completed")
+              //console.log("(wab) [TiledeskWhatsapp] Download completed")
               resolve(type);
             }
           })
         })
       }).catch((err) => {
-        console.log("(wab) [TiledeskWhatsapp] download file error: ", err.data);
+        console.error("(wab) [TiledeskWhatsapp] download file error: ", err.data);
       })
     }).catch((err) => {
-      console.log("(wab) [TiledeskWhatsapp] get file error: ", err.data);
+      console.error("(wab) [TiledeskWhatsapp] get file error: ", err.data);
     })
   }
 
   async uploadMedia(path, type) {
     let url = "https://tiledesk-server-pre.herokuapp.com/" + type + "/public";
-    console.log("(wab) [TiledeskWhatsapp] Uploading file...");
+    //console.log("(wab) [TiledeskWhatsapp] Uploading file...");
 
     const form = new FormData();
     form.append('file', fs.createReadStream(path));
@@ -131,9 +131,9 @@ class TiledeskWhatsapp {
     }
 
     return await axios.post(url, form, request_config).then((response) => {
-      if (this.log) {
-        console.log("(wab) [TiledeskWhatsapp] upload response: ", response.data);
-      }
+      //if (this.log) {
+        //console.log("(wab) [TiledeskWhatsapp] upload response: ", response.data);
+      //}
 
       if (type == "images") {
         let image_url = "https://tiledesk-server-pre.herokuapp.com/images/?path=" + response.data.filename;
