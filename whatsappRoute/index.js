@@ -76,7 +76,9 @@ router.get('/detail', async (req, res) => {
   }
 
   readHTMLFile('/detail.html', (err, html) => {
-    if (err) { console.log("(wab) error read html file: ", err); }
+    if (err) { 
+      console.error("(wab) error read html file: ", err); 
+    }
     var template = handlebars.compile(html);
     var replacements = {
       app_version: pjson.version,
@@ -114,7 +116,7 @@ router.post('/install', async (req, res) => {
 
     readHTMLFile('/detail.html', (err, html) => {
       if (err) {
-        console.log("(wab) error read html file: ", err);
+        console.error("(wab) error read html file: ", err);
       }
 
       var template = handlebars.compile(html);
@@ -152,7 +154,7 @@ router.post('/uninstall', async (req, res) => {
 
     readHTMLFile('/detail.html', (err, html) => {
       if (err) {
-        console.log("(wab) error read html file: ", err);
+        console.error("(wab) error read html file: ", err);
       }
 
       var template = handlebars.compile(html);
@@ -203,7 +205,7 @@ router.get('/configure', async (req, res) => {
 
     readHTMLFile('/configure.html', (err, html) => {
       if (err) {
-        console.log("(wab) error read html file: ", err);
+        console.error("(wab) error read html file: ", err);
       }
 
       var template = handlebars.compile(html);
@@ -228,7 +230,7 @@ router.get('/configure', async (req, res) => {
     readHTMLFile('/configure.html', (err, html) => {
 
       if (err) {
-        console.log("(departments) error read html file: ", err);
+        console.error("(wab) error read html file: ", err);
       }
 
       var template = handlebars.compile(html);
@@ -277,7 +279,7 @@ router.post('/update', async (req, res) => {
 
     readHTMLFile('/configure.html', (err, html) => {
       if (err) {
-        console.log("(wab) error read html file: ", err);
+        console.error("(wab) error read html file: ", err);
       }
 
       var template = handlebars.compile(html);
@@ -336,7 +338,7 @@ router.post('/update', async (req, res) => {
 
       readHTMLFile('/configure.html', (err, html) => {
         if (err) {
-          console.log("(wab) error read html file: ", err);
+          console.error("(wab) error read html file: ", err);
         }
 
         var template = handlebars.compile(html);
@@ -360,7 +362,7 @@ router.post('/update', async (req, res) => {
 
       readHTMLFile('/configure.html', (err, html) => {
         if (err) {
-          console.log("(wab) error read html file: ", err);
+          console.error("(wab) error read html file: ", err);
         }
 
         var template = handlebars.compile(html);
@@ -413,9 +415,9 @@ router.post('/disconnect', async (req, res) => {
 
     readHTMLFile('/configure.html', (err, html) => {
 
-      //if (err) {
-        //console.log("(wab) error read html file: ", err);
-      //}
+      if (err) {
+        console.error("(wab) error read html file: ", err);
+      }
 
       var template = handlebars.compile(html);
       var replacements = {
