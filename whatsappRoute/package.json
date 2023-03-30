@@ -1,6 +1,6 @@
 {
   "name": "@tiledesk/tiledesk-whatsapp-connector",
-  "version": "0.1.40",
+  "version": "0.1.41f",
   "description": "Tiledesk Whatsapp connector",
   "main": "index.js",
   "scripts": {
@@ -24,7 +24,8 @@
     "mongodb": "^3.5.5",
     "multer": "^1.4.5-lts.1",
     "redis": "^3.1.2",
-    "uuid": "^8.3.2"
+    "uuid": "^8.3.2",
+    "winston": "^3.3.3"
   },
   "devDependencies": {
     "mocha": "^8.2.1"

@@ -2,6 +2,7 @@ const axios = require("axios").default;
 const fs = require('fs');
 const FormData = require('form-data');
 const path = require('path');
+const winston = require('../winston')
 
 class TiledeskWhatsapp {
 
@@ -41,11 +42,8 @@ class TiledeskWhatsapp {
   }
 
   async sendMessage(phone_number_id, message) {
-    //if (this.log) {
-      //console.log("(wab) [TiledeskWhatsapp] Sending message...", message);
-    //} else {
-      //console.log("(wab) [TiledeskWhatsapp] Sending message...");
-    //}
+    
+    winston.debug("(wab) [TiledeskWhatsapp] Sending message...");
 
     return await axios({
       url: this.GRAPH_URL + phone_number_id + "/messages?access_token=" + this.token,
@@ -55,10 +53,10 @@ class TiledeskWhatsapp {
       data: message,
       method: "POST"
     }).then((response) => {
-      //console.log("(wab) [TiledeskWhatsapp] Message sent!");
+      winston.debug("(wab) [TiledeskWhatsapp] Message sent!");
       return response
     }).catch((err) => {
-      console.error("(wab) [TiledeskWhatsapp] Send message error: ", err.response.data);
+      winston.error("(wab) [TiledeskWhatsapp] Send message error: " + err.response.data);
       throw err;
     })
   }
@@ -81,7 +79,7 @@ class TiledeskWhatsapp {
 
       let example_path = path.join(__dirname, '..', 'tmp', type);
       const writeStream = fs.createWriteStream(example_path);
-      //console.log("(wab) [TiledeskWhatsapp] Downloading file...", example_path);
+      winston.debug("(wab) [TiledeskWhatsapp] Downloading file..." + example_path);
 
       return await axios({
         url: download_url,
@@ -98,27 +96,27 @@ class TiledeskWhatsapp {
           writeStream.on('error', err => {
             error = err;
             writeStream.close();
-            //console.log("(wab) [TiledeskWhatsapp] Download failed")
+            winston.debug("(wab) [TiledeskWhatsapp] Download failed")
             reject(err);
           });
           writeStream.on('close', () => {
             if (!error) {
-              //console.log("(wab) [TiledeskWhatsapp] Download completed")
+              winston.debug("(wab) [TiledeskWhatsapp] Download completed")
               resolve(type);
             }
           })
         })
       }).catch((err) => {
-        console.error("(wab) [TiledeskWhatsapp] download file error: ", err.data);
+        winston.error("(wab) [TiledeskWhatsapp] download file error: " + err.data);
       })
     }).catch((err) => {
-      console.error("(wab) [TiledeskWhatsapp] get file error: ", err.data);
+      winston.error("(wab) [TiledeskWhatsapp] get file error: " + err.data);
     })
   }
 
   async uploadMedia(path, type) {
     let url = "https://tiledesk-server-pre.herokuapp.com/" + type + "/public";
-    //console.log("(wab) [TiledeskWhatsapp] Uploading file...");
+    winston.debug("(wab) [TiledeskWhatsapp] Uploading file...");
 
     const form = new FormData();
     form.append('file', fs.createReadStream(path));
@@ -131,10 +129,8 @@ class TiledeskWhatsapp {
     }
 
     return await axios.post(url, form, request_config).then((response) => {
-      //if (this.log) {
-        //console.log("(wab) [TiledeskWhatsapp] upload response: ", response.data);
-      //}
-
+        
+      winston.debug("(wab) [TiledeskWhatsapp] upload response: " + response.data);
       if (type == "images") {
         let image_url = "https://tiledesk-server-pre.herokuapp.com/images/?path=" + response.data.filename;
         return image_url;
@@ -168,7 +164,7 @@ class TiledeskWhatsapp {
         }
       }
     }).catch((err) => {
-      console.error("An error occured: ", err);
+      winston.error("(wab) [TiledeskWhatsapp] An error occured: " + err);
       if (callback) {
         callback(err, null, null);
       }

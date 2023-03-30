@@ -1,4 +1,5 @@
 const { v4: uuidv4 } = require('uuid');
+const winston = require('../winston')
 
 class TiledeskWhatsappTranslator {
 
@@ -25,7 +26,6 @@ const path = require('path');
       throw new Error('config.tiledeskChannelMessage is mandatory');
     }
     this.tiledeskChannelMessage = config.tiledeskChannelMessage;
-    console.log("this.tiledeskChannelMessage: ", this.tiledeskChannelMessage);
     */
 
     this.log = false;
@@ -50,9 +50,7 @@ const path = require('path');
   */
   toWhatsapp(tiledeskChannelMessage, whatsapp_receiver) {
 
-    //if (this.log) {
-    //  console.log("(wab) [Translator] tiledesk message: ", JSON.stringify(tiledeskChannelMessage));
-    //}
+    winston.debug("(wab) [Translator] tiledesk message: " + tiledeskChannelMessage);
 
     let text = '';
     if (tiledeskChannelMessage.text) {
@@ -100,7 +98,7 @@ const path = require('path');
       }
 
       else {
-        //console.log("(wab) [Translator] file type not supported")
+        winston.verbose("(wab) [Translator] file type not supported")
         return null
       }
 
@@ -280,9 +278,7 @@ const path = require('path');
 
   async toTiledesk(whatsappChannelMessage, from, media_url) {
 
-    //if (this.log) {
-      //console.log("(wab) [Translator] whatsapp message: ", JSON.stringify(whatsappChannelMessage));
-    //}
+    winston.debug("(wab) [Translator] whatsapp message: " + whatsappChannelMessage);
 
     // text message
     if (whatsappChannelMessage.type == 'text') {

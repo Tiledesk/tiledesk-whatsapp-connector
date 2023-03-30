@@ -1,6 +1,7 @@
 const axios = require("axios").default;
 const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
+const winston = require('../winston')
 
 class TiledeskChannel {
 
@@ -66,7 +67,7 @@ class TiledeskChannel {
       //new_request_id = hased_request_id = "support-group-" + projectId + "-" + uuidv4() + "-" + sender_id + "-" + webhook_event.recipient.id;
 
     } else {
-      //console.log("(wab) [TiledeskChannel] Channel not supported")
+      winston.verbose("(wab) [TiledeskChannel] Channel not supported")
       return null;
     }
 
@@ -102,23 +103,18 @@ class TiledeskChannel {
         method: 'GET'
       }).then((response) => {
 
-        //if (this.log) {
-         // console.log("(wab) [TiledeskChannel] get request response: ", response.data);
-        //}
+        winston.debug("(wab) [TiledeskChannel] get request response: " + response.data);
 
         let request_id;
         if (response.data.requests[0]) {
           request_id = response.data.requests[0].request_id;
-          //console.log("(wab) [TiledeskChannel] Old request_id: ", request_id);
+          winston.debug("(wab) [TiledeskChannel] Old request_id: " + request_id);
         } else {
           request_id = new_request_id;
-          //console.log("(wab) [TiledeskChannel] New request_id: ", request_id);
+          winston.debug("(wab) [TiledeskChannel] New request_id: " + request_id);
         }
 
-        //if (this.log) {
-          //console.log("(wab) [TiledeskChannel] tiledeskMessage:", tiledeskMessage);
-        //}
-
+        winston.debug("(wab) [TiledeskChannel] tiledeskMessage:" + tiledeskMessage);
         
         return axios({
           url: this.API_URL + `/${this.settings.project_id}/requests/${request_id}/messages`,
@@ -130,22 +126,20 @@ class TiledeskChannel {
           method: 'POST'
         }).then((response) => {
 
-          //if (this.log) {
-          //  console.log("(wab) [TiledeskChannel] send message response: ", response.data);  
-          //}
+          winston.debug("(wab) [TiledeskChannel] send message response: " + response.data);
           
           return response.data;
 
         }).catch((err) => {
-          console.error("(wab) [TiledeskChannel] send message: " + err);
+          winston.error("(wab) [TiledeskChannel] send message: " + err);
         })
       }).catch((err) => {
-        console.error("(wab) [TiledeskChannel]  get requests: " + err);
+        winston.error("(wab) [TiledeskChannel]  get requests: " + err);
       })
 
 
     }).catch((err) => {
-      console.error("(wab) [TiledeskChannel] sign in error: " + err);
+      winston.error("(wab) [TiledeskChannel] sign in error: " + err);
     })
   }
 
@@ -160,12 +154,10 @@ class TiledeskChannel {
       },
       method: 'GET'
     }).then((response) => {
-      //if (this.log) {
-      //  console.log("(wab) [TiledeskChannel] get departments response.data: ", response.data)
-      //}
+      winston.debug("(wab) [TiledeskChannel] get departments response.data: " + response.data)
       return response.data;
     }).catch((err) => {
-      console.error("(wab) [TiledeskChannel] get departments error: ", err);
+      winston.error("(wab) [TiledeskChannel] get departments error: " + err);
     })
   }
 
@@ -182,7 +174,7 @@ class TiledeskChannel {
       channel = messageInfo.whatsapp;
       new_request_id = "support-group-" + this.settings.project_id + "-" + uuidv4().substring(0, 8) + "-wab-" + channel.phone_number_id + "-" + channel.from;
     } else {
-      //console.log("(wab) [TiledeskChannel] Channel not supported")
+      winston.verbose("(wab) [TiledeskChannel] Channel not supported")
       return null;
     }
 
@@ -219,10 +211,10 @@ class TiledeskChannel {
       }).then((response) => {
         return response.data
       }).catch((err) => {
-        console.error("(wab) [TiledeskChannel] send message (open conversation) error: " + err);
+        winston.error("(wab) [TiledeskChannel] send message (open conversation) error: " + err);
       })
     }).catch((err) => {
-      console.error("(wab) [TiledeskChannel] sign in error: " + err);
+      winston.error("(wab) [TiledeskChannel] sign in error: " + err);
     })
   }
   

@@ -1,4 +1,5 @@
 const mongodb = require("mongodb");
+var winston = require('../winston');
 
 class KVBaseMongo {
 
@@ -11,30 +12,25 @@ class KVBaseMongo {
    * 
    * @param {KVBASE_COLLECTION} The name of the Mongodb collection used as key-value store. Mandatory.
    */
-  constructor(config) {
-    if (!config.KVBASE_COLLECTION) {
+  constructor(KVBASE_COLLECTION) {
+    if (!KVBASE_COLLECTION) {
       throw new Error('KVBASE_COLLECTION (the name of the Mongodb collection used as key-value store) is mandatory.');
     }
-    this.KV_COLLECTION = config.KVBASE_COLLECTION;
-    //console.log("KV_COLLECTION: ", this.KV_COLLECTION)
-
-    this.log = false;
-    if (config.log) {
-      this.log = config.log;
-    }
+    this.KV_COLLECTION = KVBASE_COLLECTION;
+    winston.debug("KV_COLLECTION: " + this.KV_COLLECTION)
   }
 
   connect(MONGODB_URI, callback) {
     mongodb.MongoClient.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true }, (err, client) => {
       if (err) {
-        console.error(err);
+        winston.error(err);
         process.exit(1);
       } else {
         this.db = client.db();
         this.db.collection(this.KV_COLLECTION).createIndex(
           { "key": 1 }, { unique: true }
         );
-        //console.log("[mongodb] db: ", this.db);
+        //winston.debug("[mongodb] db: ", this.db);
         callback();
       }
     });
@@ -57,23 +53,22 @@ class KVBaseMongo {
   get(k) {
     return new Promise(resolve => {
       //this.db.get(k).then(value => {resolve(value)});
-      //if (this.log) {
-        //console.log("Searching on ", this.db)
-      //}
-      //console.log("Searching on Collection", this.KV_COLLECTION)
+      
+      winston.debug("Searching on " + this.db)
+      winston.verbose("Searching on Collection" + this.KV_COLLECTION)
       
       this.db.collection(this.KV_COLLECTION).findOne({ key: k }, function(err, doc) {
         if (err) {
-          console.error("Error reading mongodb value", err);
+          winston.error("Error reading mongodb value" + err);
           reject(err);
         }
         else {
           if (doc) {
-            //console.log("Doc found with key: ", doc.key);
+            winston.verbose("Doc found with key: " + doc.key);
             resolve(doc.value);
           }
           else {
-            //console.log("No Doc found!");
+            winston.verbose("No Doc found!");
             resolve(null);
           }
         }

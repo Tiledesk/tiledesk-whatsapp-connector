@@ -1,6 +1,7 @@
 const axios = require("axios").default;
 const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
+var winston = require('../winston');
 
 class MessageHandler {
 
@@ -38,10 +39,8 @@ class MessageHandler {
   }
 
   async generateMessageObject(command) {
-    //if (this.log) {
-      //console.log("(wab) [MessageHandler] command: ", JSON.stringify(command));
-    //}
-
+      
+    winston.debug("(wab) [MessageHandler] command: " + command);
     let tiledeskCommandMessage = command.message;
     tiledeskCommandMessage.recipient = this.tiledeskChannelMessage.recipient;
     

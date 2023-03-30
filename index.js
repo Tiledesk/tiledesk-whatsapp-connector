@@ -16,7 +16,7 @@ const APPS_API_URL = process.env.APPS_API_URL;
 const REDIS_HOST = process.env.REDIS_HOST;
 const REDIS_PORT = process.env.REDIS_PORT;
 const REDIS_PASSWORD = process.env.REDIS_PASSWORD;
-const log = process.env.WHATSAPP_LOG || false;
+const log = process.env.WHATSAPP_LOG || "info";
 
 whatsapp.startApp(
   {

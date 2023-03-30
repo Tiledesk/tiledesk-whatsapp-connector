@@ -1,4 +1,5 @@
 const axios = require("axios").default;
+const winston = require('../winston')
 
 class TiledeskSubscriptionClient {
 
@@ -58,7 +59,7 @@ class TiledeskSubscriptionClient {
             if (callback) {
               callback(null, resbody);
             }
-            //console.log("(wab) [TiledeskSubscriptionClient] Subscribed");
+            winston.verbose("(wab) [TiledeskSubscriptionClient] Subscribed");
             resolve(resbody);
           }
         }, true);
@@ -91,7 +92,7 @@ class TiledeskSubscriptionClient {
             if (callback) {
               callback(null, resbody);
             }
-            //console.log("(wab) [TiledeskSubscriptionClient] Unsubscribed");
+            winston.verbose("(wab) [TiledeskSubscriptionClient] Unsubscribed");
             resolve(resbody);
           }
         }, true);
@@ -111,9 +112,6 @@ class TiledeskSubscriptionClient {
       params: options.params,
       headers: options.headers
     }).then((res) => {
-      if (this.log) {
-        //console.log("(wab) [TiledeskSubscriptionClient] Response headers:\n", res.headers);
-      }
       if (res && res.status == 200 && res.data) {
         if (callback) {
           callback(null, res.data);

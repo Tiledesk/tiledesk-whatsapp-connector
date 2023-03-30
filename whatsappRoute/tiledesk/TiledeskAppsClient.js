@@ -59,7 +59,7 @@ class TiledeskAppsClient {
             if (callback) {
               callback(null, resbody);
             }
-            //console.log("[Tiledesk Apps Client] Installed!");
+            winston.verbose("[Tiledesk Apps Client] Installed!");
             resolve(resbody);
           }
         }, true);
@@ -119,7 +119,7 @@ class TiledeskAppsClient {
             if (callback) {
               callback(null, resbody);
             }
-            //console.log("[Tiledesk Apps Client] Uninstalled!");
+            winston.verbose("[Tiledesk Apps Client] Uninstalled!");
             resolve(resbody);
           }
         }, true);
@@ -132,9 +132,7 @@ class TiledeskAppsClient {
   // HTTP REQUEST
 
   static async myrequest(options, callback, log) {
-    //if (this.log) {
-      //console.log("[Tiledesk Subscription Client] Options: ", options);
-    //}
+
     return await axios({
       url: options.url,
       method: options.method,
@@ -142,9 +140,7 @@ class TiledeskAppsClient {
       params: options.params,
       headers: options.headers
     }).then((res) => {
-      //if (this.log) {
-        //console.log("[Tiledesk Subscription Client] Response headers:\n", res.headers);
-      //}
+   
       if (res && res.status == 200 && res.data) {
         if (callback) {
           callback(null, res.data);
@@ -156,7 +152,7 @@ class TiledeskAppsClient {
         }
       }
     }).catch((err) => {
-      console.error("An error occured: ", err);
+      winston.error("(wab) An error occured: " + err);
       if (callback) {
         callback(err, null, null);
       }
