@@ -271,8 +271,26 @@ const path = require('path');
       }
 
     } else {
-      whatsapp_message.text = { body: text };
-      return whatsapp_message;
+
+      // template
+      console.log("tiledeskChannelMessage.text: ", tiledeskChannelMessage.text);
+      if (tiledeskChannelMessage.text.startsWith("/template:")) {
+        let template_name = tiledeskChannelMessage.text.substring(tiledeskChannelMessage.text.lastIndexOf(':') + 1);
+        console.log("template name to send: ", template_name);
+        whatsapp_message.type = "template";
+        whatsapp_message.template = {
+          name: template_name,
+          language: {
+            code: "en_US"
+          }
+        }
+        return whatsapp_message;
+      }
+      // standard message
+      else {
+        whatsapp_message.text = { body: text };
+        return whatsapp_message;
+      }
     }
   }
 
