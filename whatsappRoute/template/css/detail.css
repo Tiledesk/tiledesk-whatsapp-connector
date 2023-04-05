@@ -211,3 +211,25 @@ div.scrollmenu a:hover {
 .btn:focus {
   outline: none !important;
 }
+
+.plans-div {
+  display: flex;
+  flex-direction: row;
+}
+
+.plan {
+  margin-right: 6px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+}
+
+.scale-plan {
+  background-color: #eb459e;
+  color: white;
+}
+
+.plus-plan {
+  background-color: #5865f2;
+  color: white;
+}

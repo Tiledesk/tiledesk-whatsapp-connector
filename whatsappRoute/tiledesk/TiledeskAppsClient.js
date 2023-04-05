@@ -2,6 +2,7 @@ const axios = require("axios").default;
 const fs = require('fs');
 const FormData = require('form-data');
 const path = require('path');
+const winston = require('../winston');
 
 class TiledeskAppsClient {
   /**

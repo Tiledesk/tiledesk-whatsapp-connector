@@ -42,7 +42,11 @@
     <hr style="margin-top: 10px; margin-bottom: 10px">
     
     <div class="installation-info-box">
-      <p style="margin: 0px; color: #676767; font-size: 13px;">You can install this application for free.</p>
+      {{#if isAvailable}}
+        <p style="margin: 0px; color: #676767; font-size: 13px;">You can install this application for free.</p>
+      {{else}}
+        <p style="margin: 0px; color: #676767; font-size: 13px;">This app is available for Scale and Plus plans</p>
+      {{/if}}
     </div>
 
 
@@ -56,19 +60,32 @@
           <p style="font-size: 26px; font-weight: 500; margin-bottom: 0px;">WhatsApp Business</p>
           <p style="color: #676767; font-size: 16px; margin-bottom: 5px;">Connect your WhatsApp number with Tiledesk</p>
           <a style="font-size: 18px;" href="https://tiledesk.com/" target="_blank">Tiledesk</a>
-          <p style="font-size: 15px; color: #676767; font-style: italic; margin-bottom: 0px; margin-top: 20px;">Free</p>
+          {{#if isAvailable}}
+            <p style="font-size: 15px; color: #676767; font-style: italic; margin-bottom: 0px; margin-top: 20px;">Free</p>
+          {{else}}
+            <p style="font-size: 15px; color: #676767; font-style: italic; margin-bottom: 0px; margin-top: 20px;">Free for</p>
+            <div class="plans-div">
+              <div class="plan scale-plan">Scale Plan</div>
+              <div class="plan plus-plan">Plus Plan</div>
+            </div>
+          {{/if}}
         </div>
 
         <div style="display: flex; flex-direction: column; justify-content: flex-end; align-items: flex-end;">
           
           {{#if installed}}
+
             <!-- Open button -->
+            {{#if isAvailable}}
             <form action="./configure" method="get">
               <input type="hidden" name="project_id" value="{{ project_id }}" />
               <input type="hidden" name="app_id" value="{{ app_id }}" />
               <input type="hidden" name="token" value="{{ token }}" />
               <input type="submit" class="btn install-button" value="Open">
             </form>
+            {{else}}
+            <button class="btn install-button" disabled>Open</button>
+            {{/if}}
   
             <!-- Uninstall button -->
             <button class="btn uninstall-button" onclick="document.getElementById('uninstall-modal').style.display='flex'">Uninstall</button>
@@ -97,7 +114,13 @@
             </div>
             
           {{else}}
-            <button class="btn install-button" onclick="document.getElementById('install-modal').style.display='flex'">Install</button>
+
+            {{#if isAvailable}}
+              <button class="btn install-button" onclick="document.getElementById('install-modal').style.display='flex'">Install</button>
+            {{else}}
+              <button class="btn install-button" disabled>Install</button>
+            {{/if}}
+          
             <!-- Install modal -->
             <div id="install-modal" class="modal">
               <div class="modal-content">

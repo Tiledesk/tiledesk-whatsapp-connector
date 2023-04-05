@@ -217,7 +217,58 @@ class TiledeskChannel {
       winston.error("(wab) [TiledeskChannel] sign in error: " + err);
     })
   }
-  
+
+  async getProjectDetail() {
+
+    return await axios({
+      url: this.API_URL + '/projects/' + this.settings.project_id,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': this.settings.token
+      },
+      method: 'GET'
+    }).then((response) => {
+      return this.checkPlan(response.data);
+    }).catch((err) => {
+      winston.error("(wab) [TiledeskChannel] get project detail error: " + err);
+      return null;
+    })
+  }
+
+  checkPlan(project) {
+    let profile_name = project.profile.name;
+    let profile_type = project.profile.type;
+    let isActiveSubscription = project.isActiveSubscription;
+    let trialExpired = project.trialExpired;
+
+    winston.debug("profile_name: " + profile_name)
+    winston.debug("profile_type: " + profile_type)
+    winston.debug("isActiveSubscription: " + isActiveSubscription)
+    
+    return new Promise((resolve, reject) => {
+      if (
+        (profile_name === 'Growth') ||
+        (profile_name === 'Scale' && isActiveSubscription === false) ||
+        (profile_name === 'Plus' && isActiveSubscription === false) ||
+        (profile_type === 'free' && trialExpired === true) 
+      ) {
+        winston.verbose('Feature not available')
+        resolve(false);
+
+      } else if (
+        (profile_name === 'Scale' && isActiveSubscription === true) ||
+        (profile_name === 'Plus' && isActiveSubscription === true) ||
+        (profile_type === 'free' && trialExpired === false)
+      ) {
+        winston.verbose('Feature available')
+        resolve(true);
+        
+      } else {
+        winston.verbose('Other case: feature not available');
+        resolve(false);
+      }
+    })
+  }
 
 }
 

@@ -65,12 +65,16 @@ router.get('/detail', async (req, res) => {
 
   winston.verbose("(wab) /detail")
 
-  let projectId = req.query.project_id;
+  let project_id = req.query.project_id;
   let token = req.query.token;
   let app_id = req.query.app_id;
 
+  const tdChannel = new TiledeskChannel({ settings: { project_id: project_id, token: token }, API_URL: API_URL })
+  let isAvailable = await tdChannel.getProjectDetail();
+  winston.debug("(wab) app is available: ", isAvailable);
+  
   const appClient = new TiledeskAppsClient({ APPS_API_URL: APPS_API_URL });
-  let installation = await appClient.getInstallations(projectId, app_id);
+  let installation = await appClient.getInstallations(project_id, app_id);
 
   let installed = false;
   if (installation) {
@@ -81,10 +85,11 @@ router.get('/detail', async (req, res) => {
     var template = handlebars.compile(html);
     var replacements = {
       app_version: pjson.version,
-      project_id: projectId,
+      project_id: project_id,
       token: token,
       app_id: app_id,
-      installed: installed
+      installed: installed,
+      isAvailable: isAvailable
     }
     var html = template(replacements);
     res.send(html);
@@ -454,7 +459,7 @@ router.post('/tiledesk', async (req, res) => {
         winston.debug("(wab) message generated from command: " + tiledeskCommandMessage)
 
         let whatsappJsonMessage = await tlr.toWhatsapp(tiledeskCommandMessage, whatsapp_receiver);
-        winston.verbose("(wab) whatsappJsonMessage ", whatsappJsonMessage)
+        winston.verbose("(wab) 🟢 whatsappJsonMessage" + whatsappJsonMessage)
 
         if (whatsappJsonMessage) {
           const twClient = new TiledeskWhatsapp({ token: settings.wab_token, GRAPH_URL: GRAPH_URL });
@@ -493,7 +498,7 @@ router.post('/tiledesk', async (req, res) => {
   else if (tiledeskChannelMessage.text || tiledeskChannelMessage.metadata) {
 
     let whatsappJsonMessage = await tlr.toWhatsapp(tiledeskChannelMessage, whatsapp_receiver);
-    winston.verbose("(wab) whatsappJsonMessage", whatsappJsonMessage)
+    winston.verbose("(wab) 🟢 whatsappJsonMessage" + whatsappJsonMessage)
 
     if (whatsappJsonMessage) {
       const twClient = new TiledeskWhatsapp({ token: settings.wab_token, GRAPH_URL: GRAPH_URL });
@@ -650,7 +655,7 @@ router.post("/webhook/:project_id", async (req, res) => {
         }
 
         if (tiledeskJsonMessage) {
-          winston.verbose("(wab) tiledeskJsonMessage: ", tiledeskJsonMessage);
+          winston.verbose("(wab) 🟠 tiledeskJsonMessage: " + tiledeskJsonMessage);
           const response = await tdChannel.send(tiledeskJsonMessage, message_info, settings.department_id);
           winston.verbose("(wab) Message sent to Tiledesk!")
           winston.debug("(wab) response: " + response)
