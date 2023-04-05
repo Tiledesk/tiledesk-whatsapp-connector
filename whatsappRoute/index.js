@@ -10,6 +10,7 @@ const pjson = require('./package.json');
 const { v4: uuidv4 } = require('uuid');
 const cors = require('cors');
 var winston = require('./winston');
+const url = require('url');  
 
 // tiledesk clients
 //const { TiledeskClient } = require('@tiledesk/tiledesk-client');
@@ -115,21 +116,15 @@ router.post('/install', async (req, res) => {
   appClient.install(installation_info).then((installation) => {
     winston.debug("(wab) installation response: " + installation);
 
-    let installed = true;
-
-    readHTMLFile('/detail.html', (err, html) => {
-      var template = handlebars.compile(html);
-      var replacements = {
-        app_version: pjson.version,
-        project_id: project_id,
-        token: token,
-        app_id: app_id,
-        installed: installed
+    res.redirect(url.format({
+     pathname:"/detail",
+     query: {
+        "project_id": project_id,
+        "app_id": app_id,
+        "token": token
       }
-      var html = template(replacements);
-      res.send(html);
-    })
-
+    }));
+    
   }).catch((err) => {
     winston.error("(wab) installation error: " + err.data)
     res.send("An error occurred during the installation");
@@ -149,20 +144,14 @@ router.post('/uninstall', async (req, res) => {
 
     winston.debug("(wab) uninstallation response: " + response);
 
-    let installed = false;
-
-    readHTMLFile('/detail.html', (err, html) => {
-      var template = handlebars.compile(html);
-      var replacements = {
-        app_version: pjson.version,
-        project_id: project_id,
-        token: token,
-        app_id: app_id,
-        installed: installed
+    res.redirect(url.format({
+     pathname:"/detail",
+     query: {
+        "project_id": project_id,
+        "app_id": app_id,
+        "token": token
       }
-      var html = template(replacements);
-      res.send(html);
-    })
+    }));
 
   }).catch((err) => {
     winston.error("(wab) uninsallation error: " + err.data)
