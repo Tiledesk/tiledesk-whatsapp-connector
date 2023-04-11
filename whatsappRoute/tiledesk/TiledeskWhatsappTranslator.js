@@ -97,6 +97,16 @@ const path = require('path');
         }
       }
 
+      if ((tiledeskChannelMessage.metadata.type && tiledeskChannelMessage.metadata.type.startsWith('location')) || tiledeskChannelMessage.type.startsWith('location')) {
+
+        whatsapp_message.type = 'location'
+        whatsapp_message.location = {
+          latitude: tiledeskChannelMessage.metadata.location.latitude,
+          longitude: tiledeskChannelMessage.metadata.location.longitude
+        }
+
+      }
+
       else {
         winston.verbose("(wab) [Translator] file type not supported")
         return null
@@ -429,6 +439,27 @@ const path = require('path');
       }
       return tiledeskMessage;
     }
+
+    // media message - Location
+    if (whatsappChannelMessage.type == 'location') {
+
+      let text = "Location shared"
+
+      var tiledeskMessage = {
+        text: "[Location shared]",
+        senderFullname: from,
+        channel: { name: TiledeskWhatsappTranslator.CHANNEL_NAME },
+        type: "location",
+        metadata: {
+          location: {
+            latitude: whatsappChannelMessage.location.latitude,
+            longitude: whatsappChannelMessage.location.longitude
+          }
+        }
+      }
+      return tiledeskMessage;
+    }
+
   }
   /*
   *************************************
