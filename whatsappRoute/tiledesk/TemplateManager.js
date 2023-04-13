@@ -1,0 +1,49 @@
+const axios = require("axios").default;
+const winston = require('../winston');
+
+class TemplateManager {
+
+  constructor(config) {
+    if (!config) {
+      throw new Error('config is mandatory');
+    }
+
+    if (!config.token) {
+      throw new Error('config.token is mandatory');
+    }
+
+    if (!config.business_account_id) {
+      throw new Error('config.business_account_id is mandatory');
+    }
+    
+    if (!config.GRAPH_URL) {
+      throw new Error('config.GRAPH_URL is mandatory');
+    }
+
+
+    this.token = config.token;
+    this.graph_url = config.GRAPH_URL;
+    this.business_account_id = config.business_account_id;
+    
+  }
+
+  async getTemplates() {
+    // business account id: 110354305066769
+    // business phone number id: 104777398965560
+    return await axios({
+      url: this.graph_url + this.business_account_id + "/message_templates?access_token=" + this.token,
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      method: 'GET'
+    }).then((response) => {
+      return response.data;
+    }).catch((err) => {
+      console.error("get templatee error: ", err);
+      return null;
+    })
+    
+  }
+}
+
+module.exports = { TemplateManager };
