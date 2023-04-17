@@ -163,65 +163,79 @@ router.get('/configure', async (req, res) => {
 
   winston.verbose("(wab) /configure");
 
-  let projectId = "";
-  let token = "";
+  let project_id = req.query.project_id;
+  let token = req.query.token;
 
-  projectId = req.query.project_id;
-  token = req.query.token;
-
-  let proxy_url = BASE_URL + "/webhook/" + projectId;
-
-  let CONTENT_KEY = "whatsapp-" + projectId;
-
-  let settings = await db.get(CONTENT_KEY);
-  winston.debug("(wab) settings: " + settings);
-
-  // get departments
-  const tdChannel = new TiledeskChannel({ settings: { project_id: projectId, token: token }, API_URL: API_URL })
-  let departments = await tdChannel.getDepartments(token);
-  winston.debug("(wab) found " + departments.length + " departments")
-
-  if (settings) {
-
-    readHTMLFile('/configure.html', (err, html) => {
+  if (!project_id || !token) {
+    let error_message = "Query params project_id and token are required."
+    readHTMLFile('/error.html', (err, html) => {
       var template = handlebars.compile(html);
+      
       var replacements = {
         app_version: pjson.version,
-        project_id: projectId,
-        token: token,
-        proxy_url: proxy_url,
-        wab_token: settings.wab_token,
-        verify_token: settings.verify_token,
-        subscription_id: settings.subscriptionId,
-        department_id: settings.department_id,
-        departments: departments
+        error_message: error_message
       }
       var html = template(replacements);
-      res.send(html);
-
+      return res.send(html);
     })
-
+    
   } else {
-
-    readHTMLFile('/configure.html', (err, html) => {
-
-      if (err) {
-        winston.error("(wab) error read html file: " + err);
-      }
-
-      var template = handlebars.compile(html);
-      var replacements = {
-        app_version: pjson.version,
-        project_id: projectId,
-        token: token,
-        proxy_url: proxy_url,
-        departments: departments
-      }
-      var html = template(replacements);
-      res.send(html);
-
-    })
+    
+    let proxy_url = BASE_URL + "/webhook/" + project_id;
+  
+    let CONTENT_KEY = "whatsapp-" + project_id;
+  
+    let settings = await db.get(CONTENT_KEY);
+    winston.debug("(wab) settings: " + settings);
+  
+    // get departments
+    const tdChannel = new TiledeskChannel({ settings: { project_id: project_id, token: token }, API_URL: API_URL })
+    let departments = await tdChannel.getDepartments(token);
+    winston.debug("(wab) found " + departments.length + " departments")
+  
+    if (settings) {
+  
+      readHTMLFile('/configure.html', (err, html) => {
+        var template = handlebars.compile(html);
+        var replacements = {
+          app_version: pjson.version,
+          project_id: project_id,
+          token: token,
+          proxy_url: proxy_url,
+          wab_token: settings.wab_token,
+          verify_token: settings.verify_token,
+          subscription_id: settings.subscriptionId,
+          department_id: settings.department_id,
+          departments: departments
+        }
+        var html = template(replacements);
+        res.send(html);
+  
+      })
+  
+    } else {
+  
+      readHTMLFile('/configure.html', (err, html) => {
+  
+        if (err) {
+          winston.error("(wab) error read html file: " + err);
+        }
+  
+        var template = handlebars.compile(html);
+        var replacements = {
+          app_version: pjson.version,
+          project_id: project_id,
+          token: token,
+          proxy_url: proxy_url,
+          departments: departments
+        }
+        var html = template(replacements);
+        res.send(html);
+  
+      })
+    }
   }
+
 })
 
 router.post('/update', async (req, res) => {
