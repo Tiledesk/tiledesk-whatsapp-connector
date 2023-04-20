@@ -82,6 +82,7 @@ body {
 
 .templates-list {
   max-width: 1200px;
+  min-width: 700px;
 }
 
 .single-template {

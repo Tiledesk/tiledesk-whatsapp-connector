@@ -58,6 +58,10 @@ handlebars.registerHelper('isEqual', (a, b) => {
   }
 })
 
+handlebars.registerHelper('json', (a) => {
+  return JSON.stringify(a);
+})
+
 router.get('/', async (req, res) => {
   res.send('Welcome to Tiledesk-WhatsApp Business connector!')
 })
@@ -797,7 +801,10 @@ router.get('/templates/detail', async (req, res) => {
     let template_copy = {
       name: template.name,
       components: template.components,
-      language: template.language
+      language: template.language,
+      status: template.status,
+      id: template.id,
+      category: template.category
     }
 
     console.log("example: ", JSON.stringify(template_copy));
