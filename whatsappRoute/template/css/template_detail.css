@@ -62,7 +62,7 @@ body {
   margin-right: 6px;
 }
 
-.templates-box {
+.template-box {
   margin-top: 30px;
   width: 100%;
   //background-color: #fff8f7;
@@ -71,63 +71,40 @@ body {
   padding-bottom: 30px;
 }
 
-.templates {
+.template {
   width: 65%;
   margin-top: 20px;
 }
 
-.templates .title {
-  font-size: 18px;
+.detail {
+  background-color: #a9c9ff00;
+  background-image: linear-gradient(180deg, #a9c9ff26 0%, #ffbbec24 100%);
+  border-radius: 8px;
+  padding: 20px 10px;
 }
 
-.templates-list {
-  max-width: 1200px;
-}
-
-.single-template {
-  width: 100%;
+.detail-header {
   display: flex;
   flex-direction: row;
-  padding: 20px 10px;
-  border-radius: 4px;
-  cursor: pointer;
+  justify-content: space-between;
 }
 
-.single-template:hover {
-  background-color: #cbd2d94d;
-}
-
-.template-name {
-  width: 35%;
-  min-width: 200px;
-}
-
-.template-language {
-  width: 10%;
-  min-width: 80px;
-  display: flex;
-  justify-content: center;
-}
-
-.template-category {
-  width: 30%;
-  min-width: 200px;
-  display: flex;
-  justify-content: center;
-}
-
-.template-status {
-  width: 25%;
-  min-width: 200px;
-  display: flex;
-  justify-content: flex-end;
-}
-
-hr {
-  margin-top: 0px;
+.edit-template-title {
+  font-weight: 500;
   margin-bottom: 0px;
 }
 
-.hidden-button {
-  display: none;
+.btn {
+  width: 200px;
+  background-color: #0ba2dc;
+  color: white;
+  font-weight: 500;
+}
+
+.btn:focus {
+  outline: none !important;
+}
+
+.type-title {
+  font-weight: 600;
 }

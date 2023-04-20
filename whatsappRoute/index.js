@@ -765,7 +765,62 @@ router.post("/newtest", async (req, res) => {
 
 })
 
-//.../templates?project_id=12345
+router.get('/templates/detail', async (req, res) => {
+
+  let project_id = req.query.project_id;
+  let token = req.query.token;
+  let app_id = req.query.app_id;
+  let template_id = req.query.id_template;  
+  winston.info("get template_id: " + template_id);
+
+  let CONTENT_KEY = "whatsapp-" + project_id; 
+  let settings = await db.get(CONTENT_KEY);
+  winston.debug("(wab) settings: ", settings);
+
+  if (settings) {
+    // forse non serve, comunque non si può prendere un singolo template
+    /*
+    let tm = new TemplateManager({ token: settings.wab_token, business_account_id: settings.business_account_id, GRAPH_URL: GRAPH_URL })
+    let templates_info = await tm.getTemplateNamespace();
+    let namespace = templates_info.message_template_namespace;
+    console.log("namespace: ", namespace)
+    let template = await tm.getTemplateById(namespace);
+    console.log("template: ", template)
+    */
+    let tm = new TemplateManager({ token: settings.wab_token, business_account_id: settings.business_account_id, GRAPH_URL: GRAPH_URL })
+    let templates = await tm.getTemplates();
+    //console.log("templates: ", templates);
+    let template = JSON.parse(JSON.stringify(templates.data.find(t => t.id === template_id)));
+    let template_name = template.name;
+    console.log("selected template: ", template);
+
+    let template_copy = {
+      name: template.name,
+      components: template.components,
+      language: template.language
+    }
+
+    console.log("example: ", JSON.stringify(template_copy));
+
+    readHTMLFile('/template_detail.html', (err, html) => {
+      var template = handlebars.compile(html);
+      var replacements = {
+        app_version: pjson.version,
+        project_id: project_id,
+        token: token,
+        app_id: app_id,
+        name: template_name,
+        template: template_copy
+      }
+      var html = template(replacements);
+      res.send(html);
+    })
+    
+  } else {
+    return res.send("whatsapp not installed on this project")
+  }
+}) 
+
 router.get("/templates/:project_id", async (req, res) => {
   winston.verbose("(wab) /templates");
 
@@ -780,8 +835,7 @@ router.get("/templates/:project_id", async (req, res) => {
   if (settings) {
     let tm = new TemplateManager({ token: settings.wab_token, business_account_id: settings.business_account_id, GRAPH_URL: GRAPH_URL })
     let templates = await tm.getTemplates();
-    //winston.verbose("(wab) templates: ", templates);
-    console.log("(wab) templates: ", JSON.stringify(templates, null, 2))
+    //console.log("(wab) templates: ", JSON.stringify(templates, null, 2))
 
       readHTMLFile('/templates.html', (err, html) => {
         var template = handlebars.compile(html);
@@ -795,8 +849,6 @@ router.get("/templates/:project_id", async (req, res) => {
         var html = template(replacements);
         res.send(html);
       })
-    //return res.status(200).send(templates);
-    
   } else {
     winston.verbose("No settings found.")
     return res.status(404).send({ success: false, error: "whatsapp not installed for the project id " + project_id });

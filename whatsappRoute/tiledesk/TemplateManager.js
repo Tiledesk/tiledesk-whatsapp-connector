@@ -39,11 +39,26 @@ class TemplateManager {
     }).then((response) => {
       return response.data;
     }).catch((err) => {
-      console.error("get templatee error: ", err);
+      winston.error("get template error: ", err);
       return null;
     })
-    
   }
+
+  async getTemplateNamespace() {
+
+    return await axios({
+      url: this.graph_url + this.business_account_id + "?fields=message_template_namespace&access_token=" + this.token,
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      method: 'GET'
+    }).then((response) => {
+      return response.data;
+    }).catch((err) => {
+      winston.error("get template namespace error: ", err);
+    })
+  }
+  
 }
 
 module.exports = { TemplateManager };

@@ -25,7 +25,7 @@
         </script>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="/css/templates.css">
+    <link rel="stylesheet" href="/css/template_detail.css">
 
     <style>
       body {
@@ -37,6 +37,7 @@
 
   
 <body>
+  
   <!-- HEADER -->
   <div class="header">
     <div class="header-content">
@@ -51,66 +52,45 @@
           </div>
         </div>
       </div>
-
-      <!--
-      <div class="status-box"> 
-        <p style="margin-bottom: 0px; margin-right: 8px;">Status: </p> 
-        {{#if wab_token}}
-        <i class="fa fa-circle green-circle"></i>
-        <p style="margin-bottom: 0px;">Connected</p>
-        {{else}}
-        <i class="fa fa-circle red-circle"></i>
-        <p style="margin-bottom: 0px;">Disconnected</p>  
-        {{/if}}
-      </div>
-      -->
+      
     </div>
   </div>
 
-
-  <div class="templates-box">
-
-    <div class="templates">
-      <p class="title">Message Templates</p>
-
-      <div class="templates-list">
-
-        {{#each templates}}    
-          <form action="./detail" method="get">
-            <div class="single-template" onclick="selectTemplate({{ id }})">
-            <!--<div class="single-template" onclick="customInput.click()">-->
-              <div class="template-name">{{ name }}</div>
-              <div class="template-language">{{ language }}</div>
-              <div class="template-category">{{ category }}</div>
-              <div class="template-status">
-                {{#if (isEqual status 'APPROVED')}}
-                <i class="fa fa-circle green-circle"></i>{{ status }}
-                {{else}}
-                <i class="fa fa-circle red-circle"></i>{{ status }}
-                {{/if}}
-              </div>
-            </div>
-
-            <input type="hidden" name="project_id" value="{{ ../project_id }}">
-            <input type="hidden" name="app_id" value="{{ ../app_id }}">
-            <input type="hidden" name="token" value="{{ ../token }}">
-            <input type="hidden" name="id_template" value="{{ id }}">
-            <input id="customInput-{{id}}" type="submit" class="hidden-button" value="{{ name }}">
+  <div class="template-box">
+    <div class="template">
+      <p class="title">{{ template.name }}</p>
+      <div class="detail">
+        <div class="detail-header">
+          <p class="edit-template-title">Edit template</p>
+          <form action="./save">
+            <input type="submit" class="btn" disabled value="Submit">
           </form>
-          
-          <hr>
-        {{/each}}
-        
+        </div>
+        <hr>
+        <div class="detail-content">
+          {{#each template.components}}
+          <div class="component" style="margin-bottom: 30px">
+            <p class="type-title">{{ type }}</p>
+            <p>{{ text }}</p>
+            <p>{{ example.body_text }}</p>
+            {{#if example}}
+            <p>{{ body_text }}</p>
+              {{#each body_text}}
+                <p>{{ body_text }}</p>
+              {{/each}}
+            {{/if}}
+          </div>
+          {{/each}}
+        </div>
       </div>
     </div>
-
   </div>
 
 
   <script>
 
-    function selectTemplate(id) {
-      document.getElementById('customInput-' + id).click();
+    function selectTemplate() {
+      document.getElementById('customInput').click();
     }
     
   </script>
