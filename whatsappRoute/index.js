@@ -10,7 +10,7 @@ const pjson = require('./package.json');
 const { v4: uuidv4 } = require('uuid');
 const cors = require('cors');
 var winston = require('./winston');
-const url = require('url');  
+const url = require('url');
 
 // tiledesk clients
 //const { TiledeskClient } = require('@tiledesk/tiledesk-client');
@@ -73,7 +73,7 @@ router.get('/detail', async (req, res) => {
   const tdChannel = new TiledeskChannel({ settings: { project_id: project_id, token: token }, API_URL: API_URL })
   let isAvailable = await tdChannel.getProjectDetail();
   winston.debug("(wab) app is available: ", isAvailable);
-  
+
   const appClient = new TiledeskAppsClient({ APPS_API_URL: APPS_API_URL });
   let installation = await appClient.getInstallations(project_id, app_id);
 
@@ -117,14 +117,14 @@ router.post('/install', async (req, res) => {
     winston.debug("(wab) installation response: " + installation);
 
     res.redirect(url.format({
-     pathname:"/detail",
-     query: {
+      pathname: "/detail",
+      query: {
         "project_id": project_id,
         "app_id": app_id,
         "token": token
       }
     }));
-    
+
   }).catch((err) => {
     winston.error("(wab) installation error: " + err.data)
     res.send("An error occurred during the installation");
@@ -145,8 +145,8 @@ router.post('/uninstall', async (req, res) => {
     winston.debug("(wab) uninstallation response: " + response);
 
     res.redirect(url.format({
-     pathname:"/detail",
-     query: {
+      pathname: "/detail",
+      query: {
         "project_id": project_id,
         "app_id": app_id,
         "token": token
@@ -170,7 +170,7 @@ router.get('/configure', async (req, res) => {
     let error_message = "Query params project_id and token are required."
     readHTMLFile('/error.html', (err, html) => {
       var template = handlebars.compile(html);
-      
+
       var replacements = {
         app_version: pjson.version,
         error_message: error_message
@@ -178,23 +178,23 @@ router.get('/configure', async (req, res) => {
       var html = template(replacements);
       return res.send(html);
     })
-    
+
   } else {
-    
+
     let proxy_url = BASE_URL + "/webhook/" + project_id;
-  
+
     let CONTENT_KEY = "whatsapp-" + project_id;
-  
+
     let settings = await db.get(CONTENT_KEY);
     winston.debug("(wab) settings: " + settings);
-  
+
     // get departments
     const tdChannel = new TiledeskChannel({ settings: { project_id: project_id, token: token }, API_URL: API_URL })
     let departments = await tdChannel.getDepartments(token);
     winston.debug("(wab) found " + departments.length + " departments")
-  
+
     if (settings) {
-  
+
       readHTMLFile('/configure.html', (err, html) => {
         var template = handlebars.compile(html);
         var replacements = {
@@ -210,17 +210,17 @@ router.get('/configure', async (req, res) => {
         }
         var html = template(replacements);
         res.send(html);
-  
+
       })
-  
+
     } else {
-  
+
       readHTMLFile('/configure.html', (err, html) => {
-  
+
         if (err) {
           winston.error("(wab) error read html file: " + err);
         }
-  
+
         var template = handlebars.compile(html);
         var replacements = {
           app_version: pjson.version,
@@ -231,7 +231,7 @@ router.get('/configure', async (req, res) => {
         }
         var html = template(replacements);
         res.send(html);
-  
+
       })
     }
   }
@@ -543,7 +543,7 @@ router.post("/webhook/:project_id", async (req, res) => {
     ) {
 
       if (req.body.entry[0].changes[0].value.messages[0].type == "system") {
-        winston.verbos("(wab) Skip system message")
+        winston.verbose("(wab) Skip system message")
         return res.sendStatus(200);
       }
 
@@ -764,32 +764,37 @@ async function startApp(settings, callback) {
   winston.info("(wab) Starting Whatsapp App")
 
   if (!settings.MONGODB_URL) {
-    throw new Error("settings.MONGODB_URL is mandatory");
+    winston.error("(wab) MONGODB_URL is mandatory. Exit...");
+    return callback('Missing parameter: MONGODB_URL');
   }
 
   if (!settings.API_URL) {
-    throw new Error("settings.API_URL is mandatory");
+    winston.error("(wab) API_URL is mandatory. Exit...");
+    return callback('Missing parameter: API_URL');
   } else {
     API_URL = settings.API_URL;
     winston.info("(wab) API_URL: " + API_URL);
   }
 
   if (!settings.BASE_URL) {
-    throw new Error("settings.BASE_URL is mandatory");
+    winston.error("(wab) BASE_URL is mandatory. Exit...");
+    return callback('Missing parameter: BASE_URL');
   } else {
     BASE_URL = settings.BASE_URL;
     winston.info("(wab) BASE_URL: " + BASE_URL);
   }
 
   if (!settings.GRAPH_URL) {
-    throw new Error("settings.GRAPH_URL is mandatory");
+    winston.error("(wab) GRAPH_URL is mandatory. Exit...");
+    return callback('Missing parameter: GRAPH_URL');
   } else {
     GRAPH_URL = settings.GRAPH_URL;
     winston.info("(wab) GRAPH_URL: " + GRAPH_URL);
   }
 
   if (!settings.APPS_API_URL) {
-    throw new Error("settings.APPS_API_URL is mandatory");
+    winston.error("(wab) APPS_API_URL is mandatory. Exit...");
+    return callback('Missing parameter: APPS_API_URL');
   } else {
     APPS_API_URL = settings.APPS_API_URL;
     winston.info("(wab) APPS_API_URL: " + APPS_API_URL);
@@ -808,7 +813,7 @@ async function startApp(settings, callback) {
     winston.info("(wab) KVBaseMongo successfully connected.");
 
     if (callback) {
-      callback();
+      callback(null);
     }
   })
 }

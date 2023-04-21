@@ -29,11 +29,16 @@ whatsapp.startApp(
     REDIS_PORT: REDIS_PORT,
     REDIS_PASSWORD: REDIS_PASSWORD,
     log: log
-  }, () => {
-    console.log("Whatsapp route succesfully started.")
-    var port = process.env.PORT || 3000;
-    app.listen(port, function() {
-      console.log("Whatsapp connector listening on port: ", port);
-    })
+  }, (err) => {
+
+    if (!err) {
+      console.log("Whatsapp route succesfully started.")
+      var port = process.env.PORT || 3000;
+      app.listen(port, function() {
+        console.log("Whatsapp connector listening on port: ", port);
+      })
+    } else {
+      console.log("(Warning) Unable to start tiledesk-whatsapp-connector.", err);
+    }
   }
 );
