@@ -408,6 +408,7 @@ router.post('/tiledesk', async (req, res) => {
   winston.verbose("(wab) Message received from Tiledesk")
 
   var tiledeskChannelMessage = req.body.payload;
+  //winston.verbose("(wab) tiledeskChannelMessage: ", tiledeskChannelMessage)
   var projectId = req.body.payload.id_project;
 
   // get settings from mongo
@@ -440,15 +441,52 @@ router.post('/tiledesk', async (req, res) => {
   }
 
   let recipient_id = tiledeskChannelMessage.recipient;
+  let sender = tiledeskChannelMessage.sender;
   let whatsapp_receiver = recipient_id.substring(recipient_id.lastIndexOf("-") + 1);
   let phone_number_id = recipient_id.substring(recipient_id.lastIndexOf("wab-") + 4, recipient_id.lastIndexOf("-"));
 
+  /*
+  if (settings.expired && 
+      settings.expired === true) {
+    winston.info("settings expired: " + settings.expired);
+        return res.status(200).send({ success: 'false', message: "plan expired"})
+      
+  */
+  
+  // Return an info message option
+  if (settings.expired &&
+      settings.expired === true) {
+
+        winston.verbose("settings expired: " + settings.expired);
+        let tiledeskJsonMessage = {
+          text: 'Expired. Upgrade Plan.',
+          sender: sender,
+          senderFullname: "System",
+          attributes: {
+            subtype: 'info'
+          },
+          channel: { name: 'whatsapp'}
+        }
+        let message_info = {
+          channel: "whatsapp",
+          whatsapp: {
+            from: whatsapp_receiver,
+            phone_number_id: phone_number_id
+          }
+        }
+    
+        const tdChannel = new TiledeskChannel({ settings: settings, API_URL: API_URL })
+        const response = await tdChannel.send(tiledeskJsonMessage, message_info, settings.department_id);
+        winston.verbose("(wab) Expiration message sent to Tiledesk")
+        return res.sendStatus(200);
+  }
+  
   winston.debug("(wab) text: " + text);
   winston.debug("(wab) attributes: " + attributes)
   winston.debug("(wab) tiledesk sender_id: " + sender_id);
   winston.debug("(wab) recipient_id: " + recipient_id);
   winston.debug("(wab) whatsapp_receiver: " + whatsapp_receiver);
-  winston.debug("(wab) phone_number_id: " + phone_number_id)
+  winston.debug("(wab) phone_number_id: " + phone_number_id);
 
   const messageHandler = new MessageHandler({ tiledeskChannelMessage: tiledeskChannelMessage });
   const tlr = new TiledeskWhatsappTranslator();
