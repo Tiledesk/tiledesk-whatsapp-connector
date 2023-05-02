@@ -411,6 +411,28 @@ const path = require('path');
       }
       return tiledeskMessage;
     }
+
+    // media message - audio
+    if (whatsappChannelMessage.type == 'audio') {
+
+      let text = "Audio attached"
+      /*if (whatsappChannelMessage.document.caption) {
+        text = whatsappChannelMessage.document.caption
+      }*/
+
+      var tiledeskMessage = {
+        text: "[Dowload audio](" + media_url + ")",
+        senderFullname: from,
+        channel: { name: TiledeskWhatsappTranslator.CHANNEL_NAME },
+        type: "file",
+        metadata: {
+          name: "audio.mp3",
+          type: "audio/mpeg",
+          src: media_url
+        }
+      }
+      return tiledeskMessage;
+    }
   }
   /*
   *************************************

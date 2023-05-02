@@ -39,7 +39,7 @@ class TemplateManager {
     }).then((response) => {
       return response.data;
     }).catch((err) => {
-      winston.error("get template error: ", err);
+      winston.error("get template error: ", err.response.data);
       return null;
     })
   }

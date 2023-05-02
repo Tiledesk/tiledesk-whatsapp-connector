@@ -415,7 +415,7 @@ router.post('/disconnect', async (req, res) => {
 })
 
 router.post('/tiledesk', async (req, res) => {
-  winston.verbose("(wab) Message received from Tiledesk")
+  winston.verbose("(wab) Message received from Tiledesk", req.body.payload)
 
   var tiledeskChannelMessage = req.body.payload;
   var projectId = req.body.payload.id_project;
@@ -611,7 +611,7 @@ router.post("/webhook/:project_id", async (req, res) => {
           tiledeskJsonMessage = await tlr.toTiledesk(whatsappChannelMessage, firstname);
         }
 
-        else if ((whatsappChannelMessage.type == 'image') || (whatsappChannelMessage.type == 'video') || (whatsappChannelMessage.type == 'document')) {
+        else if ((whatsappChannelMessage.type == 'image') || (whatsappChannelMessage.type == 'video') || (whatsappChannelMessage.type == 'document') || (whatsappChannelMessage.type == 'audio')) {
           let media;
           const util = new TiledeskWhatsapp({ token: settings.wab_token, GRAPH_URL: GRAPH_URL })
 
@@ -662,6 +662,22 @@ router.post("/webhook/:project_id", async (req, res) => {
             tiledeskJsonMessage = await tlr.toTiledesk(whatsappChannelMessage, firstname, media_url);
           }
 
+          if (whatsappChannelMessage.type == 'audio') {
+            media = whatsappChannelMessage.audio;
+
+            const filename = await util.downloadMedia(media.id);
+            if (!filename) {
+              winston.debug("(wab) Unable to download media with id " + media.id + ". Message not sent.");
+              return res.status(500).send({ success: false, error: "unable to download media" })
+            }
+            let file_path = path.join(__dirname, 'tmp', filename);
+
+            const media_url = await util.uploadMedia(file_path, "files");
+            winston.debug("(wab) media_url: " + media_url)
+
+            tiledeskJsonMessage = await tlr.toTiledesk(whatsappChannelMessage, firstname, media_url);
+          }
+
         } else {
           // unsupported. Try anyway to send something.
           winston.debug("(wab) unsupported message")
@@ -693,7 +709,7 @@ router.get("/webhook/:project_id", async (req, res) => {
   /**
    * UPDATE YOUR VERIFY TOKEN
    *This will be the Verify Token value when you set up webhook
-  **/
+  */
   winston.verbose("(wab) Verify the webhook... ");
   console.log("(wab) req.query: ", req.query);
   console.log("(wab) req.body: ", req.body);
@@ -861,6 +877,30 @@ router.get("/templates/:project_id", async (req, res) => {
     return res.status(404).send({ success: false, error: "whatsapp not installed for the project id " + project_id });
   }
 
+})
+
+router.get("/ext/templates/:project_id", async (req, res) => {
+  winston.verbose("(wab) /ext/templates");
+
+  let project_id = req.params.project_id;
+
+  let CONTENT_KEY = "whatsapp-" + project_id;
+  let settings = await db.get(CONTENT_KEY);
+
+  if (settings) {
+    let tm = new TemplateManager({ token: settings.wab_token, business_account_id: settings.business_account_id, GRAPH_URL: GRAPH_URL })  
+    let templates = await tm.getTemplates();
+
+    if (templates) {
+      res.status(200).send(templates.data);
+    } else {
+      res.status(500).send({ success: false, message: "a problem occurred while getting templates from whatsapp" })  
+    }
+    
+  } else {
+    res.status(400).send({ success: false, message: "whatsapp not installed for the project_id " + project_id }) 
+  }
+  
 })
 
 // *****************************
