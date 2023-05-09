@@ -258,12 +258,50 @@ const path = require('path');
             return whatsapp_message;
           }
 
-        } else {
+        } 
+        else if (tiledeskChannelMessage.attributes.attachment.template) {
+          console.log("--> attachment type: ", tiledeskChannelMessage.attributes.attachment.type)
+          winston.info("--> template: ", tiledeskChannelMessage.attributes.attachment.template)
+
+          let template = tiledeskChannelMessage.attributes.attachment.template;
+
+          whatsapp_message.type = "template";
+          whatsapp_message.template = {
+            name: template.name,
+            language: {
+              code: template.language
+            }     
+          }
+          let components = [];
+          if (template.params.header) {
+            let component = {
+              type: "header",
+              parameters: template.params.header
+            }
+            components.push(component);
+          }
+          if (template.params.body) {
+            let component = {
+              type: "body",
+              parameters: template.params.body
+            }
+            components.push(component);
+          }
+        
+          if (components.length > 0) {
+            whatsapp_message.template.components = components;
+          }
+
+          winston.info("whatsapp_message: ", whatsapp_message);
+          return whatsapp_message;
+        
+        }
+        else {
 
           whatsapp_message.text = { body: text };
           return whatsapp_message;
         }
-
+        
       } else {
 
         whatsapp_message.text = { body: text };
@@ -271,8 +309,46 @@ const path = require('path');
       }
 
     } else {
-      whatsapp_message.text = { body: text };
-      return whatsapp_message;
+
+      // template
+      console.log("tiledeskChannelMessage.text: ", tiledeskChannelMessage.text);
+      if (tiledeskChannelMessage.text.startsWith("/template:")) {
+        let template_name = tiledeskChannelMessage.text.substring(tiledeskChannelMessage.text.lastIndexOf(':') + 1);
+        console.log("template name to send: ", template_name);
+        whatsapp_message.type = "template";
+        whatsapp_message.template = {
+          name: template_name,
+          language: {
+            code: "en_US"
+          },
+          components: [
+            {
+              type: "header",
+              parameters: [
+                {
+                  type: "text",
+                  text: "Giovanni"
+                }
+              ]
+            },
+            {
+              type: "body",
+              parameters: [
+                {
+                  type: "text",
+                  text: "the use of templates"
+                }
+              ]
+            }
+          ]      
+        }
+        return whatsapp_message;
+      }
+      // standard message
+      else {
+        whatsapp_message.text = { body: text };
+        return whatsapp_message;
+      }
     }
   }
 
@@ -289,6 +365,7 @@ const path = require('path');
       }
       return data;
     }
+    
 
     // interactive message
     if (whatsappChannelMessage.type == 'interactive') {
@@ -421,7 +498,7 @@ const path = require('path');
       }*/
 
       var tiledeskMessage = {
-        text: "[Dowload audio](" + media_url + ")",
+        text: "[Download audio](" + media_url + ")",
         senderFullname: from,
         channel: { name: TiledeskWhatsappTranslator.CHANNEL_NAME },
         type: "file",

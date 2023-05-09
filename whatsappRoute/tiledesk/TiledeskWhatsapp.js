@@ -56,7 +56,7 @@ class TiledeskWhatsapp {
       winston.debug("(wab) [TiledeskWhatsapp] Message sent!");
       return response
     }).catch((err) => {
-      winston.error("(wab) [TiledeskWhatsapp] Send message error: " + err.response.data);
+      winston.error("(wab) [TiledeskWhatsapp] Send message error: ", err.response.data);
       throw err;
     })
   }

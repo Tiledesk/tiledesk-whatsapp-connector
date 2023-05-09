@@ -894,11 +894,11 @@ router.get("/ext/templates/:project_id", async (req, res) => {
     if (templates) {
       res.status(200).send(templates.data);
     } else {
-      res.status(500).send({ success: false, message: "a problem occurred while getting templates from whatsapp" })  
+      res.status(500).send({ success: false, code: '02', message: "a problem occurred while getting templates from whatsapp" })  
     }
     
   } else {
-    res.status(400).send({ success: false, message: "whatsapp not installed for the project_id " + project_id }) 
+    res.status(400).send({ success: false, code: '01', message: "whatsapp not installed for the project_id " + project_id }) 
   }
   
 })
