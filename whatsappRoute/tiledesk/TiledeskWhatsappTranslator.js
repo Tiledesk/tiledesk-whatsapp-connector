@@ -20,7 +20,7 @@ const path = require('path');
   static CHANNEL_NAME = "whatsapp";
 
   constructor() {
-    
+
     /*
     if (!config.tiledeskChannelMessage) {
       throw new Error('config.tiledeskChannelMessage is mandatory');
@@ -142,7 +142,7 @@ const path = require('path');
                 let text_btn = {
                   type: "reply",
                   reply: {
-                    id: "quick" + uuidv4().substring(0,4) + "_"+ btn.value,
+                    id: "quick" + uuidv4().substring(0, 4) + "_" + btn.value,
                     title: title
                   }
                 }
@@ -181,7 +181,7 @@ const path = require('path');
 
               if (btn.type == 'text') {
                 let row = {
-                  id: "quick" + uuidv4().substring(0,4) + "_"+ btn.value,
+                  id: "quick" + uuidv4().substring(0, 4) + "_" + btn.value,
                   title: title
                 }
                 //option_rows.push(row);
@@ -258,7 +258,45 @@ const path = require('path');
             return whatsapp_message;
           }
 
-        } else {
+        }
+        else if (tiledeskChannelMessage.attributes.attachment.template) {
+          console.log("--> attachment type: ", tiledeskChannelMessage.attributes.attachment.type)
+          winston.info("--> template: ", tiledeskChannelMessage.attributes.attachment.template)
+
+          let template = tiledeskChannelMessage.attributes.attachment.template;
+
+          whatsapp_message.type = "template";
+          whatsapp_message.template = {
+            name: template.name,
+            language: {
+              code: template.language
+            }
+          }
+          let components = [];
+          if (template.params.header) {
+            let component = {
+              type: "header",
+              parameters: template.params.header
+            }
+            components.push(component);
+          }
+          if (template.params.body) {
+            let component = {
+              type: "body",
+              parameters: template.params.body
+            }
+            components.push(component);
+          }
+
+          if (components.length > 0) {
+            whatsapp_message.template.components = components;
+          }
+
+          winston.info("whatsapp_message: ", whatsapp_message);
+          return whatsapp_message;
+
+        }
+        else {
 
           whatsapp_message.text = { body: text };
           return whatsapp_message;
@@ -270,29 +308,14 @@ const path = require('path');
         return whatsapp_message;
       }
 
-    } else {
-
-      // template
-      console.log("tiledeskChannelMessage.text: ", tiledeskChannelMessage.text);
-      if (tiledeskChannelMessage.text.startsWith("/template:")) {
-        let template_name = tiledeskChannelMessage.text.substring(tiledeskChannelMessage.text.lastIndexOf(':') + 1);
-        console.log("template name to send: ", template_name);
-        whatsapp_message.type = "template";
-        whatsapp_message.template = {
-          name: template_name,
-          language: {
-            code: "en_US"
-          }
-        }
-        return whatsapp_message;
-      }
+    }
+    else {
       // standard message
-      else {
-        whatsapp_message.text = { body: text };
-        return whatsapp_message;
-      }
+      whatsapp_message.text = { body: text };
+      return whatsapp_message;
     }
   }
+
 
   async toTiledesk(whatsappChannelMessage, from, media_url) {
 
@@ -307,6 +330,7 @@ const path = require('path');
       }
       return data;
     }
+
 
     // interactive message
     if (whatsappChannelMessage.type == 'interactive') {
@@ -424,6 +448,28 @@ const path = require('path');
         metadata: {
           name: "document.pdf",
           type: "application/pdf",
+          src: media_url
+        }
+      }
+      return tiledeskMessage;
+    }
+
+    // media message - audio
+    if (whatsappChannelMessage.type == 'audio') {
+
+      let text = "Audio attached"
+      /*if (whatsappChannelMessage.document.caption) {
+        text = whatsappChannelMessage.document.caption
+      }*/
+
+      var tiledeskMessage = {
+        text: "[Download audio](" + media_url + ")",
+        senderFullname: from,
+        channel: { name: TiledeskWhatsappTranslator.CHANNEL_NAME },
+        type: "file",
+        metadata: {
+          name: "audio.mp3",
+          type: "audio/mpeg",
           src: media_url
         }
       }

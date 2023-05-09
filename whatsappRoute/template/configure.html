@@ -25,7 +25,7 @@
         </script>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="./css/configure.css">
+    <link rel="stylesheet" href="/css/configure.css">
 
     <style>
       body {
@@ -87,11 +87,29 @@
         {{/if}}
       </div>
     </div>
+  
   </div>
+
+
+  
 
   <!-- INFO BOX -->
   <div class="info-box">
+    
     <div class="info-list">
+      <!--
+      <div style="margin-bottom:20px;">
+        {{#if wab_token}}
+        <form action="./templates/{{project_id}}" method="get">
+          <input type="hidden" name="project_id" value="{{ project_id }}" />
+          <input type="hidden" name="app_id" value="{{ app_id }}" />
+          <input type="hidden" name="token" value="{{ token }}" />
+          <input type="submit" class="btn install-button" value="Manage Templates">
+        </form>
+        {{/if}}
+      </div>
+      -->
+      
        <ul>
         <div class="list-element">
           <img src="https://cdn-icons-png.flaticon.com/512/1443/1443000.png" width=20 height=20 style="margin-right: 10px;"/>
@@ -197,6 +215,19 @@
                 <span style="margin-left: 10px;">
                   <i class="fa fa-question-circle custom-tooltip">
                     <span class="custom-tooltiptext">Choose the verification token end copy it to the Facebook Developer console in "Verify Token" in Whatsapp Configuration</span>
+                  </i>
+                </span>
+              </div>
+            </div>
+
+            <!-- WhatsApp Business Account ID -->
+            <div class="form-group" style="width: 522px;">
+              <label class="input-label" for="verify_token">WhatsApp Business Account ID</label>
+              <div style="display: flex; flex-direction: row; align-items: center;">
+              <input type="text" required class="form-control custom-input" name="business_account_id" value="{{ business_account_id }}" placeholder="Enter your Business Account ID">
+                <span style="margin-left: 10px;">
+                  <i class="fa fa-question-circle custom-tooltip">
+                    <span class="custom-tooltiptext">This is the WhatsApp Business Account ID that can be found in Whatsapp Getting Started on the Facebook Developer console.</span>
                   </i>
                 </span>
               </div>

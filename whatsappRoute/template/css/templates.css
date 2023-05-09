@@ -1,0 +1,134 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+body {
+  padding: 20px 0px;
+}
+
+.header {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.header-content {
+  width: 65%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo-container {
+  margin: 0px 20px 0px 0px;
+}
+
+.logo-title {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.title {
+  margin-bottom: 0px;
+  font-size: 22px;
+}
+
+.title-version {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.status-box {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  /*background-color: #1f3f77;*/
+  background-color: #f1f2f6;
+  /*color: white;*/
+  height: 40px;
+  padding: 20px;
+  border-radius: 24px;
+  border: solid 1px #e7e0e0;
+}
+
+.green-circle {
+  color: green;
+  margin-right: 6px;
+}
+
+.red-circle {
+  color: #f0593d;
+  margin-right: 6px;
+}
+
+.templates-box {
+  margin-top: 30px;
+  width: 100%;
+  //background-color: #fff8f7;
+  display: flex;
+  justify-content: center;
+  padding-bottom: 30px;
+}
+
+.templates {
+  width: 65%;
+  margin-top: 20px;
+}
+
+.templates .title {
+  font-size: 18px;
+}
+
+.templates-list {
+  max-width: 1200px;
+  min-width: 700px;
+}
+
+.single-template {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  padding: 20px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.single-template:hover {
+  background-color: #cbd2d94d;
+}
+
+.template-name {
+  width: 35%;
+  min-width: 200px;
+}
+
+.template-language {
+  width: 10%;
+  min-width: 80px;
+  display: flex;
+  justify-content: center;
+}
+
+.template-category {
+  width: 30%;
+  min-width: 200px;
+  display: flex;
+  justify-content: center;
+}
+
+.template-status {
+  width: 25%;
+  min-width: 200px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+hr {
+  margin-top: 0px;
+  margin-bottom: 0px;
+}
+
+.hidden-button {
+  display: none;
+}

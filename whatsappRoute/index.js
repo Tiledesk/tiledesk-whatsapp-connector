@@ -21,7 +21,8 @@ const { TiledeskChannel } = require('./tiledesk/TiledeskChannel');
 const { TiledeskAppsClient } = require('./tiledesk/TiledeskAppsClient');
 const { MessageHandler } = require('./tiledesk/MessageHandler');
 const { TiledeskBotTester } = require('./tiledesk/TiledeskBotTester');
-
+const { TemplateManager } = require('./tiledesk/TemplateManager');
+  
 // mongo
 const { KVBaseMongo } = require('./tiledesk/KVBaseMongo');
 const kvbase_collection = 'kvstore';
@@ -58,6 +59,10 @@ handlebars.registerHelper('isEqual', (a, b) => {
   }
 })
 
+handlebars.registerHelper('json', (a) => {
+  return JSON.stringify(a);
+})
+
 router.get('/', async (req, res) => {
   res.send('Welcome to Tiledesk-WhatsApp Business connector!')
 })
@@ -73,6 +78,9 @@ router.get('/detail', async (req, res) => {
   const tdChannel = new TiledeskChannel({ settings: { project_id: project_id, token: token }, API_URL: API_URL })
   let isAvailable = await tdChannel.getProjectDetail();
   winston.debug("(wab) app is available: ", isAvailable);
+  if (!projectId || !token || !app_id) {
+    return res.status(500).send("<p>Ops! An error occured.</p><p>Missing query params! project_id, token and app_id are required.</p>")
+  }
 
   const appClient = new TiledeskAppsClient({ APPS_API_URL: APPS_API_URL });
   let installation = await appClient.getInstallations(project_id, app_id);
@@ -247,6 +255,7 @@ router.post('/update', async (req, res) => {
   let wab_token = req.body.wab_token;
   let verify_token = req.body.verify_token;
   let department_id = req.body.department;
+  let business_account_id = req.body.business_account_id;
 
   let CONTENT_KEY = "whatsapp-" + projectId;
   let settings = await db.get(CONTENT_KEY);
@@ -262,6 +271,7 @@ router.post('/update', async (req, res) => {
     settings.wab_token = wab_token;
     settings.verify_token = verify_token;
     settings.department_id = department_id;
+    settings.business_account_id = business_account_id;
 
     await db.set(CONTENT_KEY, settings);
 
@@ -275,6 +285,7 @@ router.post('/update', async (req, res) => {
         wab_token: settings.wab_token,
         show_success_modal: true,
         verify_token: settings.verify_token,
+        business_account_id: settings.business_account_id,
         subscription_id: settings.subscriptionId,
         department_id: settings.department_id,
         departments: departments
@@ -312,6 +323,7 @@ router.post('/update', async (req, res) => {
         secret: subscription.secret,
         wab_token: wab_token,
         verify_token: verify_token,
+        business_account_id: business_account_id,
         department_id: department_id
       }
 
@@ -328,6 +340,7 @@ router.post('/update', async (req, res) => {
           show_success_modal: true,
           wab_token: settings.wab_token,
           verify_token: settings.verify_token,
+          business_account_id: settings.business_account_id,
           subscription_id: settings.subscriptionId,
           department_id: settings.department_id,
           departments: departments
@@ -405,7 +418,7 @@ router.post('/disconnect', async (req, res) => {
 })
 
 router.post('/tiledesk', async (req, res) => {
-  winston.verbose("(wab) Message received from Tiledesk")
+  winston.verbose("(wab) Message received from Tiledesk", req.body.payload)
 
   var tiledeskChannelMessage = req.body.payload;
   //winston.verbose("(wab) tiledeskChannelMessage: ", tiledeskChannelMessage)
@@ -500,7 +513,7 @@ router.post('/tiledesk', async (req, res) => {
         winston.debug("(wab) message generated from command: " + tiledeskCommandMessage)
 
         let whatsappJsonMessage = await tlr.toWhatsapp(tiledeskCommandMessage, whatsapp_receiver);
-        winston.verbose("(wab) 🟢 whatsappJsonMessage" + whatsappJsonMessage)
+        winston.verbose("(wab) whatsappJsonMessage", whatsappJsonMessage)
 
         if (whatsappJsonMessage) {
           const twClient = new TiledeskWhatsapp({ token: settings.wab_token, GRAPH_URL: GRAPH_URL });
@@ -567,7 +580,7 @@ router.post("/webhook/:project_id", async (req, res) => {
 
   // Parse the request body from the POST
   let projectId = req.params.project_id;
-  winston.verbose("(wab) Message received from WhatsApp");
+  winston.verbose("(wab) Message received from WhatsApp: ", req.body);
 
   // Check the Incoming webhook message
   // info on WhatsApp text message payload: https://developers.facebook.com/docs/whatsapp/cloud-api/webhooks/payload-examples#text-messages
@@ -639,7 +652,7 @@ router.post("/webhook/:project_id", async (req, res) => {
           tiledeskJsonMessage = await tlr.toTiledesk(whatsappChannelMessage, firstname);
         }
 
-        else if ((whatsappChannelMessage.type == 'image') || (whatsappChannelMessage.type == 'video') || (whatsappChannelMessage.type == 'document')) {
+        else if ((whatsappChannelMessage.type == 'image') || (whatsappChannelMessage.type == 'video') || (whatsappChannelMessage.type == 'document') || (whatsappChannelMessage.type == 'audio')) {
           let media;
           const util = new TiledeskWhatsapp({ token: settings.wab_token, GRAPH_URL: GRAPH_URL })
 
@@ -690,13 +703,29 @@ router.post("/webhook/:project_id", async (req, res) => {
             tiledeskJsonMessage = await tlr.toTiledesk(whatsappChannelMessage, firstname, media_url);
           }
 
+          if (whatsappChannelMessage.type == 'audio') {
+            media = whatsappChannelMessage.audio;
+
+            const filename = await util.downloadMedia(media.id);
+            if (!filename) {
+              winston.debug("(wab) Unable to download media with id " + media.id + ". Message not sent.");
+              return res.status(500).send({ success: false, error: "unable to download media" })
+            }
+            let file_path = path.join(__dirname, 'tmp', filename);
+
+            const media_url = await util.uploadMedia(file_path, "files");
+            winston.debug("(wab) media_url: " + media_url)
+
+            tiledeskJsonMessage = await tlr.toTiledesk(whatsappChannelMessage, firstname, media_url);
+          }
+
         } else {
           // unsupported. Try anyway to send something.
           winston.debug("(wab) unsupported message")
         }
 
         if (tiledeskJsonMessage) {
-          winston.verbose("(wab) 🟠 tiledeskJsonMessage: " + tiledeskJsonMessage);
+          winston.verbose("(wab) tiledeskJsonMessage: ", tiledeskJsonMessage);
           const response = await tdChannel.send(tiledeskJsonMessage, message_info, settings.department_id);
           winston.verbose("(wab) Message sent to Tiledesk!")
           winston.debug("(wab) response: " + response)
@@ -721,8 +750,11 @@ router.get("/webhook/:project_id", async (req, res) => {
   /**
    * UPDATE YOUR VERIFY TOKEN
    *This will be the Verify Token value when you set up webhook
-  **/
+  */
   winston.verbose("(wab) Verify the webhook... ");
+  console.log("(wab) req.query: ", req.query);
+  console.log("(wab) req.body: ", req.body);
+  
   winston.debug("(wab) req.query: " + req.query);
 
   // Parse params from the webhook verification request
@@ -792,6 +824,124 @@ router.post("/newtest", async (req, res) => {
     }
   })
 
+})
+
+router.get('/templates/detail', async (req, res) => {
+
+  let project_id = req.query.project_id;
+  let token = req.query.token;
+  let app_id = req.query.app_id;
+  let template_id = req.query.id_template;  
+  winston.info("get template_id: " + template_id);
+
+  let CONTENT_KEY = "whatsapp-" + project_id; 
+  let settings = await db.get(CONTENT_KEY);
+  winston.debug("(wab) settings: ", settings);
+
+  if (settings) {
+    // forse non serve, comunque non si può prendere un singolo template
+    /*
+    let tm = new TemplateManager({ token: settings.wab_token, business_account_id: settings.business_account_id, GRAPH_URL: GRAPH_URL })
+    let templates_info = await tm.getTemplateNamespace();
+    let namespace = templates_info.message_template_namespace;
+    console.log("namespace: ", namespace)
+    let template = await tm.getTemplateById(namespace);
+    console.log("template: ", template)
+    */
+    let tm = new TemplateManager({ token: settings.wab_token, business_account_id: settings.business_account_id, GRAPH_URL: GRAPH_URL })
+    let templates = await tm.getTemplates();
+    //console.log("templates: ", templates);
+    let template = JSON.parse(JSON.stringify(templates.data.find(t => t.id === template_id)));
+    let template_name = template.name;
+    console.log("selected template: ", template);
+
+    let template_copy = {
+      name: template.name,
+      components: template.components,
+      language: template.language,
+      status: template.status,
+      id: template.id,
+      category: template.category
+    }
+
+    console.log("example: ", JSON.stringify(template_copy));
+
+    readHTMLFile('/template_detail.html', (err, html) => {
+      var template = handlebars.compile(html);
+      var replacements = {
+        app_version: pjson.version,
+        project_id: project_id,
+        token: token,
+        app_id: app_id,
+        name: template_name,
+        template: template_copy
+      }
+      var html = template(replacements);
+      res.send(html);
+    })
+    
+  } else {
+    return res.send("whatsapp not installed on this project")
+  }
+}) 
+
+router.get("/templates/:project_id", async (req, res) => {
+  winston.verbose("(wab) /templates");
+
+  let project_id = req.params.project_id;
+  let token = req.query.token;
+  let app_id = req.query.app_id;
+  
+  let CONTENT_KEY = "whatsapp-" + project_id; 
+  let settings = await db.get(CONTENT_KEY);
+  winston.debug("(wab) settings: ", settings);
+
+  if (settings) {
+    let tm = new TemplateManager({ token: settings.wab_token, business_account_id: settings.business_account_id, GRAPH_URL: GRAPH_URL })
+    let templates = await tm.getTemplates();
+    //console.log("(wab) templates: ", JSON.stringify(templates, null, 2))
+
+      readHTMLFile('/templates.html', (err, html) => {
+        var template = handlebars.compile(html);
+        var replacements = {
+          app_version: pjson.version,
+          project_id: project_id,
+          token: token,
+          app_id: app_id,
+          templates: templates.data
+        }
+        var html = template(replacements);
+        res.send(html);
+      })
+  } else {
+    winston.verbose("No settings found.")
+    return res.status(404).send({ success: false, error: "whatsapp not installed for the project id " + project_id });
+  }
+
+})
+
+router.get("/ext/templates/:project_id", async (req, res) => {
+  winston.verbose("(wab) /ext/templates");
+
+  let project_id = req.params.project_id;
+
+  let CONTENT_KEY = "whatsapp-" + project_id;
+  let settings = await db.get(CONTENT_KEY);
+
+  if (settings) {
+    let tm = new TemplateManager({ token: settings.wab_token, business_account_id: settings.business_account_id, GRAPH_URL: GRAPH_URL })  
+    let templates = await tm.getTemplates();
+
+    if (templates) {
+      res.status(200).send(templates.data);
+    } else {
+      res.status(500).send({ success: false, code: '02', message: "a problem occurred while getting templates from whatsapp" })  
+    }
+    
+  } else {
+    res.status(400).send({ success: false, code: '01', message: "whatsapp not installed for the project_id " + project_id }) 
+  }
+  
 })
 
 // *****************************

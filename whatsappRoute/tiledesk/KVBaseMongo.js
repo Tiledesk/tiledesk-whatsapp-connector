@@ -55,7 +55,7 @@ class KVBaseMongo {
       //this.db.get(k).then(value => {resolve(value)});
       
       winston.debug("Searching on " + this.db)
-      winston.verbose("Searching on Collection" + this.KV_COLLECTION)
+      winston.debug("Searching on Collection " + this.KV_COLLECTION)
       
       this.db.collection(this.KV_COLLECTION).findOne({ key: k }, function(err, doc) {
         if (err) {

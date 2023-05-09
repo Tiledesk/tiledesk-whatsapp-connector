@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
+        integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap-theme.min.css"
+        integrity="sha384-6pzBo3FDv/PJ8r2KRkGHifhEocL+1X2rVCTTkUfGk7/0pbek5mMa1upzvWbrUbOZ" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  
+    <script src="//code.jquery.com/jquery-1.12.0.min.js"></script>
+    <script src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"
+        integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd" crossorigin="anonymous">
+        </script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/css/template_detail.css">
+
+    <style>
+      body {
+        font-family: 'Poppins', serif;
+      }
+    </style>
+  
+</head>
+
+  
+  
+<body>
+  
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-content">
+      <div class="logo-title">
+        <div class="logo-container">
+          <img src="https://www.clipartmax.com/png/full/205-2058823_whatsapp-ios-icon-whatsapp-ios-icon-png.png" width="60px" height="60px">
+        </div>
+        <div class="title-version">
+          <p class="title">WhatsApp Business Connector</p>
+          <div class="status-box" style="padding: 0px 8px; letter-spacing: 1px; height: 18px;"> 
+            <p style="margin-bottom: 0px;">{{ app_version }}</p>
+          </div>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="template-box">
+    <div class="template">
+      <div class="title-box">
+        <p class="title">{{ template.name }}</p>
+        <div class="status-language">
+          <p class="status">{{ template.category }}</p>
+          <i class="fa fa-circle bullet"></i>
+          <!--<p class="language">{{ template.language }}</p>-->
+          <p>{{ template.language }}</p>
+        </div>
+      </div>
+      <div class="detail">
+        <div class="detail-header">
+          <p class="edit-template-title">Edit template</p>
+          <form action="./save">
+            <input type="submit" class="btn" disabled value="Submit">
+          </form>
+        </div>
+
+        
+        <hr>
+        
+        <div class="detail-content">
+          {{#each template.components}}
+          <div class="component" style="margin-bottom: 30px">
+            <p class="type-title">{{ type }}</p>
+            
+            {{#if (isEqual type "HEADER")}}
+            <div class="template-header-box">
+
+              <div class="template-header-content">
+                <div class="select-menu">
+                  <div class="select-btn">
+                    <span class="sBtn-text">Select</span>
+                    <i class="fa fa-chevron-down"></i>
+                  </div>
+                  <ul class="options">
+                    <li class="option">
+                      <span class="option-text">None</span>
+                    </li>
+                    <li class="option">
+                      <span class="option-text">Text</span>
+                    </li>
+                    <li class="option">
+                      <span class="option-text">Media</span>
+                    </li>
+                  </ul>
+                </div>
+                <!--
+                <select name="header-type" id="header-type" class="custom-select">
+                  <option value="none">None</option>
+                  <option value="text">Text</option>
+                  <option value="media">Media</option>
+                </select>-->
+                
+                <input id="header-input" type="text" class="custom-input" maxlength="60" value="{{text}}">
+              </div>
+              <div id="counter" class="counter">
+                {{counter_value}} / 60
+              </div>
+            </div>
+            {{/if}}
+
+            {{#if (isEqual type "BODY")}}
+            <textarea id="body" name="body" class="custom-textarea" rows="6">{{ text }}</textarea>
+            {{/if}}
+            
+            {{#if example.body_text}}
+            <p class="type-title">Example</p>
+            <p>{{ example.body_text }}</p>
+            {{/if}}
+          </div>
+          {{/each}}
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <script>
+
+    // works!!
+    const template = {{{ json template }}}
+    console.log("template: ", template);
+    
+    const optionMenu = document.querySelector(".select-menu");
+    const selectBtn = optionMenu.querySelector(".select-btn");
+    const options = optionMenu.querySelectorAll(".option");
+    const sBtn_text = optionMenu.querySelector(".sBtn-text");
+    const inputHeader = document.getElementById("header-input");
+    const counter = document.getElementById('counter');
+
+    let header = template.components.find(c => c.type === "HEADER");
+    console.log("header: ", header);
+    sBtn_text.innerText = header.format.charAt(0) + header.format.slice(1).toLowerCase();
+    if (sBtn_text.innerText == "None") {
+      inputHeader.style.display = "none";
+      counter.style.display = "none";
+    }
+
+    selectBtn.addEventListener('click', () => {
+      optionMenu.classList.toggle("active");
+    })
+
+    options.forEach(option => {
+      option.addEventListener("click", () => {
+        let selectedOption = option.querySelector(".option-text").innerText;
+        sBtn_text.innerText = selectedOption;
+        if (sBtn_text.innerText == "None") {
+          inputHeader.style.display = "none";
+          counter.style.display = "none";
+        } else {
+          inputHeader.style.display = "block";
+          counter.style.display = "flex";
+        }
+        optionMenu.classList.remove("active");
+      })
+    })
+
+    inputHeader.addEventListener('input', (event) => {
+      console.log("event: ", event);
+      counter.innerText = event.target.value.length + " / 60";
+    })
+
+    counter.innerText = header.text.length + " / 60";
+
+    function selectTemplate() {
+      document.getElementById('customInput').click();
+    }
+    
+  </script>
+</body>
