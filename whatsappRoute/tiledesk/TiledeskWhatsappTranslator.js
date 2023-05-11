@@ -50,7 +50,7 @@ const path = require('path');
   */
   toWhatsapp(tiledeskChannelMessage, whatsapp_receiver) {
 
-    winston.debug("(wab) [Translator] tiledesk message: " + tiledeskChannelMessage);
+    winston.debug("(wab) [Translator] tiledesk message: ", tiledeskChannelMessage);
 
     let text = '';
     if (tiledeskChannelMessage.text) {
@@ -318,7 +318,7 @@ const path = require('path');
 
   async toTiledesk(whatsappChannelMessage, from, media_url) {
 
-    winston.debug("(wab) [Translator] whatsapp message: " + whatsappChannelMessage);
+    winston.debug("(wab) [Translator] whatsapp message: ", whatsappChannelMessage);
 
     // text message
     if (whatsappChannelMessage.type == 'text') {

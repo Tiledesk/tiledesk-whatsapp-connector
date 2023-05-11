@@ -40,7 +40,7 @@ class MessageHandler {
 
   async generateMessageObject(command) {
       
-    winston.debug("(wab) [MessageHandler] command: " + command);
+    winston.debug("(wab) [MessageHandler] command: ", command);
     let tiledeskCommandMessage = command.message;
     tiledeskCommandMessage.recipient = this.tiledeskChannelMessage.recipient;
     

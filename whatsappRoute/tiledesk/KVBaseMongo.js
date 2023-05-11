@@ -59,7 +59,7 @@ class KVBaseMongo {
       
       this.db.collection(this.KV_COLLECTION).findOne({ key: k }, function(err, doc) {
         if (err) {
-          winston.error("Error reading mongodb value" + err);
+          winston.error("Error reading mongodb value", err);
           reject(err);
         }
         else {

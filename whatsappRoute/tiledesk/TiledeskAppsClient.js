@@ -153,7 +153,7 @@ class TiledeskAppsClient {
         }
       }
     }).catch((err) => {
-      winston.error("(wab) An error occured: " + err);
+      winston.error("(wab) An error occured: ", err);
       if (callback) {
         callback(err, null, null);
       }

@@ -107,10 +107,10 @@ class TiledeskWhatsapp {
           })
         })
       }).catch((err) => {
-        winston.error("(wab) [TiledeskWhatsapp] download file error: " + err.data);
+        winston.error("(wab) [TiledeskWhatsapp] download file error: ", err.data);
       })
     }).catch((err) => {
-      winston.error("(wab) [TiledeskWhatsapp] get file error: " + err.data);
+      winston.error("(wab) [TiledeskWhatsapp] get file error: ", err.data);
     })
   }
 
@@ -130,7 +130,7 @@ class TiledeskWhatsapp {
 
     return await axios.post(url, form, request_config).then((response) => {
         
-      winston.debug("(wab) [TiledeskWhatsapp] upload response: " + response.data);
+      winston.debug("(wab) [TiledeskWhatsapp] upload response: ", response.data);
       if (type == "images") {
         let image_url = "https://tiledesk-server-pre.herokuapp.com/images/?path=" + response.data.filename;
         return image_url;
@@ -164,7 +164,7 @@ class TiledeskWhatsapp {
         }
       }
     }).catch((err) => {
-      winston.error("(wab) [TiledeskWhatsapp] An error occured: " + err);
+      winston.error("(wab) [TiledeskWhatsapp] An error occured: ", err);
       if (callback) {
         callback(err, null, null);
       }

@@ -122,7 +122,7 @@ router.post('/install', async (req, res) => {
 
   const appClient = new TiledeskAppsClient({ APPS_API_URL: APPS_API_URL });
   appClient.install(installation_info).then((installation) => {
-    winston.debug("(wab) installation response: " + installation);
+    winston.debug("(wab) installation response: ", installation);
 
     res.redirect(url.format({
       pathname: "/detail",
@@ -150,7 +150,7 @@ router.post('/uninstall', async (req, res) => {
   const appClient = new TiledeskAppsClient({ APPS_API_URL: APPS_API_URL });
   appClient.uninstall(project_id, app_id).then((response) => {
 
-    winston.debug("(wab) uninstallation response: " + response);
+    winston.debug("(wab) uninstallation response: ", response);
 
     res.redirect(url.format({
       pathname: "/detail",
@@ -194,7 +194,7 @@ router.get('/configure', async (req, res) => {
     let CONTENT_KEY = "whatsapp-" + project_id;
 
     let settings = await db.get(CONTENT_KEY);
-    winston.debug("(wab) settings: " + settings);
+    winston.debug("(wab) settings: ", settings);
 
     // get departments
     const tdChannel = new TiledeskChannel({ settings: { project_id: project_id, token: token }, API_URL: API_URL })
@@ -314,7 +314,7 @@ router.post('/update', async (req, res) => {
     // promise
     tdClient.subscribe(subscription_info).then((data) => {
       let subscription = data;
-      winston.debug("\n(wab) Subscription: " + subscription)
+      winston.debug("\n(wab) Subscription: ", subscription)
 
       let settings = {
         project_id: project_id,
@@ -456,8 +456,8 @@ router.get('/direct/tiledesk', async (req, res) => {
   twClient.sendMessage(phone_number_id, whatsappJsonMessage).then((response) => {
     winston.verbose("(wab) Message sent to WhatsApp! " + response.status + " " + response.statusText);
   }).catch((err) => {
+    winston.error("(wab) error send message: ", err);
     return res.status(400).send({success: false, error: err});
-    winston.error("(wab) error send message: " + err);
   })
 
   res.status(200).send("Message sent");
@@ -559,7 +559,7 @@ router.post('/tiledesk', async (req, res) => {
       // message
       if (command.type === "message") {
         let tiledeskCommandMessage = await messageHandler.generateMessageObject(command);
-        winston.debug("(wab) message generated from command: " + tiledeskCommandMessage)
+        winston.debug("(wab) message generated from command: ", tiledeskCommandMessage)
 
         let whatsappJsonMessage = await tlr.toWhatsapp(tiledeskCommandMessage, whatsapp_receiver);
         winston.verbose("(wab) whatsappJsonMessage", whatsappJsonMessage)
@@ -575,7 +575,7 @@ router.post('/tiledesk', async (req, res) => {
               winston.debug("(wab) End of commands")
             }
           }).catch((err) => {
-            winston.error("(wab) send message error: " + err);
+            winston.error("(wab) send message error: ", err);
           })
         } else {
           winston.error("(wab) WhatsappJsonMessage is undefined!")
@@ -601,7 +601,7 @@ router.post('/tiledesk', async (req, res) => {
   else if (tiledeskChannelMessage.text || tiledeskChannelMessage.metadata) {
 
     let whatsappJsonMessage = await tlr.toWhatsapp(tiledeskChannelMessage, whatsapp_receiver);
-    winston.verbose("(wab) 🟢 whatsappJsonMessage" + whatsappJsonMessage)
+    winston.verbose("(wab) whatsappJsonMessage", whatsappJsonMessage)
 
     if (whatsappJsonMessage) {
       const twClient = new TiledeskWhatsapp({ token: settings.wab_token, GRAPH_URL: GRAPH_URL });
@@ -610,7 +610,7 @@ router.post('/tiledesk', async (req, res) => {
         winston.verbose("(wab) Message sent to WhatsApp! " + response.status + " " + response.statusText);
       }).catch((err) => {
         res.status(400).send({success: false, error: "il template non esiste"});
-        winston.error("(wab) error send message: " + err);
+        winston.error("(wab) error send message: ", err);
       })
 
     } else {
@@ -622,7 +622,7 @@ router.post('/tiledesk', async (req, res) => {
     winston.debug("(wab) no command, no text --> skip")
   }
 
-  return res.send(200);
+  return res.sendStatus(200);
 })
 
 // Endpoint for Whatsapp Business
@@ -653,7 +653,7 @@ router.post("/webhook/:project_id", async (req, res) => {
 
       let CONTENT_KEY = "whatsapp-" + project_id;
       let settings = await db.get(CONTENT_KEY);
-      winston.debug("(wab) settings: " + settings);
+      winston.debug("(wab) settings: ", settings);
 
       if (!settings) {
         winston.verbose("(wab) No settings found. Exit..");
@@ -671,9 +671,9 @@ router.post("/webhook/:project_id", async (req, res) => {
         const bottester = new TiledeskBotTester({ project_id: project_id, redis_client: redis_client, db: db, tdChannel: tdChannel, tlr: tlr });
         bottester.startBotConversation(req.body, code).then((result) => {
           winston.verbose("(wab) test conversation started");
-          winston.debug("(wab) startBotConversation result: " + result);
+          winston.debug("(wab) startBotConversation result: ", result);
         }).catch((err) => {
-          winston.error("(wab) start test onversation error: " + err);
+          winston.error("(wab) start test onversation error: ", err);
         })
 
         // Standard message
@@ -779,7 +779,7 @@ router.post("/webhook/:project_id", async (req, res) => {
           winston.verbose("(wab) tiledeskJsonMessage: ", tiledeskJsonMessage);
           const response = await tdChannel.send(tiledeskJsonMessage, message_info, settings.department_id);
           winston.verbose("(wab) Message sent to Tiledesk!")
-          winston.debug("(wab) response: " + response)
+          winston.debug("(wab) response: ", response)
         } else {
           winston.verbose("(wab) tiledeskJsonMessage is undefined")
         }
@@ -864,7 +864,7 @@ router.post("/newtest", async (req, res) => {
   await redis_client.set(key, JSON.stringify(info), 'EX', 604800);
   redis_client.get(key, (err, value) => {
     if (err) {
-      winston.error("(wab) redis get err: " + err)
+      winston.error("(wab) redis get err: ", err)
       return res.status(500).send({ success: "false", message: "Testing info could not be saved" });
     } else {
       winston.debug("(wab) new test initialized with id: " + short_uid)

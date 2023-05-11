@@ -103,7 +103,7 @@ class TiledeskChannel {
         method: 'GET'
       }).then((response) => {
 
-        winston.debug("(wab) [TiledeskChannel] get request response: " + response.data);
+        winston.debug("(wab) [TiledeskChannel] get request response: ", response.data);
 
         let request_id;
         if (response.data.requests[0]) {
@@ -114,7 +114,7 @@ class TiledeskChannel {
           winston.debug("(wab) [TiledeskChannel] New request_id: " + request_id);
         }
 
-        winston.debug("(wab) [TiledeskChannel] tiledeskMessage:" + tiledeskMessage);
+        winston.debug("(wab) [TiledeskChannel] tiledeskMessage:", tiledeskMessage);
         
         return axios({
           url: this.API_URL + `/${this.settings.project_id}/requests/${request_id}/messages`,
@@ -126,20 +126,20 @@ class TiledeskChannel {
           method: 'POST'
         }).then((response) => {
 
-          winston.debug("(wab) [TiledeskChannel] send message response: " + response.data);
+          winston.debug("(wab) [TiledeskChannel] send message response: ", response.data);
           
           return response.data;
 
         }).catch((err) => {
-          winston.error("(wab) [TiledeskChannel] send message: " + err);
+          winston.error("(wab) [TiledeskChannel] send message: ", err);
         })
       }).catch((err) => {
-        winston.error("(wab) [TiledeskChannel]  get requests: " + err);
+        winston.error("(wab) [TiledeskChannel]  get requests: ", err);
       })
 
 
     }).catch((err) => {
-      winston.error("(wab) [TiledeskChannel] sign in error: " + err);
+      winston.error("(wab) [TiledeskChannel] sign in error: ", err);
     })
   }
 
@@ -154,10 +154,10 @@ class TiledeskChannel {
       },
       method: 'GET'
     }).then((response) => {
-      winston.debug("(wab) [TiledeskChannel] get departments response.data: " + response.data)
+      winston.debug("(wab) [TiledeskChannel] get departments response.data: ", response.data)
       return response.data;
     }).catch((err) => {
-      winston.error("(wab) [TiledeskChannel] get departments error: " + err);
+      winston.error("(wab) [TiledeskChannel] get departments error: ", err);
     })
   }
 
@@ -211,10 +211,10 @@ class TiledeskChannel {
       }).then((response) => {
         return response.data
       }).catch((err) => {
-        winston.error("(wab) [TiledeskChannel] send message (open conversation) error: " + err);
+        winston.error("(wab) [TiledeskChannel] send message (open conversation) error: ", err);
       })
     }).catch((err) => {
-      winston.error("(wab) [TiledeskChannel] sign in error: " + err);
+      winston.error("(wab) [TiledeskChannel] sign in error: ", err);
     })
   }
 
@@ -230,7 +230,7 @@ class TiledeskChannel {
     }).then((response) => {
       return this.checkPlan(response.data);
     }).catch((err) => {
-      winston.error("(wab) [TiledeskChannel] get project detail error: " + err);
+      winston.error("(wab) [TiledeskChannel] get project detail error: ", err);
       return null;
     })
   }
