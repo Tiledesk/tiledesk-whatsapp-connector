@@ -260,8 +260,7 @@ const path = require('path');
 
         }
         else if (tiledeskChannelMessage.attributes.attachment.template) {
-          console.log("--> attachment type: ", tiledeskChannelMessage.attributes.attachment.type)
-          winston.info("--> template: ", tiledeskChannelMessage.attributes.attachment.template)
+          winston.debug("(wab) [Translator] template: ", tiledeskChannelMessage.attributes.attachment.template)
 
           let template = tiledeskChannelMessage.attributes.attachment.template;
 
@@ -273,14 +272,14 @@ const path = require('path');
             }
           }
           let components = [];
-          if (template.params.header) {
+          if (template.params && template.params.header) {
             let component = {
               type: "header",
               parameters: template.params.header
             }
             components.push(component);
           }
-          if (template.params.body) {
+          if (template.params && template.params.body) {
             let component = {
               type: "body",
               parameters: template.params.body
@@ -292,7 +291,7 @@ const path = require('path');
             whatsapp_message.template.components = components;
           }
 
-          winston.info("whatsapp_message: ", whatsapp_message);
+          winston.info("(wab) [Translator] whatsapp_message: ", whatsapp_message);
           return whatsapp_message;
 
         }
