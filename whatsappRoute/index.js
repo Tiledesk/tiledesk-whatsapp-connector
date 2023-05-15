@@ -434,7 +434,7 @@ router.get('/direct/tiledesk', async (req, res) => {
     text: "Ciao, benvenuto sull'ambiente di sviluppo di Tiledesk! Questo messaggio serve ad aprire una nuova conversazione. Ha funzionato?"
   } 
   */
-  
+
   let tiledeskChannelMessage = {
     text: "Sample text",
     attributes: {
@@ -457,15 +457,15 @@ router.get('/direct/tiledesk', async (req, res) => {
     winston.verbose("(wab) Message sent to WhatsApp! " + response.status + " " + response.statusText);
   }).catch((err) => {
     winston.error("(wab) error send message: ", err);
-    return res.status(400).send({success: false, error: err});
+    return res.status(400).send({ success: false, error: err });
   })
 
   res.status(200).send("Message sent");
-  
+
 })
 
 router.post('/tiledesk', async (req, res) => {
-  
+
   winston.verbose("(wab) Message received from Tiledesk")
 
   var tiledeskChannelMessage = req.body.payload;
@@ -552,7 +552,7 @@ router.post('/tiledesk', async (req, res) => {
   const messageHandler = new MessageHandler({ tiledeskChannelMessage: tiledeskChannelMessage });
   const tlr = new TiledeskWhatsappTranslator();
 
-  
+
   if (commands) {
     let i = 0;
     async function execute(command) {
@@ -609,12 +609,12 @@ router.post('/tiledesk', async (req, res) => {
       twClient.sendMessage(phone_number_id, whatsappJsonMessage).then((response) => {
         winston.verbose("(wab) Message sent to WhatsApp! " + response.status + " " + response.statusText);
       }).catch((err) => {
-        res.status(400).send({success: false, error: "il template non esiste"});
+        res.status(400).send({ success: false, error: "il template non esiste" });
         winston.error("(wab) error send message: ", err);
       })
 
     } else {
-      res.status(400).send({success: false, error: "il template non esiste"});
+      res.status(400).send({ success: false, error: "il template non esiste" });
       winston.error("(wab) Whatsapp Json Message is undefined!")
     }
 
@@ -942,7 +942,7 @@ router.get("/templates/:project_id", async (req, res) => {
     let tm = new TemplateManager({ token: settings.wab_token, business_account_id: settings.business_account_id, GRAPH_URL: GRAPH_URL })
     let templates = await tm.getTemplates();
 
-    
+
 
     readHTMLFile('/templates.html', (err, html) => {
       var template = handlebars.compile(html);
@@ -972,17 +972,25 @@ router.get("/ext/templates/:project_id", async (req, res) => {
   let settings = await db.get(CONTENT_KEY);
 
   if (settings) {
-    let tm = new TemplateManager({ token: settings.wab_token, business_account_id: settings.business_account_id, GRAPH_URL: GRAPH_URL })
-    let templates = await tm.getTemplates();
 
-    if (templates) {
-      res.status(200).send(templates.data);
+    if (settings.business_account_id) {
+      let tm = new TemplateManager({ token: settings.wab_token, business_account_id: settings.business_account_id, GRAPH_URL: GRAPH_URL })
+      let templates = await tm.getTemplates();
+
+      winston.info("(wab) ext templates: ", templates);
+
+      if (templates) {
+        res.status(200).send(templates.data);
+      } else {
+        res.status(500).send({ success: false, code: '02', message: "A problem occurred while getting templates from WhatsApp" })
+      }
+      
     } else {
-      res.status(500).send({ success: false, code: '02', message: "a problem occurred while getting templates from whatsapp" })
+      res.status(500).send({ success: false, code: '03', message: "Missing parameter 'WhatsApp Business Account ID'. Please update your app."})
     }
 
   } else {
-    res.status(400).send({ success: false, code: '01', message: "whatsapp not installed for the project_id " + project_id })
+    res.status(400).send({ success: false, code: '01', message: "WhatsApp not installed for the project_id " + project_id })
   }
 
 })

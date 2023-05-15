@@ -11,7 +11,8 @@ app.use("/", whatsappRoute)
 const BASE_URL = process.env.BASE_URL;
 const API_URL = process.env.API_URL;
 const GRAPH_URL = process.env.GRAPH_URL;
-const MONGODB_URL = process.env.MONGODB_URL;
+const MONGODB_URL = process.env.MONGODB_URL_PROD;
+//const MONGODB_URL = process.env.MONGODB_URL;
 const APPS_API_URL = process.env.APPS_API_URL;
 const REDIS_HOST = process.env.REDIS_HOST;
 const REDIS_PORT = process.env.REDIS_PORT;
