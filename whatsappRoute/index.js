@@ -942,6 +942,8 @@ router.get("/templates/:project_id", async (req, res) => {
     let tm = new TemplateManager({ token: settings.wab_token, business_account_id: settings.business_account_id, GRAPH_URL: GRAPH_URL })
     let templates = await tm.getTemplates();
 
+    
+
     readHTMLFile('/templates.html', (err, html) => {
       var template = handlebars.compile(html);
       var replacements = {
