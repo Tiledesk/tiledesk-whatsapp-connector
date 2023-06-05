@@ -31,9 +31,20 @@ class TiledeskWhatsapp {
     if (!config.GRAPH_URL) {
       throw new Error('config.GRAPH_URL is mandatory');
     }
+    
+    if (!config.API_URL) {
+      throw new Error('config.API_URL is mandatory');
+    }
+
+    if (!config.BASE_FILE_URL) {
+      throw new Error('config.BASE_FILE_URL is mandatory')
+    }
+
     // this.media = config.channelMedia;
     this.token = config.token;
     this.GRAPH_URL = config.GRAPH_URL
+    this.api_url = config.API_URL;
+    this.base_file_url = config.BASE_FILE_URL;
 
     this.log = false;
     if (config.log) {
@@ -115,7 +126,8 @@ class TiledeskWhatsapp {
   }
 
   async uploadMedia(path, type) {
-    let url = "https://tiledesk-server-pre.herokuapp.com/" + type + "/public";
+    let url = this.base_file_url + "/" + type + "/public/";
+    console.log("upload media url: ", url);
     winston.debug("(wab) [TiledeskWhatsapp] Uploading file...");
 
     const form = new FormData();
@@ -131,11 +143,14 @@ class TiledeskWhatsapp {
     return await axios.post(url, form, request_config).then((response) => {
         
       winston.debug("(wab) [TiledeskWhatsapp] upload response: ", response.data);
+      console.log("\n\nresponse.data: ", response.data)
       if (type == "images") {
-        let image_url = "https://tiledesk-server-pre.herokuapp.com/images/?path=" + response.data.filename;
+        //let image_url = "https://tiledesk-server-pre.herokuapp.com/images/?path=" + response.data.filename;
+        let image_url = this.base_file_url + "/images/?path=" + response.data.filename;
         return image_url;
       } else {
-        let file_url = "https://tiledesk-server-pre.herokuapp.com/files/download?path=" + response.data.filename;
+        //let file_url = "https://tiledesk-server-pre.herokuapp.com/files/download?path=" + response.data.filename;
+        let file_url = this.base_file_url + "/files/download?path=" + response.data.filename;
         return file_url;
       }
 

@@ -286,12 +286,35 @@ const path = require('path');
             }
             components.push(component);
           }
+          if (template.params && template.params.buttons) {
+
+            let component = {
+              type: "button",
+              sub_type: "url",
+              index: "0",
+              parameters: template.params.buttons
+            }
+            components.push(component);
+
+            /*
+            template.params.buttons.forEach((button) => {
+              let component = button;
+              components.push(component);
+            })
+            
+            let component = {
+              type: "button",
+              sub_type: "url",
+              parmeters: template.params.buttons
+            }
+            */
+          }
 
           if (components.length > 0) {
             whatsapp_message.template.components = components;
           }
 
-          winston.info("(wab) [Translator] whatsapp_message: ", whatsapp_message);
+          winston.verbose("(wab) [Translator] whatsapp_message: ", whatsapp_message);
           return whatsapp_message;
 
         }
@@ -462,7 +485,7 @@ const path = require('path');
       }*/
 
       var tiledeskMessage = {
-        text: "[Download audio](" + media_url + ")",
+        text: "",
         senderFullname: from,
         channel: { name: TiledeskWhatsappTranslator.CHANNEL_NAME },
         type: "file",
@@ -474,6 +497,53 @@ const path = require('path');
       }
       return tiledeskMessage;
     }
+  }
+
+
+  async sanitizeTiledeskMessage(tiledeskJsonMessage, rcv_option) {
+    console.log("tiledeskJsonMessage: ", JSON.stringify(tiledeskJsonMessage, null, 2))
+    //console.log("rcv_option: ", rcv_option)
+    console.log("Sanitizing...")
+
+    if (!tiledeskJsonMessage.attributes.attachment.template.params) {
+      return tiledeskJsonMessage;
+    }
+
+    let header_params = tiledeskJsonMessage.attributes.attachment.template.params.header;
+    if (header_params) {
+      header_params.forEach((param, i) => {
+        if (param.type === "text") {
+          param.text = rcv_option.header_params[i];
+        }
+        if (param.type === "image") {
+          param.image = {
+            link: rcv_option.header_params[i]
+          }
+        }
+      })
+    }
+
+    let body_params = tiledeskJsonMessage.attributes.attachment.template.params.body;
+    if (body_params) {
+      body_params.forEach((param, i) => {
+        param.text = rcv_option.body_params[i];
+      })
+    }
+
+    let buttons_params = tiledeskJsonMessage.attributes.attachment.template.params.buttons;
+    if (buttons_params) {
+      /*
+      buttons_params.forEach((button, i) => {
+        button.parameters[0].text = rcv_option.buttons_params[i];
+      })
+      */
+      buttons_params.forEach((param, i) => {
+        param.text = rcv_option.buttons_params[i];
+      })
+    }
+
+    console.log("tiledeskJsonMessage: ", JSON.stringify(tiledeskJsonMessage, null, 2))
+    return tiledeskJsonMessage;
   }
   /*
   *************************************

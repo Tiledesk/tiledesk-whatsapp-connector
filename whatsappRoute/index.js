@@ -49,6 +49,7 @@ let APPS_API_URL = null;
 let REDIS_HOST = null;
 let REDIS_PORT = null;
 let REDIS_PASSWORD = null;
+let BASE_FILE_URL = null;
 
 // Handlebars register helpers
 handlebars.registerHelper('isEqual', (a, b) => {
@@ -448,7 +449,7 @@ router.get('/direct/tiledesk', async (req, res) => {
     }
   }
   const tlr = new TiledeskWhatsappTranslator();
-  const twClient = new TiledeskWhatsapp({ token: settings.wab_token, GRAPH_URL: GRAPH_URL });
+  const twClient = new TiledeskWhatsapp({ token: settings.wab_token, GRAPH_URL: GRAPH_URL, API_URL: API_URL, BASE_FILE_URL: BASE_FILE_URL });
 
   let whatsappJsonMessage = await tlr.toWhatsapp(tiledeskChannelMessage, whatsapp_receiver);
   winston.verbose("(wab) whatsappJsonMessage", whatsappJsonMessage)
@@ -462,6 +463,83 @@ router.get('/direct/tiledesk', async (req, res) => {
 
   res.status(200).send("Message sent");
 
+})
+
+router.post('/tiledesk/broadcast', async (req, res) => {
+
+  winston.verbose("(wab) Message received from Tiledesk (Broadcast)");
+
+  let tiledeskChannelMessage = req.body.payload;
+  winston.verbose("(wab) tiledeskChannelMessage: ", tiledeskChannelMessage)
+  let project_id = req.body.payload.id_project;
+
+  let CONTENT_KEY = "whatsapp-" + project_id;
+  let settings = await db.get(CONTENT_KEY);
+
+  if (!settings) {
+    return res.status(400).send({ success: false, error: "WhatsApp is not installed for the project_id: " + project_id});
+  }
+
+  let receiver_list = req.body.receiver_list;
+  console.log("receiver_list: ", receiver_list);
+
+  let phone_number_id = req.body.phone_number_id;
+  console.log("phone_number_id: ", phone_number_id);
+
+  if (!tiledeskChannelMessage.attributes.attachment.template) {
+    return res.status(400).send({ success: false, error: "Message must contain a template."})
+  }
+
+  const tlr = new TiledeskWhatsappTranslator();
+  const twClient = new TiledeskWhatsapp({ token: settings.wab_token, GRAPH_URL: GRAPH_URL, API_URL: API_URL, BASE_FILE_URL: BASE_FILE_URL });
+
+  let messages_sent = 0;
+  let errors = [];
+  let error_count = 0;
+
+  if (receiver_list) {
+    let i = 0;
+    async function execute(whatsapp_receiver) {
+
+      let customTiledeskJsonMessage = await tlr.sanitizeTiledeskMessage(tiledeskChannelMessage, whatsapp_receiver)
+      winston.info("customTiledeskJsonMessage: ", customTiledeskJsonMessage)
+
+      let whatsappJsonMessage = await tlr.toWhatsapp(customTiledeskJsonMessage, whatsapp_receiver.phone_number);
+      winston.verbose("(wab) message created for receiver: " + whatsapp_receiver.phone_number);
+      winston.verbose("(wab) whatsappJsonMessage", whatsappJsonMessage);
+      console.log("(wab) whatsappJsonMessage", JSON.stringify(whatsappJsonMessage, null, 2));
+
+      //winston.debug("(wab) End of list")
+      //return res.sendStatus(200);
+
+      await twClient.sendMessage(phone_number_id, whatsappJsonMessage).then((response) => {
+        winston.verbose("(wab) Message sent to WhatsApp! " + response.status + " " + response.statusText);
+        messages_sent +=  1;
+        i += 1;
+        if (i < receiver_list.length) {
+          execute(receiver_list[i])
+        } else {
+          return res.status(200).send({ success: true, message: "Broadcast terminated", messages_sent: messages_sent, errors: errors});
+          winston.debug("(wab) End of list")
+        }
+      }).catch((err) => {
+        winston.error("(wab) error send message: " + err.response.data.error.message);
+        errors.push({receiver: whatsapp_receiver.phone_number,error: err.response.data.error.message});
+        i += 1;
+        if (i < receiver_list.length) {
+          execute(receiver_list[i])
+        } else {
+          winston.debug("(wab) End of list")
+          console.log("errors: ", JSON.stringify(errors, null, 2))
+          return res.status(200).send({ success: true, message: "Broadcast terminated", messages_sent: messages_sent, errors: errors});
+        }
+      })
+    }
+    execute(receiver_list[0]);
+  }
+
+  
+  
 })
 
 router.post('/tiledesk', async (req, res) => {
@@ -565,7 +643,7 @@ router.post('/tiledesk', async (req, res) => {
         winston.verbose("(wab) whatsappJsonMessage", whatsappJsonMessage)
 
         if (whatsappJsonMessage) {
-          const twClient = new TiledeskWhatsapp({ token: settings.wab_token, GRAPH_URL: GRAPH_URL });
+          const twClient = new TiledeskWhatsapp({ token: settings.wab_token, GRAPH_URL: GRAPH_URL, API_URL: API_URL, BASE_FILE_URL: BASE_FILE_URL });
           twClient.sendMessage(phone_number_id, whatsappJsonMessage).then((response) => {
             winston.verbose("(wab) Message sent to WhatsApp! " + response.status + " " + response.statusText);
             i += 1;
@@ -604,7 +682,7 @@ router.post('/tiledesk', async (req, res) => {
     winston.verbose("(wab) whatsappJsonMessage", whatsappJsonMessage)
 
     if (whatsappJsonMessage) {
-      const twClient = new TiledeskWhatsapp({ token: settings.wab_token, GRAPH_URL: GRAPH_URL });
+      const twClient = new TiledeskWhatsapp({ token: settings.wab_token, GRAPH_URL: GRAPH_URL, API_URL: API_URL, BASE_FILE_URL: BASE_FILE_URL });
 
       twClient.sendMessage(phone_number_id, whatsappJsonMessage).then((response) => {
         winston.verbose("(wab) Message sent to WhatsApp! " + response.status + " " + response.statusText);
@@ -705,7 +783,7 @@ router.post("/webhook/:project_id", async (req, res) => {
 
         else if ((whatsappChannelMessage.type == 'image') || (whatsappChannelMessage.type == 'video') || (whatsappChannelMessage.type == 'document') || (whatsappChannelMessage.type == 'audio')) {
           let media;
-          const util = new TiledeskWhatsapp({ token: settings.wab_token, GRAPH_URL: GRAPH_URL })
+          const util = new TiledeskWhatsapp({ token: settings.wab_token, GRAPH_URL: GRAPH_URL, API_URL: API_URL, BASE_FILE_URL: BASE_FILE_URL })
 
           if (whatsappChannelMessage.type == 'image') {
             media = whatsappChannelMessage.image;
@@ -976,9 +1054,6 @@ router.get("/ext/templates/:project_id", async (req, res) => {
     if (settings.business_account_id) {
       let tm = new TemplateManager({ token: settings.wab_token, business_account_id: settings.business_account_id, GRAPH_URL: GRAPH_URL })
       let templates = await tm.getTemplates();
-
-      winston.info("(wab) ext templates: ", templates);
-
       if (templates) {
         res.status(200).send(templates.data);
       } else {
@@ -1013,6 +1088,14 @@ async function startApp(settings, callback) {
   } else {
     API_URL = settings.API_URL;
     winston.info("(wab) API_URL: " + API_URL);
+  }
+
+  if (!settings.BASE_FILE_URL) {
+    winston.error("(wab) BASE_FILE_URL is mandatory. Exit...");
+    return callback('Missing parameter: BASE_FILE_URL');
+  } else {
+    BASE_FILE_URL = settings.BASE_FILE_URL;
+    winston.info("(wab) BASE_FILE_URL: " + BASE_FILE_URL);
   }
 
   if (!settings.BASE_URL) {

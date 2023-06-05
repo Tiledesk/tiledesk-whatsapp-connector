@@ -28,8 +28,6 @@ class TemplateManager {
   }
 
   async getTemplates() {
-    // business account id: 110354305066769
-    // business phone number id: 104777398965560
     return await axios({
       url: this.graph_url + this.business_account_id + "/message_templates?access_token=" + this.token,
       headers: {
