@@ -126,7 +126,7 @@ router.post('/install', async (req, res) => {
     winston.debug("(wab) installation response: ", installation);
 
     res.redirect(url.format({
-      pathname: "/detail",
+      pathname: BASE_URL + "/detail",
       query: {
         "project_id": project_id,
         "app_id": app_id,
@@ -152,15 +152,6 @@ router.post('/uninstall', async (req, res) => {
   appClient.uninstall(project_id, app_id).then((response) => {
 
     winston.debug("(wab) uninstallation response: ", response);
-
-    winston.info(url.format({
-      pathname: BASE_URL + "/detail",
-      query: {
-        "project_id": project_id,
-        "app_id": app_id,
-        "token": token
-      }
-    }))
 
     res.redirect(url.format({
       pathname: BASE_URL + "/detail",
