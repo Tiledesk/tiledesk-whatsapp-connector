@@ -153,8 +153,17 @@ router.post('/uninstall', async (req, res) => {
 
     winston.debug("(wab) uninstallation response: ", response);
 
+    winston.info(url.format({
+      pathname: BASE_URL + "/detail",
+      query: {
+        "project_id": project_id,
+        "app_id": app_id,
+        "token": token
+      }
+    }))
+
     res.redirect(url.format({
-      pathname: "/detail",
+      pathname: BASE_URL + "/detail",
       query: {
         "project_id": project_id,
         "app_id": app_id,
@@ -477,7 +486,7 @@ router.post('/tiledesk/broadcast', async (req, res) => {
   let settings = await db.get(CONTENT_KEY);
 
   if (!settings) {
-    return res.status(400).send({ success: false, error: "WhatsApp is not installed for the project_id: " + project_id});
+    return res.status(400).send({ success: false, error: "WhatsApp is not installed for the project_id: " + project_id });
   }
 
   let receiver_list = req.body.receiver_list;
@@ -487,7 +496,7 @@ router.post('/tiledesk/broadcast', async (req, res) => {
   console.log("phone_number_id: ", phone_number_id);
 
   if (!tiledeskChannelMessage.attributes.attachment.template) {
-    return res.status(400).send({ success: false, error: "Message must contain a template."})
+    return res.status(400).send({ success: false, error: "Message must contain a template." })
   }
 
   const tlr = new TiledeskWhatsappTranslator();
@@ -514,32 +523,32 @@ router.post('/tiledesk/broadcast', async (req, res) => {
 
       await twClient.sendMessage(phone_number_id, whatsappJsonMessage).then((response) => {
         winston.verbose("(wab) Message sent to WhatsApp! " + response.status + " " + response.statusText);
-        messages_sent +=  1;
+        messages_sent += 1;
         i += 1;
         if (i < receiver_list.length) {
           execute(receiver_list[i])
         } else {
-          return res.status(200).send({ success: true, message: "Broadcast terminated", messages_sent: messages_sent, errors: errors});
+          return res.status(200).send({ success: true, message: "Broadcast terminated", messages_sent: messages_sent, errors: errors });
           winston.debug("(wab) End of list")
         }
       }).catch((err) => {
         winston.error("(wab) error send message: " + err.response.data.error.message);
-        errors.push({receiver: whatsapp_receiver.phone_number,error: err.response.data.error.message});
+        errors.push({ receiver: whatsapp_receiver.phone_number, error: err.response.data.error.message });
         i += 1;
         if (i < receiver_list.length) {
           execute(receiver_list[i])
         } else {
           winston.debug("(wab) End of list")
           console.log("errors: ", JSON.stringify(errors, null, 2))
-          return res.status(200).send({ success: true, message: "Broadcast terminated", messages_sent: messages_sent, errors: errors});
+          return res.status(200).send({ success: true, message: "Broadcast terminated", messages_sent: messages_sent, errors: errors });
         }
       })
     }
     execute(receiver_list[0]);
   }
 
-  
-  
+
+
 })
 
 router.post('/tiledesk', async (req, res) => {
@@ -1059,9 +1068,9 @@ router.get("/ext/templates/:project_id", async (req, res) => {
       } else {
         res.status(500).send({ success: false, code: '02', message: "A problem occurred while getting templates from WhatsApp" })
       }
-      
+
     } else {
-      res.status(500).send({ success: false, code: '03', message: "Missing parameter 'WhatsApp Business Account ID'. Please update your app."})
+      res.status(500).send({ success: false, code: '03', message: "Missing parameter 'WhatsApp Business Account ID'. Please update your app." })
     }
 
   } else {
