@@ -30,7 +30,7 @@ const path = require('path');
 
     this.log = false;
   }
-
+  
 
   /*
   *************** START ***************
@@ -260,7 +260,7 @@ const path = require('path');
 
         }
         else if (tiledeskChannelMessage.attributes.attachment.template) {
-          winston.debug("(wab) [Translator] template: ", tiledeskChannelMessage.attributes.attachment.template)
+          winston.verbose("(wab) [Translator] template: ", tiledeskChannelMessage.attributes.attachment.template)
 
           let template = tiledeskChannelMessage.attributes.attachment.template;
 
@@ -338,6 +338,99 @@ const path = require('path');
     }
   }
 
+  async createTemplateMessage(template, receiver, params) {
+
+    let whatsapp_message = {
+      messaging_product: TiledeskWhatsappTranslator.WHATSAPP_MESSAGING_PRODUCT,
+      to: receiver.phone_number,
+      type: "template"
+    }
+
+    whatsapp_message.template = {
+      name: template.name,
+      language: {
+        code: template.language
+      }
+    }
+
+    /*
+    let params_filled = await this.fillParams(params, receiver);
+
+    let components = [];
+    if (params_filled && params_filled.header) {
+      let component = {
+        type: "header",
+        parameters: params_filled.header
+      }
+      components.push(component);
+    }
+    if (params_filled && params_filled.body) {
+      let component = {
+        type: "body",
+        parameters: params_filled.body
+      }
+      components.push(component);
+    }
+    if (params_filled && params_filled.buttons) {
+
+      let component = {
+        type: "button",
+        sub_type: "url",
+        index: "0",
+        parameters: params_filled.buttons
+      }
+      components.push(component);
+    }
+    */
+
+    let components = [];
+
+    
+    if (receiver.header_params) {
+      let component = {
+        type: "header",
+        parameters: receiver.header_params
+      }
+      components.push(component);
+    }
+    
+    if (receiver.body_params) {
+      let component = {
+        type: "body",
+        parameters: receiver.body_params
+      }
+      components.push(component);
+    }
+
+    if (receiver.buttons_params) {
+
+      let component = {
+        type: "button",
+        sub_type: "url",
+        index: "0",
+        parameters: receiver.buttons_params
+      }
+      components.push(component);
+    }
+
+    if (receiver.url_buttons_params) {
+
+      let component = {
+        type: "button",
+        sub_type: "url",
+        index: "0",
+        parameters: receiver.url_buttons_params
+      }
+      components.push(component);
+    }
+
+    if (components.length > 0) {
+      whatsapp_message.template.components = components;
+    }
+
+
+    return whatsapp_message;
+  }
 
   async toTiledesk(whatsappChannelMessage, from, media_url) {
 
@@ -499,11 +592,54 @@ const path = require('path');
     }
   }
 
+  async fillParams(params, rcv_option) {
+    winston.verbose("(wab) [Translator] fillParams...");
+
+    if (!params) {
+      return null;
+    }
+
+    let header_params = params.header;
+    if (header_params) {
+      header_params.forEach((param, i) => {
+        if (param.type === "text") {
+          param.text = rcv_option.header_params[i];
+        }
+        if (param.type === "IMAGE") {
+          param.image = {
+            link: rcv_option.header_params[i]
+          }
+        }
+        if (param.type === 'DOCUMENT') {
+          param.document = {
+            link: rcv_option.header_params[i]
+          }
+        }
+        if (param.type === 'LOCATION') {
+          // Check how to send location template!
+        }
+      })
+    }
+
+    let body_params = params.body;
+    if (body_params) {
+      body_params.forEach((param, i) => {
+        param.text = rcv_option.body_params[i];
+      })
+    }
+
+    let buttons_params = params.buttons;
+    if (buttons_params) {
+      buttons_params.forEach((param, i) => {
+        param.text = rcv_option.buttons_params[i];
+      })
+    }
+    return params;
+  }
+
 
   async sanitizeTiledeskMessage(tiledeskJsonMessage, rcv_option) {
-    console.log("tiledeskJsonMessage: ", JSON.stringify(tiledeskJsonMessage, null, 2))
-    //console.log("rcv_option: ", rcv_option)
-    console.log("Sanitizing...")
+    winston.verbose("(wab) [Translator] Sanitizing...");
 
     if (!tiledeskJsonMessage.attributes.attachment.template.params) {
       return tiledeskJsonMessage;
@@ -515,10 +651,18 @@ const path = require('path');
         if (param.type === "text") {
           param.text = rcv_option.header_params[i];
         }
-        if (param.type === "image") {
+        if (param.type === "IMAGE") {
           param.image = {
             link: rcv_option.header_params[i]
           }
+        }
+        if (param.type === 'DOCUMENT') {
+          param.document = {
+            link: rcv_option.header_params[i]
+          }
+        }
+        if (param.type === 'LOCATION') {
+          // Check how to send location template!
         }
       })
     }
@@ -532,17 +676,11 @@ const path = require('path');
 
     let buttons_params = tiledeskJsonMessage.attributes.attachment.template.params.buttons;
     if (buttons_params) {
-      /*
-      buttons_params.forEach((button, i) => {
-        button.parameters[0].text = rcv_option.buttons_params[i];
-      })
-      */
       buttons_params.forEach((param, i) => {
         param.text = rcv_option.buttons_params[i];
       })
     }
 
-    console.log("tiledeskJsonMessage: ", JSON.stringify(tiledeskJsonMessage, null, 2))
     return tiledeskJsonMessage;
   }
   /*

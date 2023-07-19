@@ -85,6 +85,9 @@ class TiledeskWhatsapp {
       let download_url = response.data.url;
       let mime_type = response.data.mime_type;
       let extension = mime_type.substring(mime_type.lastIndexOf("/") + 1);
+      if (extension === 'ogg') {
+        extension = 'mp3'
+      }
       let tid = this.getId();
       let type = "media-" + tid + "." + extension;
 
@@ -127,7 +130,6 @@ class TiledeskWhatsapp {
 
   async uploadMedia(path, type) {
     let url = this.base_file_url + "/" + type + "/public/";
-    console.log("upload media url: ", url);
     winston.debug("(wab) [TiledeskWhatsapp] Uploading file...");
 
     const form = new FormData();
@@ -143,7 +145,6 @@ class TiledeskWhatsapp {
     return await axios.post(url, form, request_config).then((response) => {
         
       winston.debug("(wab) [TiledeskWhatsapp] upload response: ", response.data);
-      console.log("\n\nresponse.data: ", response.data)
       if (type == "images") {
         //let image_url = "https://tiledesk-server-pre.herokuapp.com/images/?path=" + response.data.filename;
         let image_url = this.base_file_url + "/images/?path=" + response.data.filename;

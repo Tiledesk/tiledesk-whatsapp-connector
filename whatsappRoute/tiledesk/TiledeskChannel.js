@@ -157,7 +157,7 @@ class TiledeskChannel {
       winston.debug("(wab) [TiledeskChannel] get departments response.data: ", response.data)
       return response.data;
     }).catch((err) => {
-      winston.error("(wab) [TiledeskChannel] get departments error: ", err);
+      winston.error("(wab) [TiledeskChannel] get departments error");
     })
   }
 

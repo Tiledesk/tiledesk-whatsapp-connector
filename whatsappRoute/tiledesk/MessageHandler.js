@@ -47,30 +47,6 @@ class MessageHandler {
     return tiledeskCommandMessage;
   }
 
-  /*
-  generateMessageObjectOriginal(command_message) {
-      let parentUid = this.tiledeskChannelMessage.uid
-      //command_message.uid = this.tiledeskChannelMessage.uid + "_" + index;
-      command_message.uid = this.tiledeskChannelMessage.uid;
-      if(command_message.text) command_message.text = command_message.text.trim()//remove black msg with only spaces
-      command_message.language = message.language;
-      command_message.recipient = message.recipient;
-      command_message.recipient_fullname = message.recipient_fullname;
-      command_message.sender = message.sender;
-      command_message.sender_fullname = message.sender_fullname;
-      command_message.channel_type = message.channel_type;
-      command_message.status = message.status;
-      command_message.isSender = message.isSender;
-      command_message.attributes? command_message.attributes.commands = true : command_message.attributes = {commands : true}
-      command_message.attributes.parentUid = parentUid //added to manage message STATUS UPDATES
-      command_message.attributes = {...message.attributes, ...command_message.attributes}
-      //this.addedNew(command_message)
-      //callback();
-
-    return command_message
-  }
-  */
-
 }
 
 module.exports = { MessageHandler }

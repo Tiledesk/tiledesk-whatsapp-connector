@@ -89,11 +89,10 @@
     </div>
   
   </div>
-
-
   
 
   <!-- INFO BOX -->
+  {{#unless popup_view}}
   <div class="info-box">
     
     <div class="info-list">
@@ -126,10 +125,11 @@
       </ul>
     </div>
   </div>
+  {{/unless}}
 
   <!-- Docs Section -->
+  {{#unless popup_view}}
   <div class="docs-box">
-    
   
   <div class="docs-section">
     <p style="margin-top: 20px; font-size: 18px; font-weight: 600;">Before you start</p>
@@ -159,6 +159,7 @@
 
   </div>
   </div>
+  {{/unless}}
   
 
   <!-- CONFIGURE BOX -->

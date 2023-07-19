@@ -12,6 +12,11 @@ const cors = require('cors');
 var winston = require('./winston');
 const url = require('url');
 
+//const ext = require('./routes/ext')
+//const extRoute = ext.router;
+const api = require('./routes/api');
+const apiRoute = api.router;
+
 // tiledesk clients
 //const { TiledeskClient } = require('@tiledesk/tiledesk-client');
 const { TiledeskWhatsappTranslator } = require('./tiledesk/TiledeskWhatsappTranslator');
@@ -41,6 +46,9 @@ router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({ extended: true }));
 router.use(express.static(path.join(__dirname, 'template')));
 router.use(cors());
+
+router.use('/ext', apiRoute);
+router.use('/api', apiRoute);
 
 let API_URL = null;
 let GRAPH_URL = null;
@@ -163,7 +171,7 @@ router.post('/uninstall', async (req, res) => {
     }));
 
   }).catch((err) => {
-    winston.error("(wab) uninsallation error: " + err.data)
+    winston.error("(wab) uninstallation error: " + err.data)
     res.send("An error occurred during the uninstallation");
   })
 })
@@ -174,6 +182,11 @@ router.get('/configure', async (req, res) => {
 
   let project_id = req.query.project_id;
   let token = req.query.token;
+  let popup_view = false;
+
+  if (req.query.view && req.query.view === 'popup') {
+    popup_view = true
+  }
 
   if (!project_id || !token) {
     let error_message = "Query params project_id and token are required."
@@ -237,7 +250,8 @@ router.get('/configure', async (req, res) => {
           project_id: project_id,
           token: token,
           proxy_url: proxy_url,
-          departments: departments
+          departments: departments,
+          popup_view: popup_view
         }
         var html = template(replacements);
         res.send(html);
@@ -430,12 +444,6 @@ router.get('/direct/tiledesk', async (req, res) => {
   let CONTENT_KEY = "whatsapp-" + project_id;
   let settings = await db.get(CONTENT_KEY);
 
-  /*
-  let tiledeskChannelMessage = {
-    text: "Ciao, benvenuto sull'ambiente di sviluppo di Tiledesk! Questo messaggio serve ad aprire una nuova conversazione. Ha funzionato?"
-  } 
-  */
-
   let tiledeskChannelMessage = {
     text: "Sample text",
     attributes: {
@@ -466,6 +474,85 @@ router.get('/direct/tiledesk', async (req, res) => {
 })
 
 router.post('/tiledesk/broadcast', async (req, res) => {
+  winston.verbose("(wab) Message received from Tiledesk (Broadcast)");
+
+  let tiledeskChannelMessage = req.body.payload;
+  winston.verbose("(wab) tiledeskChannelMessage: ", tiledeskChannelMessage)
+  let project_id = req.body.payload.id_project;
+
+  let CONTENT_KEY = "whatsapp-" + project_id;
+  let settings = await db.get(CONTENT_KEY);
+
+  if (!settings) {
+    return res.status(400).send({ success: false, error: "WhatsApp is not installed for the project_id: " + project_id });
+  }
+
+  if (!settings.business_account_id) {
+    return res.status(400).send({ success: false, error: "Missing parameter 'WhatsApp Business Account ID'. Please update your app."})
+  }
+
+  let receiver_list = req.body.receiver_list;
+  let phone_number_id = req.body.phone_number_id;
+
+  let tm = new TemplateManager({ token: settings.wab_token, business_account_id: settings.business_account_id, GRAPH_URL: GRAPH_URL })
+  const tlr = new TiledeskWhatsappTranslator();
+  const twClient = new TiledeskWhatsapp({ token: settings.wab_token, GRAPH_URL: GRAPH_URL, API_URL: API_URL, BASE_FILE_URL: BASE_FILE_URL });
+  
+  let response = await tm.getTemplates();
+  let templates = response.data;
+  
+  let selected_template = templates.find(t => t.name === tiledeskChannelMessage.attributes.attachment.template.name);
+
+  let params_object = await tm.generateParamsObject(selected_template);
+  
+  tiledeskChannelMessage.attributes.attachment.template.params = params_object;
+  winston.verbose("(wab) --> tiledeskChannelMessage: ", tiledeskChannelMessage)
+
+  let messages_sent = 0;
+  let errors = [];
+  let error_count = 0;
+
+  if (receiver_list) {
+    let i = 0;
+    async function execute(whatsapp_receiver) {
+
+      let customTiledeskJsonMessage = await tlr.sanitizeTiledeskMessage(tiledeskChannelMessage, whatsapp_receiver)
+      winston.info("customTiledeskJsonMessage: ", customTiledeskJsonMessage)
+
+      let whatsappJsonMessage = await tlr.toWhatsapp(customTiledeskJsonMessage, whatsapp_receiver.phone_number);
+      winston.verbose("(wab) message created for receiver: " + whatsapp_receiver.phone_number);
+      winston.verbose("(wab) whatsappJsonMessage", whatsappJsonMessage);
+
+      await twClient.sendMessage(phone_number_id, whatsappJsonMessage).then((response) => {
+        winston.verbose("(wab) Message sent to WhatsApp! " + response.status + " " + response.statusText);
+        messages_sent += 1;
+        i += 1;
+        if (i < receiver_list.length) {
+          execute(receiver_list[i])
+        } else {
+          return res.status(200).send({ success: true, message: "Broadcast terminated", messages_sent: messages_sent, errors: errors });
+          winston.debug("(wab) End of list")
+        }
+      }).catch((err) => {
+        winston.error("(wab) error send message: " + err.response.data.error.message);
+        errors.push({ receiver: whatsapp_receiver.phone_number, error: err.response.data.error.message });
+        i += 1;
+        if (i < receiver_list.length) {
+          execute(receiver_list[i])
+        } else {
+          winston.debug("(wab) End of list")
+          return res.status(200).send({ success: true, message: "Broadcast terminated", messages_sent: messages_sent, errors: errors });
+        }
+      })
+    }
+    execute(receiver_list[0]);
+  }
+  
+})
+
+
+/*
+router.post('/tiledesk/broadcast2', async (req, res) => {
 
   winston.verbose("(wab) Message received from Tiledesk (Broadcast)");
 
@@ -481,10 +568,7 @@ router.post('/tiledesk/broadcast', async (req, res) => {
   }
 
   let receiver_list = req.body.receiver_list;
-  console.log("receiver_list: ", receiver_list);
-
   let phone_number_id = req.body.phone_number_id;
-  console.log("phone_number_id: ", phone_number_id);
 
   if (!tiledeskChannelMessage.attributes.attachment.template) {
     return res.status(400).send({ success: false, error: "Message must contain a template." })
@@ -507,7 +591,6 @@ router.post('/tiledesk/broadcast', async (req, res) => {
       let whatsappJsonMessage = await tlr.toWhatsapp(customTiledeskJsonMessage, whatsapp_receiver.phone_number);
       winston.verbose("(wab) message created for receiver: " + whatsapp_receiver.phone_number);
       winston.verbose("(wab) whatsappJsonMessage", whatsappJsonMessage);
-      console.log("(wab) whatsappJsonMessage", JSON.stringify(whatsappJsonMessage, null, 2));
 
       //winston.debug("(wab) End of list")
       //return res.sendStatus(200);
@@ -530,24 +613,21 @@ router.post('/tiledesk/broadcast', async (req, res) => {
           execute(receiver_list[i])
         } else {
           winston.debug("(wab) End of list")
-          console.log("errors: ", JSON.stringify(errors, null, 2))
           return res.status(200).send({ success: true, message: "Broadcast terminated", messages_sent: messages_sent, errors: errors });
         }
       })
     }
     execute(receiver_list[0]);
   }
-
-
-
 })
+*/
 
 router.post('/tiledesk', async (req, res) => {
 
   winston.verbose("(wab) Message received from Tiledesk")
 
   var tiledeskChannelMessage = req.body.payload;
-  winston.verbose("(wab) tiledeskChannelMessage: ", tiledeskChannelMessage)
+  winston.debug("(wab) tiledeskChannelMessage: ", tiledeskChannelMessage)
   var project_id = req.body.payload.id_project;
 
   // get settings from mongo
@@ -1041,6 +1121,7 @@ router.get("/templates/:project_id", async (req, res) => {
 
 })
 
+/*
 router.get("/ext/templates/:project_id", async (req, res) => {
   winston.verbose("(wab) /ext/templates");
 
@@ -1069,6 +1150,24 @@ router.get("/ext/templates/:project_id", async (req, res) => {
   }
 
 })
+*/
+
+//router.delete("/ext/")
+
+/*
+router.get("/ext/:project_id", async (req, res) => {
+  winston.verbose("(wab) /ext/");
+
+  let project_id = req.params.project_id;
+  let CONTENT_KEY = "whatsapp-" + project_id;
+  let settings = await db.get(CONTENT_KEY);
+
+  if (!settings) {
+    return res.status(200).send({ success: false, message: "WhatsApp not installed for the project_id " + project_id })
+  }
+  return res.status(200).send({ success: true, settings: settings })
+})
+*/
 
 // *****************************
 // ********* FUNCTIONS *********
@@ -1136,6 +1235,19 @@ async function startApp(settings, callback) {
 
     if (callback) {
       callback(null);
+    }
+  })
+
+  api.startRoute({
+    DB: db,
+    API_URL: API_URL,
+    GRAPH_URL: GRAPH_URL,
+    BASE_FILE_URL: BASE_FILE_URL
+  }, (err) => {
+    if (!err) {
+      winston.info("(wab) API route successfully started.")
+    } else {
+      winston.info("(wab) Unable to start API route.")
     }
   })
 }
