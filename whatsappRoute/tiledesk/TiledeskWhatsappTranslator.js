@@ -446,9 +446,17 @@ const path = require('path');
       return data;
     }
 
+    else if (whatsappChannelMessage.type == 'button')  {
+      var tiledeskMessage = {
+        text: whatsappChannelMessage.button.text, // or whatsappChannelMessage.button.payload (?)
+        senderFullname: from,
+        channel: { name: TiledeskWhatsappTranslator.CHANNEL_NAME }
+      }
+      return tiledeskMessage;
+    }
 
     // interactive message
-    if (whatsappChannelMessage.type == 'interactive') {
+    else if (whatsappChannelMessage.type == 'interactive') {
 
       // list reply
       if (whatsappChannelMessage.interactive.type == 'list_reply') {
@@ -506,7 +514,7 @@ const path = require('path');
     }
 
     // media message - image
-    if (whatsappChannelMessage.type == 'image') {
+    else if (whatsappChannelMessage.type == 'image') {
 
       let text = "Image attached"
       if (whatsappChannelMessage.image.caption) {
@@ -526,7 +534,7 @@ const path = require('path');
     }
 
     // media message - video
-    if (whatsappChannelMessage.type == 'video') {
+    else if (whatsappChannelMessage.type == 'video') {
 
       let text = "Video attached"
       if (whatsappChannelMessage.video.caption) {
@@ -548,7 +556,7 @@ const path = require('path');
     }
 
     // media message - document
-    if (whatsappChannelMessage.type == 'document') {
+    else if (whatsappChannelMessage.type == 'document') {
 
       let text = "Document attached"
       if (whatsappChannelMessage.document.caption) {
@@ -570,7 +578,7 @@ const path = require('path');
     }
 
     // media message - audio
-    if (whatsappChannelMessage.type == 'audio') {
+    else if (whatsappChannelMessage.type == 'audio') {
 
       let text = "Audio attached"
       /*if (whatsappChannelMessage.document.caption) {
@@ -589,6 +597,11 @@ const path = require('path');
         }
       }
       return tiledeskMessage;
+    }
+
+    else {
+      winston.verbose("(wab) [Translator] unsupported whatsapp messsage type");
+      return null;
     }
   }
 
