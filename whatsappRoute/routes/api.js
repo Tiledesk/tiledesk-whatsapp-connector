@@ -171,7 +171,7 @@ router.post('/tiledesk/broadcast', async (req, res) => {
         messages_sent += 1;
         i += 1;
         if (i < receiver_list.length) {
-          execute(receiver_list[i])
+            execute(receiver_list[i])
         } else {
           winston.debug("(wab) End of list")
           return res.status(200).send({ success: true, message: "Broadcast terminated", messages_sent: messages_sent, errors: errors });
@@ -181,7 +181,7 @@ router.post('/tiledesk/broadcast', async (req, res) => {
         errors.push({ receiver: receiver.phone_number, error: err.response.data.error.message });
         i += 1;
         if (i < receiver_list.length) {
-          execute(receiver_list[i])
+            execute(receiver_list[i])
         } else {
           winston.debug("(wab) End of list")
           return res.status(200).send({ success: true, message: "Broadcast terminated", messages_sent: messages_sent, errors: errors });
@@ -196,38 +196,38 @@ router.post('/tiledesk/broadcast', async (req, res) => {
 
 // start api route from whatsappRoute
 async function startRoute(settings, callback) {
-  winston.info("(wab) Starting api route", settings);
+  winston.info("(wab api) Starting api route", settings);
 
   if (!settings.DB) {
-    winston.error("(wab) db id mandatory. Exit...");
+    winston.error("(wab api) db id mandatory. Exit...");
     return callback('Missing parameter: db');
   } else {
     db = settings.DB;
-    winston.info("(wab) db " + db);
+    //winston.info("(wab) db " + db);
   }
 
   if (!settings.GRAPH_URL) {
-    winston.error("(wab) GRAPH_URL is mandatory. Exit...");
+    winston.error("(wab api) GRAPH_URL is mandatory. Exit...");
     return callback('Missing parameter: GRAPH_URL');
   } else {
     GRAPH_URL = settings.GRAPH_URL;
-    winston.info("(wab) GRAPH_URL: " + GRAPH_URL);
+    winston.info("(wab api) GRAPH_URL: " + GRAPH_URL);
   }
 
   if (!settings.API_URL) {
-    winston.error("(wab) API_URL is mandatory. Exit...");
+    winston.error("(wab api) API_URL is mandatory. Exit...");
     return callback('Missing parameter: API_URL');
   } else {
     API_URL = settings.API_URL;
-    winston.info("(wab) API_URL: " + API_URL);
+    winston.info("(wab api) API_URL: " + API_URL);
   }
 
   if (!settings.BASE_FILE_URL) {
-    winston.error("(wab) BASE_FILE_URL is mandatory. Exit...");
+    winston.error("(wab api) BASE_FILE_URL is mandatory. Exit...");
     return callback('Missing parameter: BASE_FILE_URL');
   } else {
     BASE_FILE_URL = settings.BASE_FILE_URL;
-    winston.info("(wab) BASE_FILE_URL: " + BASE_FILE_URL);
+    winston.info("(wab api) BASE_FILE_URL: " + BASE_FILE_URL);
   }
 
   

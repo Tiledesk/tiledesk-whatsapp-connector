@@ -497,14 +497,14 @@ router.post('/tiledesk/broadcast', async (req, res) => {
   let tm = new TemplateManager({ token: settings.wab_token, business_account_id: settings.business_account_id, GRAPH_URL: GRAPH_URL })
   const tlr = new TiledeskWhatsappTranslator();
   const twClient = new TiledeskWhatsapp({ token: settings.wab_token, GRAPH_URL: GRAPH_URL, API_URL: API_URL, BASE_FILE_URL: BASE_FILE_URL });
-  
+
   let response = await tm.getTemplates();
   let templates = response.data;
-  
+
   let selected_template = templates.find(t => t.name === tiledeskChannelMessage.attributes.attachment.template.name);
 
   let params_object = await tm.generateParamsObject(selected_template);
-  
+
   tiledeskChannelMessage.attributes.attachment.template.params = params_object;
   winston.verbose("(wab) --> tiledeskChannelMessage: ", tiledeskChannelMessage)
 
@@ -530,8 +530,8 @@ router.post('/tiledesk/broadcast', async (req, res) => {
         if (i < receiver_list.length) {
           execute(receiver_list[i])
         } else {
-          return res.status(200).send({ success: true, message: "Broadcast terminated", messages_sent: messages_sent, errors: errors });
           winston.debug("(wab) End of list")
+          return res.status(200).send({ success: true, message: "Broadcast terminated", messages_sent: messages_sent, errors: errors });
         }
       }).catch((err) => {
         winston.error("(wab) error send message: " + err.response.data.error.message);
@@ -547,7 +547,7 @@ router.post('/tiledesk/broadcast', async (req, res) => {
     }
     execute(receiver_list[0]);
   }
-  
+
 })
 
 
@@ -835,7 +835,8 @@ router.post("/webhook/:project_id", async (req, res) => {
         })
 
         // Standard message
-      } else {
+      }
+      else {
 
         let firstname = req.body.entry[0].changes[0].value.contacts[0].profile.name;
 
@@ -851,6 +852,7 @@ router.post("/webhook/:project_id", async (req, res) => {
 
         let tiledeskJsonMessage;
 
+        /*
         if ((whatsappChannelMessage.type == 'text')) {
           winston.debug("(wab) message type: text")
           tiledeskJsonMessage = await tlr.toTiledesk(whatsappChannelMessage, firstname);
@@ -931,6 +933,86 @@ router.post("/webhook/:project_id", async (req, res) => {
         } else {
           // unsupported. Try anyway to send something.
           winston.debug("(wab) unsupported message")
+        }
+        */
+
+
+
+        ////////////////////////////////////////////////////
+
+
+
+        if ((whatsappChannelMessage.type == 'image') || (whatsappChannelMessage.type == 'video') || (whatsappChannelMessage.type == 'document') || (whatsappChannelMessage.type == 'audio')) {
+          let media;
+          const util = new TiledeskWhatsapp({ token: settings.wab_token, GRAPH_URL: GRAPH_URL, API_URL: API_URL, BASE_FILE_URL: BASE_FILE_URL })
+
+          if (whatsappChannelMessage.type == 'image') {
+            media = whatsappChannelMessage.image;
+            const filename = await util.downloadMedia(media.id);
+            if (!filename) {
+              winston.debug("(wab) Unable to download media with id " + media.id + ". Message not sent.");
+              return res.status(500).send({ success: false, error: "unable to download media" })
+            }
+            let file_path = path.join(__dirname, 'tmp', filename);
+
+            const image_url = await util.uploadMedia(file_path, "images");
+            winston.debug("(wab) image_url: " + image_url)
+
+            tiledeskJsonMessage = await tlr.toTiledesk(whatsappChannelMessage, firstname, image_url);
+          }
+
+          if (whatsappChannelMessage.type == 'video') {
+            media = whatsappChannelMessage.video;
+
+            const filename = await util.downloadMedia(media.id);
+            if (!filename) {
+              winston.debug("(wab) Unable to download media with id " + media.id + ". Message not sent.");
+              return res.status(500).send({ success: false, error: "unable to download media" })
+            }
+            let file_path = path.join(__dirname, 'tmp', filename);
+
+            const media_url = await util.uploadMedia(file_path, "files");
+            winston.debug("(wab) media_url: " + media_url)
+
+            tiledeskJsonMessage = await tlr.toTiledesk(whatsappChannelMessage, firstname, media_url);
+          }
+
+          if (whatsappChannelMessage.type == 'document') {
+            media = whatsappChannelMessage.document;
+
+            const filename = await util.downloadMedia(media.id);
+            if (!filename) {
+              winston.debug("(wab) Unable to download media with id " + media.id + ". Message not sent.");
+              return res.status(500).send({ success: false, error: "unable to download media" })
+            }
+            let file_path = path.join(__dirname, 'tmp', filename);
+
+            const media_url = await util.uploadMedia(file_path, "files");
+            winston.debug("(wab) media_url: " + media_url)
+
+            tiledeskJsonMessage = await tlr.toTiledesk(whatsappChannelMessage, firstname, media_url);
+          }
+
+          if (whatsappChannelMessage.type == 'audio') {
+            media = whatsappChannelMessage.audio;
+
+            const filename = await util.downloadMedia(media.id);
+            if (!filename) {
+              winston.debug("(wab) Unable to download media with id " + media.id + ". Message not sent.");
+              return res.status(500).send({ success: false, error: "unable to download media" })
+            }
+            let file_path = path.join(__dirname, 'tmp', filename);
+
+            const media_url = await util.uploadMedia(file_path, "files");
+            winston.debug("(wab) media_url: " + media_url)
+
+            tiledeskJsonMessage = await tlr.toTiledesk(whatsappChannelMessage, firstname, media_url);
+          }
+
+        }
+        else {
+          winston.debug("(wab) message type: ", whatsappChannelMessage.type)
+          tiledeskJsonMessage = await tlr.toTiledesk(whatsappChannelMessage, firstname);
         }
 
         if (tiledeskJsonMessage) {
