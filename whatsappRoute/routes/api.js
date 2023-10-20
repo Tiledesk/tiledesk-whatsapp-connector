@@ -199,9 +199,7 @@ router.post('/tiledesk/broadcast', async (req, res) => {
         messages_sent += 1;
         i += 1;
         if (i < receiver_list.length) {
-          setTimeout(() => {
             execute(receiver_list[i])
-          }, 500)
         } else {
           winston.debug("(wab) End of list")
           return res.status(200).send({ success: true, message: "Broadcast terminated", messages_sent: messages_sent, errors: errors });
@@ -211,9 +209,7 @@ router.post('/tiledesk/broadcast', async (req, res) => {
         errors.push({ receiver: receiver.phone_number, error: err.response.data.error.message });
         i += 1;
         if (i < receiver_list.length) {
-          setTimeout(() => {
             execute(receiver_list[i])
-          }, 500)
         } else {
           winston.debug("(wab) End of list")
           return res.status(200).send({ success: true, message: "Broadcast terminated", messages_sent: messages_sent, errors: errors });

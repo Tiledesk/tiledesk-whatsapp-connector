@@ -72,7 +72,6 @@ class TemplateManager {
 
   async generateParamsObject(template) {
 
-    console.log("template: ", template);
     let header_params = [];
     let body_params = [];
     let url_button_params = [];

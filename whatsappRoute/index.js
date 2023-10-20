@@ -583,8 +583,8 @@ router.post('/tiledesk/broadcast', async (req, res) => {
         if (i < receiver_list.length) {
           execute(receiver_list[i])
         } else {
-          return res.status(200).send({ success: true, message: "Broadcast terminated", messages_sent: messages_sent, errors: errors });
           winston.debug("(wab) End of list")
+          return res.status(200).send({ success: true, message: "Broadcast terminated", messages_sent: messages_sent, errors: errors });
         }
       }).catch((err) => {
         winston.error("(wab) error send message: " + err.response.data.error.message);
