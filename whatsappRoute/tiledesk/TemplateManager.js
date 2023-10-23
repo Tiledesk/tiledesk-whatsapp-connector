@@ -71,7 +71,6 @@ class TemplateManager {
   }
 
   async generateParamsObject(template) {
-
     let header_params = [];
     let body_params = [];
     let url_button_params = [];
@@ -107,11 +106,7 @@ class TemplateManager {
 
       } else {
 
-        if (header_component.format === "TEXT") {
-          header_params.push({ type: "text", text: header_component.text })
-        }
-
-        else if (header_component.format === 'LOCATION') {
+        if (header_component.format === 'LOCATION') {
           header_params.push({ type: header_component.format, location: { latitude: null, longitude: null, name: null, address: null } })
         }
         else {

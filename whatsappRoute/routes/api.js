@@ -1,4 +1,5 @@
 const { json } = require('body-parser');
+const jwt = require('jsonwebtoken');
 const express = require('express');
 var winston = require('../winston');
 const router = express.Router({ mergeParams: true });
@@ -6,14 +7,107 @@ const router = express.Router({ mergeParams: true });
 const { TemplateManager } = require('../tiledesk/TemplateManager');
 const { TiledeskWhatsappTranslator } = require('../tiledesk/TiledeskWhatsappTranslator');
 const { TiledeskWhatsapp } = require('../tiledesk/TiledeskWhatsapp');
+const { Scheduler } = require('../tiledesk/Scheduler');
 
 let db = null;
 let API_URL = null;
 let GRAPH_URL = null;
 let BASE_FILE_URL = null;
+let ACCESS_TOKEN_SECRET = null;
 
+//let data;
+//var schedulerResult;
+//var myscheduler;
+/*
+router.use((req, res, next) => {
+  winston.verbose("Authentication...")
+  try {
+    let accessToken = req.headers.authorization;
+    if (!accessToken) {
+      return res.status(401).send({ message: 'Authetication error: missing authorization header'})
+    }
+    var parted = accessToken.split(' ');
+    //winston.debug('accessToken:' + parted[1]);
+    
+    //use the jwt.verify method to verify the access token
+    //throws an error if the token has expired or has a invalid signature
+    var userid = jwt.verify(parted[1], ACCESS_TOKEN_SECRET)
+    //winston.debug('user autheticated');
+    next();
+    //return res.status(200).send("Successfully authenticated")
+  }
+  catch (e) {
+    winston.error("Unauthenticated", e);
+    return res.status(401).send('Unauthorized');
+  }
+})
+*/
 router.get('/', async (req, res) => {
-  res.status(200).send({ message: "API route works"})
+  res.status(200).send({ message: "API route works" })
+})
+
+router.get('/scheduler', async (req, res) => {
+  let myscheduler = new Scheduler();
+  // GET THE PARAMETER OF THE CALL
+  var JobManager = require("jobs-worker-queued");
+
+  var jobManager = new JobManager("amqp://eamjynjp:j6Eqqy90WDV_sv_616oyb4Xp7t7nu0as@squid.rmq.cloudamqp.com/eamjynjp");
+
+  let project_id = req.query.id_project;
+  let receiver_list = req.query.receiver_list;
+  let phone_number_id = req.query.phone_number_id;
+  let template = req.query.template;
+  let mydata = req.query;
+  //let data = { project_id: project_id, receiver_list: receiver_list, phone_number_id: phone_number_id, template: template }
+  let data = {
+    "id_project": "11111111111111",
+    "phone_number_id": "1091234567867",
+    "template": {
+      "name": "codice_sconto",
+      "language": "it"
+    },
+    "receiver_list": [
+      {
+        "phone_number": "+393484506627",
+        "body_params": [
+          {
+            "type": "text",
+            "text": "Giovanni"
+          },
+          {
+            "type": "text",
+            "text": "30"
+          },
+          {
+            "type": "text",
+            "text": "PROMOCODE30"
+          }
+        ]
+      },
+      {
+        "phone_number": "+393473412225",
+        "body_params": [
+          {
+            "type": "text",
+            "text": "Michele"
+          },
+          {
+            "type": "text",
+            "text": "30"
+          },
+          {
+            "type": "text",
+            "text": "PROMOCODE30"
+          }
+        ]
+      }
+    ]
+  }
+  //console.log('/scheduler/parameters/mydata: ', data);
+  //jobManager.publish(data);
+  let schedulerResult = myscheduler.goSchedule(data);
+  console.log('API/scheduler/ result: ', schedulerResult);
+  res.status(200).send({ message: "Schedule works" })
 })
 
 router.get('/disconnect/:project_id', async (req, res) => {
@@ -32,7 +126,7 @@ router.get('/disconnect/:project_id', async (req, res) => {
     await db.set(CONTENT_KEY, settings);
     winston.verbose("(wab) Content deleted.");
     res.status(200).send({ success: true, message: "Disconnected" });
-    
+
   } else {
     await db.remove(CONTENT_KEY);
     winston.verbose("(wab) Content deleted.");
@@ -68,16 +162,16 @@ router.post('/customer/io', async (req, res) => {
     const twClient = new TiledeskWhatsapp({ token: settings.wab_token, GRAPH_URL: GRAPH_URL, API_URL: API_URL, BASE_FILE_URL: BASE_FILE_URL });
 
     twClient.sendMessage(phone_number_id, whatsappJsonMessage).then((response) => {
-        winston.verbose("(wab) Message sent to WhatsApp! " + response.status + " " + response.statusText);
-      res.status(200).send({ success: true, message: "Message sent!"});
+      winston.verbose("(wab) Message sent to WhatsApp! " + response.status + " " + response.statusText);
+      res.status(200).send({ success: true, message: "Message sent!" });
     }).catch((err) => {
       res.status(400).send({ success: false, error: err });
       winston.error("(wab) error send message: ", err.data);
     })
 
   } else {
-      res.status(400).send({ success: false, error: "whatsappJsonMessage is undefined" });
-      winston.error("(wab) error send message: ", err);
+    res.status(400).send({ success: false, error: "whatsappJsonMessage is undefined" });
+    winston.error("(wab) error send message: ", err);
   }
 })
 
@@ -123,16 +217,19 @@ router.get("/templates/:project_id", async (req, res) => {
   }
 })
 
+
+// api per la broadcast per Mirco
 router.post('/tiledesk/broadcast', async (req, res) => {
   winston.verbose("(wab) Action received from Tiledesk (Broadcast)");
-  winston.debug("Body (broadcast): ",JSON.stringify(req.body, null, 2));
+  winston.debug("Body (broadcast): ", JSON.stringify(req.body, null, 2));
 
   let body = req.body;
 
   let project_id = body.id_project;
   let receiver_list = body.receiver_list;
-  let phone_number_id = body. phone_number_id;
+  let phone_number_id = body.phone_number_id;
   let template = body.template;
+  console.log('body', body);
 
   let CONTENT_KEY = "whatsapp-" + project_id;
   let settings = await db.get(CONTENT_KEY);
@@ -142,55 +239,22 @@ router.post('/tiledesk/broadcast', async (req, res) => {
   }
 
   if (!settings.business_account_id) {
-    return res.status(400).send({ success: false, error: "Missing parameter 'WhatsApp Business Account ID'. Please update your app."})
+    return res.status(400).send({ success: false, error: "Missing parameter 'WhatsApp Business Account ID'. Please update your app." })
   }
 
-  const tm = new TemplateManager({ token: settings.wab_token, business_account_id: settings.business_account_id, GRAPH_URL: GRAPH_URL })
-  const tlr = new TiledeskWhatsappTranslator();
-  const twClient = new TiledeskWhatsapp({ token: settings.wab_token, GRAPH_URL: GRAPH_URL, API_URL: API_URL, BASE_FILE_URL: BASE_FILE_URL });
-  
-  let response = await tm.getTemplates();
-  let templates = response.data;
+  // LOG TO THE SCHEDULER
+  var JobManager = require("jobs-worker-queued");
+  var jobManager = new JobManager("amqp://eamjynjp:j6Eqqy90WDV_sv_616oyb4Xp7t7nu0as@squid.rmq.cloudamqp.com/eamjynjp");
+  let myscheduler = new Scheduler();
 
-  let selected_template = templates.find(t => t.name === template.name);
-  let params_object = await tm.generateParamsObject(selected_template);
-
-  // Send messages
-  let messages_sent = 0;
-  let errors = [];
-  let error_count = 0;
-
-  if (receiver_list) {
-    let i = 0;
-    async function execute(receiver) {
-      let whatsappJsonMessage = await tlr.createTemplateMessage(selected_template, receiver, params_object);
-      winston.debug("(wab) whatsappJsonMessage: ", JSON.stringify(whatsappJsonMessage, null, 2));
-
-      await twClient.sendMessage(phone_number_id, whatsappJsonMessage).then((response) => {
-        winston.verbose("(wab) Message sent to WhatsApp! " + response.status + " " + response.statusText);
-        messages_sent += 1;
-        i += 1;
-        if (i < receiver_list.length) {
-            execute(receiver_list[i])
-        } else {
-          winston.debug("(wab) End of list")
-          return res.status(200).send({ success: true, message: "Broadcast terminated", messages_sent: messages_sent, errors: errors });
-        }
-      }).catch((err) => {
-        winston.error("(wab) error send message: " + err.response.data.error.message);
-        errors.push({ receiver: receiver.phone_number, error: err.response.data.error.message });
-        i += 1;
-        if (i < receiver_list.length) {
-            execute(receiver_list[i])
-        } else {
-          winston.debug("(wab) End of list")
-          return res.status(200).send({ success: true, message: "Broadcast terminated", messages_sent: messages_sent, errors: errors });
-        }
-      })
-    }
-    execute(receiver_list[0]);
-  }
-  
+  // sends data to the scheduler
+  console.log('GRAPH_URL: ', GRAPH_URL);
+  let data_To_scheduler = { project_id: project_id, receiver_list: receiver_list, phone_number_id: phone_number_id, template: template, settings: settings };
+  console.log('data_To_scheduler: ', data_To_scheduler);
+  let schedulerResult = myscheduler.goSchedule(data_To_scheduler);
+  console.log('API/scheduler/ result: ', schedulerResult);
+  // END SENDS DATA TO THE SCHEDULER
+  res.status(200).send({ message: "job sent to the scheduler" })
 })
 
 
@@ -230,8 +294,15 @@ async function startRoute(settings, callback) {
     winston.info("(wab api) BASE_FILE_URL: " + BASE_FILE_URL);
   }
 
-  
-  
+  if (!settings.ACCESS_TOKEN_SECRET) {
+    winston.error("(wab api) ACCESS_TOKEN_SECRET is mandatory (?). Exit...");
+  } else {
+    ACCESS_TOKEN_SECRET = settings.ACCESS_TOKEN_SECRET;
+    winston.info("(wab api) ACCESS_TOKEN_SECRET is present");
+  }
+
+
+
 }
 
 module.exports = { router: router, startRoute: startRoute };
