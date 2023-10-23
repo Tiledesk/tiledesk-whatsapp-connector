@@ -5,8 +5,21 @@ var jobManager;
 class Scheduler {
 
 
-  constructor() {
-    jobManager = new JobManager("amqp://eamjynjp:j6Eqqy90WDV_sv_616oyb4Xp7t7nu0as@squid.rmq.cloudamqp.com/eamjynjp");
+  constructor(config) {
+    if (!config) {
+      throw new Error('config is mandatory');
+    }
+
+    if (!config.AMQP_MANAGER_URL) {
+      throw new Error('config.AMQP_MANAGER_URL is mandatory');
+    }
+
+    this.AMQP_MANAGER_URL = config.AMQP_MANAGER_URL;
+    this.log = false;
+    if (config.log) {
+      this.log = config.log;
+    }
+    jobManager = new JobManager(this.AMQP_MANAGER_URL);
 
   }
 

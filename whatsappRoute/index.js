@@ -1372,6 +1372,12 @@ async function startApp(settings, callback) {
   } else {
     winston.info("(wab) Missing redis parameters --> Test it out on WhatsApp disabled");
   }
+  if (!settings.AMQP_MANAGER_URL) {
+    winston.error("(wab api) AMQP_MANAGER_URL is mandatory (?). Exit...");
+  } else {
+    AMQP_MANAGER_URL = settings.AMQP_MANAGER_URL;
+    winston.info("(wab api) AMQP_MANAGER_URL is present");
+  }
 
   db.connect(settings.MONGODB_URL, () => {
     winston.info("(wab) KVBaseMongo successfully connected.");
@@ -1386,6 +1392,7 @@ async function startApp(settings, callback) {
     API_URL: API_URL,
     GRAPH_URL: GRAPH_URL,
     BASE_FILE_URL: BASE_FILE_URL,
+    AMQP_MANAGER_URL: AMQP_MANAGER_URL,
     ACCESS_TOKEN_SECRET: ACCESS_TOKEN_SECRET
   }, (err) => {
     if (!err) {

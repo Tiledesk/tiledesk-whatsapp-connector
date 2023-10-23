@@ -14,6 +14,7 @@ let API_URL = null;
 let GRAPH_URL = null;
 let BASE_FILE_URL = null;
 let ACCESS_TOKEN_SECRET = null;
+let AMQP_MANAGER_URL = null;
 
 //let data;
 //var schedulerResult;
@@ -245,7 +246,7 @@ router.post('/tiledesk/broadcast', async (req, res) => {
   // LOG TO THE SCHEDULER
   var JobManager = require("jobs-worker-queued");
   var jobManager = new JobManager("amqp://eamjynjp:j6Eqqy90WDV_sv_616oyb4Xp7t7nu0as@squid.rmq.cloudamqp.com/eamjynjp");
-  let myscheduler = new Scheduler();
+  let myscheduler = new Scheduler({AMQP_MANAGER_URL: AMQP_MANAGER_URL});
 
   // sends data to the scheduler
   console.log('GRAPH_URL: ', GRAPH_URL);
@@ -299,6 +300,12 @@ async function startRoute(settings, callback) {
   } else {
     ACCESS_TOKEN_SECRET = settings.ACCESS_TOKEN_SECRET;
     winston.info("(wab api) ACCESS_TOKEN_SECRET is present");
+  }
+  if (!settings.AMQP_MANAGER_URL) {
+    winston.error("(wab api) AMQP_MANAGER_URL is mandatory (?). Exit...");
+  } else {
+    AMQP_MANAGER_URL = settings.AMQP_MANAGER_URL;
+    winston.info("(wab api) AMQP_MANAGER_URL is present");
   }
 
 
