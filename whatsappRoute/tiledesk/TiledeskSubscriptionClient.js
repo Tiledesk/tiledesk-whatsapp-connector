@@ -119,7 +119,8 @@ class TiledeskSubscriptionClient {
       }
       else {
         if (callback) {
-          callback(TiledeskClient.getErr({ message: "Response status not 200" }, options, res), null, null);
+          callback("Response status not 200", null, null);
+          //callback({ message: "Response status not 200" }, options, res), null, null);
         }
       }
     }).catch((err) => {

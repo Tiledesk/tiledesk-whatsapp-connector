@@ -662,7 +662,19 @@ router.post('/tiledesk', async (req, res) => {
   let recipient_id = tiledeskChannelMessage.recipient;
   let sender = tiledeskChannelMessage.sender;
   let whatsapp_receiver = recipient_id.substring(recipient_id.lastIndexOf("-") + 1);
-  let phone_number_id = recipient_id.substring(recipient_id.lastIndexOf("wab-") + 4, recipient_id.lastIndexOf("-"));
+
+  let phone_number_id;
+  if (attributes && attributes.whatsapp_phone_number_id) {
+    phone_number_id = attributes.whatsapp_phone_number_id;
+  } else {
+    phone_number_id = recipient_id.substring(recipient_id.lastIndexOf("wab-") + 4, recipient_id.lastIndexOf("-"));
+  }
+
+  if (!phone_number_id) {
+    return res.status(400).send({ success: false, message: "Phone number id undefined"})
+  }
+
+  console.log("phone_number_id: ", phone_number_id)
 
   /*
   if (settings.expired && 
