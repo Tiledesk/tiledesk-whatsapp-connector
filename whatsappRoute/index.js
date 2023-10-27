@@ -60,6 +60,7 @@ let REDIS_PORT = null;
 let REDIS_PASSWORD = null;
 let BASE_FILE_URL = null;
 let ACCESS_TOKEN_SECRET = null;
+let AMQP_MANAGER_URL = null;
 
 // Handlebars register helpers
 handlebars.registerHelper('isEqual', (a, b) => {

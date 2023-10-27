@@ -16,6 +16,8 @@ let BASE_FILE_URL = null;
 let ACCESS_TOKEN_SECRET = null;
 let AMQP_MANAGER_URL = null;
 
+//var JobManager = require("jobs-worker-queued");
+
 //let data;
 //var schedulerResult;
 //var myscheduler;
@@ -47,69 +49,7 @@ router.get('/', async (req, res) => {
   res.status(200).send({ message: "API route works" })
 })
 
-router.get('/scheduler', async (req, res) => {
-  let myscheduler = new Scheduler();
-  // GET THE PARAMETER OF THE CALL
-  var JobManager = require("jobs-worker-queued");
 
-  var jobManager = new JobManager("amqp://eamjynjp:j6Eqqy90WDV_sv_616oyb4Xp7t7nu0as@squid.rmq.cloudamqp.com/eamjynjp");
-
-  let project_id = req.query.id_project;
-  let receiver_list = req.query.receiver_list;
-  let phone_number_id = req.query.phone_number_id;
-  let template = req.query.template;
-  let mydata = req.query;
-  //let data = { project_id: project_id, receiver_list: receiver_list, phone_number_id: phone_number_id, template: template }
-  let data = {
-    "id_project": "11111111111111",
-    "phone_number_id": "1091234567867",
-    "template": {
-      "name": "codice_sconto",
-      "language": "it"
-    },
-    "receiver_list": [
-      {
-        "phone_number": "+393484506627",
-        "body_params": [
-          {
-            "type": "text",
-            "text": "Giovanni"
-          },
-          {
-            "type": "text",
-            "text": "30"
-          },
-          {
-            "type": "text",
-            "text": "PROMOCODE30"
-          }
-        ]
-      },
-      {
-        "phone_number": "+393473412225",
-        "body_params": [
-          {
-            "type": "text",
-            "text": "Michele"
-          },
-          {
-            "type": "text",
-            "text": "30"
-          },
-          {
-            "type": "text",
-            "text": "PROMOCODE30"
-          }
-        ]
-      }
-    ]
-  }
-  //console.log('/scheduler/parameters/mydata: ', data);
-  //jobManager.publish(data);
-  let schedulerResult = myscheduler.goSchedule(data);
-  console.log('API/scheduler/ result: ', schedulerResult);
-  res.status(200).send({ message: "Schedule works" })
-})
 
 router.get('/disconnect/:project_id', async (req, res) => {
 
@@ -244,9 +184,8 @@ router.post('/tiledesk/broadcast', async (req, res) => {
   }
 
   // LOG TO THE SCHEDULER
-  var JobManager = require("jobs-worker-queued");
-  var jobManager = new JobManager("amqp://eamjynjp:j6Eqqy90WDV_sv_616oyb4Xp7t7nu0as@squid.rmq.cloudamqp.com/eamjynjp");
-  let myscheduler = new Scheduler({AMQP_MANAGER_URL: AMQP_MANAGER_URL});
+  //let jobManager = new JobManager(AMQP_MANAGER_URL);
+  let myscheduler = new Scheduler({ AMQP_MANAGER_URL: AMQP_MANAGER_URL });
 
   // sends data to the scheduler
   console.log('GRAPH_URL: ', GRAPH_URL);

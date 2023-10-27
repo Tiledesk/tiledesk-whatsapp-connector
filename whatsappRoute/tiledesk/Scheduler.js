@@ -19,11 +19,18 @@ class Scheduler {
     if (config.log) {
       this.log = config.log;
     }
-    jobManager = new JobManager(this.AMQP_MANAGER_URL);
-
+    console.log("--> AMQP_MANAGER_URL: ", this.AMQP_MANAGER_URL);
+    jobManager = new JobManager(this.AMQP_MANAGER_URL, {
+      debug: true,
+      topic: "testMIrco111",
+      exchange: "testMIrco111"
+    });
+    console.log("--> jobManager: ", jobManager);
   }
 
   goSchedule(mydata) {
+    mydata.date = new Date();
+    console.log('Data: ', mydata.date);
     try {
       console.log('Class/Schedule/Data arrived in scheduler: ', mydata);
       jobManager.publish(mydata);
