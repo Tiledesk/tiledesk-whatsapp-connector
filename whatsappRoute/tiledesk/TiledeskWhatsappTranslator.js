@@ -260,7 +260,7 @@ const path = require('path');
 
         }
         else if (tiledeskChannelMessage.attributes.attachment.template) {
-          winston.verbose("(wab) [Translator] template: ", tiledeskChannelMessage.attributes.attachment.template)
+          winston.debug("(wab) [Translator] template: ", tiledeskChannelMessage.attributes.attachment.template)
 
           let template = tiledeskChannelMessage.attributes.attachment.template;
 
@@ -314,7 +314,6 @@ const path = require('path');
             whatsapp_message.template.components = components;
           }
 
-          winston.verbose("(wab) [Translator] whatsapp_message: ", whatsapp_message);
           return whatsapp_message;
 
         }

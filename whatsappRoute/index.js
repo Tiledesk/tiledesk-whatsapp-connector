@@ -691,7 +691,7 @@ router.post('/tiledesk', async (req, res) => {
     winston.verbose("settings expired: " + settings.expired);
     let tiledeskJsonMessage = {
       text: 'Expired. Upgrade Plan.',
-      sender: sender,
+      sender: "system",
       senderFullname: "System",
       attributes: {
         subtype: 'info'
