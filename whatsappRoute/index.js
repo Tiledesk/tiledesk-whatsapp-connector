@@ -61,6 +61,7 @@ let REDIS_PORT = null;
 let REDIS_PASSWORD = null;
 let BASE_FILE_URL = null;
 let AMQP_MANAGER_URL = null;
+let JOB_TOPIC_EXCHANGE = null;
 
 
 // Handlebars register helpers
@@ -1352,12 +1353,20 @@ async function startApp(settings, callback) {
   }
 
   if (!settings.AMQP_MANAGER_URL) {
-    winston.error("(wab api) AMQP_MANAGER_URL is mandatory (?). Exit...");
+    winston.error("(wab) AMQP_MANAGER_URL is mandatory (?). Exit...");
   } else {
     AMQP_MANAGER_URL = settings.AMQP_MANAGER_URL;
-    winston.info("(wab api) AMQP_MANAGER_URL is present");
+    winston.info("(wab) AMQP_MANAGER_URL is present");
   }
 
+  if (!settings.JOB_TOPIC_EXCHANGE) {
+    winston.warning("(wab) JOB_TOPIC_EXCHANGE should be present. Using default value");
+    JOB_TOPIC_EXCHANGE = "tiledesk-whatsapp";
+  } else {
+    JOB_TOPIC_EXCHANGE = settings.JOB_TOPIC_EXCHANGE;
+    winston.info("(wab) JOB_TOPIC_EXCHANGE is present");
+  }
+  
   mongoose.connect(process.env.MONGODB_URL)
           .then(() => { winston.info("Mongoose DB Connected") })
           .catch((err) => { winston.error("(Mongoose) Unable to connect with MongoDB ", err)
@@ -1376,7 +1385,8 @@ async function startApp(settings, callback) {
     API_URL: API_URL,
     GRAPH_URL: GRAPH_URL,
     BASE_FILE_URL: BASE_FILE_URL,
-    AMQP_MANAGER_URL: AMQP_MANAGER_URL
+    AMQP_MANAGER_URL: AMQP_MANAGER_URL,
+    JOB_TOPIC_EXCHANGE: JOB_TOPIC_EXCHANGE,
   }, (err) => {
     if (!err) {
       winston.info("(wab) API route successfully started.")

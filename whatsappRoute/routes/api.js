@@ -152,7 +152,7 @@ router.post('/tiledesk/broadcast', async (req, res) => {
     return res.status(400).send({ success: false, error: "Missing parameter 'WhatsApp Business Account ID'. Please update your app."})
   }
 
-  let scheduler = new Scheduler({ AMQP_MANAGER_URL: AMQP_MANAGER_URL });
+  let scheduler = new Scheduler({ AMQP_MANAGER_URL: AMQP_MANAGER_URL, JOB_TOPIC_EXCHANGE: JOB_TOPIC_EXCHANGE });
   let data_To_scheduler = { 
     project_id: project_id, 
     receiver_list: receiver_list, 
@@ -213,6 +213,13 @@ async function startRoute(settings, callback) {
   } else {
     AMQP_MANAGER_URL = settings.AMQP_MANAGER_URL;
     winston.info("(wab api) AMQP_MANAGER_URL is present");
+  }
+
+  if (!settings.JOB_TOPIC_EXCHANGE) {
+    winston.error("(wab api) JOB_TOPIC_EXCHANGE is mandatory (?). Exit...");
+  } else {
+    JOB_TOPIC_EXCHANGE = settings.JOB_TOPIC_EXCHANGE;
+    winston.info("(wab api) JOB_TOPIC_EXCHANGE is present");
   }
   
 }

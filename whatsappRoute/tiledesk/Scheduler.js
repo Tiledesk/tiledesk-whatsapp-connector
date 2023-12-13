@@ -13,7 +13,13 @@ class Scheduler {
       throw new Error('config.AMQP_MANAGER_URL is mandatory');
     }
 
+    if (!config.JOB_TOPIC_EXCHANGE) {
+      throw new Error('config.JOB_TOPIC_EXCHANGE is mandatory');
+    }
+
     this.AMQP_MANAGER_URL = config.AMQP_MANAGER_URL;
+    this.JOB_TOPIC_EXCHANGE = config.JOB_TOPIC_EXCHANGE;
+    
     this.log = false;
     if (config.log) {
       this.log = config.log;
@@ -21,8 +27,8 @@ class Scheduler {
 
     jobManager = new JobManager(this.AMQP_MANAGER_URL, {
       debug: false,
-      topic: "tiledesk-whatsapp_test",
-      exchange: "tiledesk-whatsapp_test"
+      topic: this.JOB_TOPIC_EXCHANGE,
+      exchange: this.JOB_TOPIC_EXCHANGE
     });
   }
 
