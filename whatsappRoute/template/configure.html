@@ -199,7 +199,7 @@
               <label class="input-label" for="wab_token">Whatsapp Token
               </label>
               <div style="display: flex; flex-direction: row; align-items: center;">
-              <input id="tkn" type="text" required class="form-control custom-input" name="wab_token" value="{{ wab_token }}" placeholder="Enter the Whatsapp Token">
+              <input type="text" required class="form-control custom-input" name="wab_token" value="{{ wab_token }}" placeholder="Enter the Whatsapp Token">
                 <span style="margin-left: 10px;">
                   <i class="fa fa-question-circle custom-tooltip">
                     <span class="custom-tooltiptext">This is the permanent WhatsApp Business token.</span>
@@ -264,8 +264,7 @@
               </div>
             {{else}}
               <div style="width: 500px; text-align: right;">
-                <input type="submit" class="btn" style="width: 200px; background-color: #0ba2dc; color: white; font-weight: 500;" value="Connect"
-                    onclick="postMessage('connectWhatsapp')">
+                <input type="submit" class="btn" style="width: 200px; background-color: #0ba2dc; color: white; font-weight: 500;" value="Connect">
               </div>
             {{/if}}
           </form>
@@ -290,7 +289,7 @@
             <input type="hidden" name="project_id" value="{{ project_id }}">
                 <input type="hidden" name="token" value="{{ token }}">
                 <input type="hidden" name="subscription_id" value="{{ subscription_id }}">
-            <input type="submit" class="btn disconnect-button" style="margin-top: 10px; width: 160px;" value="Disconnect" onclick="postMessage('disconnectWhatsapp')">
+            <input type="submit" class="btn disconnect-button" style="margin-top: 10px; width: 160px;" value="Disconnect">
           </form>
         </div>
         {{else}}
@@ -333,19 +332,6 @@
         console.error('Async: Could not copy text: ', err);
       }
     }
-    
-    function postMessage(action) {
-    
-      const tkn = document.getElementById('tkn').value;
-      let connected = false;
-      if (tkn) {
-        connected = true;
-      }
-      const msg = { action: action, calledBy: 'whatsapp_proxy', connected: connected}
-      window.parent.postMessage(msg, '*');
-    }
-    
   </script>
-
   
 </body>

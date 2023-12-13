@@ -107,7 +107,7 @@
                     <input type="hidden" name="project_id" value="{{ project_id }}" />
                     <input type="hidden" name="app_id" value="{{ app_id }}" />
                     <input type="hidden" name="token" value="{{ token }}" />
-                    <input type="submit" class="btn uninstall-button" value="Yes, uninstall" onclick="postMessage('uninstallWhatsapp')">
+                    <input type="submit" class="btn uninstall-button" value="Yes, uninstall">
                   </form>
                 </div>
               </div>
@@ -138,8 +138,7 @@
                     <input type="hidden" name="project_id" value="{{ project_id }}" />
                     <input type="hidden" name="app_id" value="{{ app_id }}" />
                     <input type="hidden" name="token" value="{{ token }}" />
-                    <input type="submit" class="btn install-button" value="Install" onclick="postMessage('installWhatsapp')">
-                    <!--<input type="submit" class="btn install-button" value="Install" onclick="postMessage('installWhatsapp')">-->
+                    <input type="submit" class="btn install-button" value="Install">
                   </form>
                 </div>
               </div>
@@ -247,11 +246,6 @@
 
     <hr style="margin-top: 50px; margin-bottom: 20px">
 
-  <script>   
-    function postMessage(action) {
-      const msg = { action: action, calledBy: 'whatsapp_proxy' }
-      window.parent.postMessage(msg, '*');
-    }
-  </script>
+    <hr style="margin-top: 50px; margin-bottom: 20px">
   
 </body>
