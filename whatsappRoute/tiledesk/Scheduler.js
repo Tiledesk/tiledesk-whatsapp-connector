@@ -1,4 +1,5 @@
 var JobManager = require("jobs-worker-queued");
+var winston = require('../winston');
 var jobManager;
 
 
@@ -19,25 +20,23 @@ class Scheduler {
     if (config.log) {
       this.log = config.log;
     }
-    console.log("--> AMQP_MANAGER_URL: ", this.AMQP_MANAGER_URL);
+
     jobManager = new JobManager(this.AMQP_MANAGER_URL, {
-      debug: true,
-      topic: "testMIrco111",
-      exchange: "testMIrco111"
+      debug: false,
+      topic: "tiledesk-whatsapp_test",
+      exchange: "tiledesk-whatsapp_test"
     });
-    console.log("--> jobManager: ", jobManager);
   }
 
-  goSchedule(mydata) {
+  async goSchedule(mydata) {
     mydata.date = new Date();
-    console.log('Data: ', mydata.date);
     try {
-      console.log('Class/Schedule/Data arrived in scheduler: ', mydata);
+      winston.debug("(wab) Data arrived to scheduler: ", mydata);
       jobManager.publish(mydata);
       return { success: true, msg: 'scheduling success!' };
     } catch (err) {
-      console.error('GET scheduling ERROR ', err);
-      return { success: false, msg: 'Error in scheduling!.' };
+      winston.error('(wab) scheduling error ', err);
+      return { success: false, msg: 'Error in scheduling' };
     }
   }
 }

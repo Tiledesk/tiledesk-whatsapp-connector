@@ -12,6 +12,7 @@ const { v4: uuidv4 } = require('uuid');
 const cors = require('cors');
 var winston = require('./winston');
 const url = require('url');
+const mongoose = require('mongoose');
 
 //const ext = require('./routes/ext')
 //const extRoute = ext.router;
@@ -28,6 +29,8 @@ const { TiledeskAppsClient } = require('./tiledesk/TiledeskAppsClient');
 const { MessageHandler } = require('./tiledesk/MessageHandler');
 const { TiledeskBotTester } = require('./tiledesk/TiledeskBotTester');
 const { TemplateManager } = require('./tiledesk/TemplateManager');
+const { WhatsappLogger } = require('./tiledesk/WhatsappLogger');
+
 
 // mongo
 const { KVBaseMongo } = require('./tiledesk/KVBaseMongo');
@@ -90,7 +93,7 @@ router.get('/auth', async (req, res) => {
     //throws an error if the token has expired or has a invalid signature
     var userid = jwt.verify(parted[1], ACCESS_TOKEN_SECRET)
 
-    console.log("userid: ", userid)
+    winston.verbose("userid: ", userid)
 
     return res.status(200).send("Successfully authenticated")
     
@@ -116,7 +119,7 @@ router.get('/auth2', async (req, res) => {
     //throws an error if the token has expired or has a invalid signature
     
     var userid = jwt.verify(parted[1], ACCESS_TOKEN_SECRET)
-    console.log("userid: ", userid);
+    winston.verbose("userid: ", userid);
 
     //query = { "$or": [{ status: AppConstants.PUBLIC }, { status: AppConstants.PRIVATE, visibleForUserIds: userid }]};
 
@@ -764,7 +767,6 @@ router.post('/tiledesk', async (req, res) => {
   const messageHandler = new MessageHandler({ tiledeskChannelMessage: tiledeskChannelMessage });
   const tlr = new TiledeskWhatsappTranslator();
 
-
   if (commands) {
     let i = 0;
     async function execute(command) {
@@ -843,7 +845,7 @@ router.post("/webhook/:project_id", async (req, res) => {
 
   // Parse the request body from the POST
   let project_id = req.params.project_id;
-  winston.verbose("(wab) Message received from WhatsApp");
+  winston.verbose("(wab) Message received from WhatsApp ");
 
   // Check the Incoming webhook message
   // info on WhatsApp text message payload: https://developers.facebook.com/docs/whatsapp/cloud-api/webhooks/payload-examples#text-messages
@@ -862,8 +864,7 @@ router.post("/webhook/:project_id", async (req, res) => {
       }
 
       let whatsappChannelMessage = req.body.entry[0].changes[0].value.messages[0];
-      console.log("(wab) whatsappChannelMessage: ", JSON.stringify(whatsappChannelMessage, null, 2));
-
+      
       let CONTENT_KEY = "whatsapp-" + project_id;
       let settings = await db.get(CONTENT_KEY);
       winston.debug("(wab) settings: ", settings);
@@ -906,96 +907,6 @@ router.post("/webhook/:project_id", async (req, res) => {
         }
 
         let tiledeskJsonMessage;
-
-        /*
-        if ((whatsappChannelMessage.type == 'text')) {
-          winston.debug("(wab) message type: text")
-          tiledeskJsonMessage = await tlr.toTiledesk(whatsappChannelMessage, firstname);
-        }
-
-        else if (whatsappChannelMessage.type == 'interactive') {
-          winston.debug("(wab) message type: interactive")
-          tiledeskJsonMessage = await tlr.toTiledesk(whatsappChannelMessage, firstname);
-        }
-
-        else if ((whatsappChannelMessage.type == 'image') || (whatsappChannelMessage.type == 'video') || (whatsappChannelMessage.type == 'document') || (whatsappChannelMessage.type == 'audio')) {
-          let media;
-          const util = new TiledeskWhatsapp({ token: settings.wab_token, GRAPH_URL: GRAPH_URL, API_URL: API_URL, BASE_FILE_URL: BASE_FILE_URL })
-
-          if (whatsappChannelMessage.type == 'image') {
-            media = whatsappChannelMessage.image;
-            const filename = await util.downloadMedia(media.id);
-            if (!filename) {
-              winston.debug("(wab) Unable to download media with id " + media.id + ". Message not sent.");
-              return res.status(500).send({ success: false, error: "unable to download media" })
-            }
-            let file_path = path.join(__dirname, 'tmp', filename);
-
-            const image_url = await util.uploadMedia(file_path, "images");
-            winston.debug("(wab) image_url: " + image_url)
-
-            tiledeskJsonMessage = await tlr.toTiledesk(whatsappChannelMessage, firstname, image_url);
-          }
-
-          if (whatsappChannelMessage.type == 'video') {
-            media = whatsappChannelMessage.video;
-
-            const filename = await util.downloadMedia(media.id);
-            if (!filename) {
-              winston.debug("(wab) Unable to download media with id " + media.id + ". Message not sent.");
-              return res.status(500).send({ success: false, error: "unable to download media" })
-            }
-            let file_path = path.join(__dirname, 'tmp', filename);
-
-            const media_url = await util.uploadMedia(file_path, "files");
-            winston.debug("(wab) media_url: " + media_url)
-
-            tiledeskJsonMessage = await tlr.toTiledesk(whatsappChannelMessage, firstname, media_url);
-          }
-
-          if (whatsappChannelMessage.type == 'document') {
-            media = whatsappChannelMessage.document;
-
-            const filename = await util.downloadMedia(media.id);
-            if (!filename) {
-              winston.debug("(wab) Unable to download media with id " + media.id + ". Message not sent.");
-              return res.status(500).send({ success: false, error: "unable to download media" })
-            }
-            let file_path = path.join(__dirname, 'tmp', filename);
-
-            const media_url = await util.uploadMedia(file_path, "files");
-            winston.debug("(wab) media_url: " + media_url)
-
-            tiledeskJsonMessage = await tlr.toTiledesk(whatsappChannelMessage, firstname, media_url);
-          }
-
-          if (whatsappChannelMessage.type == 'audio') {
-            media = whatsappChannelMessage.audio;
-
-            const filename = await util.downloadMedia(media.id);
-            if (!filename) {
-              winston.debug("(wab) Unable to download media with id " + media.id + ". Message not sent.");
-              return res.status(500).send({ success: false, error: "unable to download media" })
-            }
-            let file_path = path.join(__dirname, 'tmp', filename);
-
-            const media_url = await util.uploadMedia(file_path, "files");
-            winston.debug("(wab) media_url: " + media_url)
-
-            tiledeskJsonMessage = await tlr.toTiledesk(whatsappChannelMessage, firstname, media_url);
-          }
-
-        } else {
-          // unsupported. Try anyway to send something.
-          winston.debug("(wab) unsupported message")
-        }
-        */
-
-
-
-        ////////////////////////////////////////////////////
-
-
 
         if ((whatsappChannelMessage.type == 'image') || (whatsappChannelMessage.type == 'video') || (whatsappChannelMessage.type == 'document') || (whatsappChannelMessage.type == 'audio')) {
           let media;
@@ -1081,8 +992,31 @@ router.post("/webhook/:project_id", async (req, res) => {
   
       }
     }
-    res.sendStatus(200);
 
+    if (req.body.entry &&
+        req.body.entry[0].changes &&
+        req.body.entry[0].changes[0] &&
+        req.body.entry[0].changes[0].value.statuses &&
+        req.body.entry[0].changes[0].value.statuses[0]
+    ) {
+      let whatsappStatusMessage = req.body.entry[0].changes[0].value.statuses[0];
+      winston.verbose("(wab) whatsappStatusMessage: ", whatsappStatusMessage);
+
+      let message_id = whatsappStatusMessage.id;
+      let status = whatsappStatusMessage.status;
+      let error = null;
+      if (whatsappStatusMessage.errors) {
+        error = whatsappStatusMessage.errors[0].title;
+      }
+      winston.verbose("(wab) update status in " + status+ " for message_id " + message_id);
+
+      const wl = new WhatsappLogger();
+      wl.updateMessageStatus(message_id, status, error);
+
+    }
+
+    res.sendStatus(200);
+    
   } else {
     // Return a '404 Not Found' if event is not from a WhatsApp API
     winston.verbose("(wab) event not from whatsapp")
@@ -1379,6 +1313,11 @@ async function startApp(settings, callback) {
     AMQP_MANAGER_URL = settings.AMQP_MANAGER_URL;
     winston.info("(wab api) AMQP_MANAGER_URL is present");
   }
+
+  mongoose.connect(process.env.MONGODB_URL)
+          .then(() => { winston.info("Mongoose DB Connected") })
+          .catch((err) => { winston.error("(Mongoose) Unable to connect with MongoDB ", err)
+  })
 
   db.connect(settings.MONGODB_URL, () => {
     winston.info("(wab) KVBaseMongo successfully connected.");

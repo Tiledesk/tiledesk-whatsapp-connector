@@ -13,38 +13,9 @@ let db = null;
 let API_URL = null;
 let GRAPH_URL = null;
 let BASE_FILE_URL = null;
-let ACCESS_TOKEN_SECRET = null;
+//let ACCESS_TOKEN_SECRET = null;
 let AMQP_MANAGER_URL = null;
 
-//var JobManager = require("jobs-worker-queued");
-
-//let data;
-//var schedulerResult;
-//var myscheduler;
-/*
-router.use((req, res, next) => {
-  winston.verbose("Authentication...")
-  try {
-    let accessToken = req.headers.authorization;
-    if (!accessToken) {
-      return res.status(401).send({ message: 'Authetication error: missing authorization header'})
-    }
-    var parted = accessToken.split(' ');
-    //winston.debug('accessToken:' + parted[1]);
-    
-    //use the jwt.verify method to verify the access token
-    //throws an error if the token has expired or has a invalid signature
-    var userid = jwt.verify(parted[1], ACCESS_TOKEN_SECRET)
-    //winston.debug('user autheticated');
-    next();
-    //return res.status(200).send("Successfully authenticated")
-  }
-  catch (e) {
-    winston.error("Unauthenticated", e);
-    return res.status(401).send('Unauthorized');
-  }
-})
-*/
 router.get('/', async (req, res) => {
   res.status(200).send({ message: "API route works" })
 })
@@ -158,8 +129,6 @@ router.get("/templates/:project_id", async (req, res) => {
   }
 })
 
-
-// api per la broadcast per Mirco
 router.post('/tiledesk/broadcast', async (req, res) => {
   winston.verbose("(wab) Action received from Tiledesk (Broadcast)");
   winston.debug("Body (broadcast): ", JSON.stringify(req.body, null, 2));
@@ -170,7 +139,11 @@ router.post('/tiledesk/broadcast', async (req, res) => {
   let receiver_list = body.receiver_list;
   let phone_number_id = body.phone_number_id;
   let template = body.template;
-  console.log('body', body);
+  let transaction_id = body.transaction_id;
+
+  if (!transaction_id) {
+    transaction_id = "tiledesk-broadcast-" + Date.now();
+  }
 
   let CONTENT_KEY = "whatsapp-" + project_id;
   let settings = await db.get(CONTENT_KEY);
@@ -183,18 +156,22 @@ router.post('/tiledesk/broadcast', async (req, res) => {
     return res.status(400).send({ success: false, error: "Missing parameter 'WhatsApp Business Account ID'. Please update your app." })
   }
 
-  // LOG TO THE SCHEDULER
-  //let jobManager = new JobManager(AMQP_MANAGER_URL);
-  let myscheduler = new Scheduler({ AMQP_MANAGER_URL: AMQP_MANAGER_URL });
+  let scheduler = new Scheduler({ AMQP_MANAGER_URL: AMQP_MANAGER_URL });
+  let data_To_scheduler = { 
+    project_id: project_id, 
+    receiver_list: receiver_list, 
+    phone_number_id: phone_number_id, 
+    transaction_id: transaction_id,
+    template: template, 
+    settings: settings 
+  };
+  
+  winston.debug('(wab) data_To_scheduler: ', data_To_scheduler);
+  
+  let schedulerResult = await scheduler.goSchedule(data_To_scheduler);
+  winston.verbose('(wab) schedulerResult: ', schedulerResult);
 
-  // sends data to the scheduler
-  console.log('GRAPH_URL: ', GRAPH_URL);
-  let data_To_scheduler = { project_id: project_id, receiver_list: receiver_list, phone_number_id: phone_number_id, template: template, settings: settings };
-  console.log('data_To_scheduler: ', data_To_scheduler);
-  let schedulerResult = myscheduler.goSchedule(data_To_scheduler);
-  console.log('API/scheduler/ result: ', schedulerResult);
-  // END SENDS DATA TO THE SCHEDULER
-  res.status(200).send({ message: "job sent to the scheduler" })
+  res.status(200).send({ success: true, message: "Job started. Send messages in queue." })
 })
 
 
