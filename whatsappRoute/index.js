@@ -11,6 +11,7 @@ const { v4: uuidv4 } = require('uuid');
 const cors = require('cors');
 var winston = require('./winston');
 const url = require('url');
+const mongoose = require('mongoose');
 
 //const ext = require('./routes/ext')
 //const extRoute = ext.router;
@@ -27,6 +28,7 @@ const { TiledeskAppsClient } = require('./tiledesk/TiledeskAppsClient');
 const { MessageHandler } = require('./tiledesk/MessageHandler');
 const { TiledeskBotTester } = require('./tiledesk/TiledeskBotTester');
 const { TemplateManager } = require('./tiledesk/TemplateManager');
+const { WhatsappLogger } = require('./tiledesk/WhatsappLogger');
 
 // mongo
 const { KVBaseMongo } = require('./tiledesk/KVBaseMongo');
@@ -58,6 +60,8 @@ let REDIS_HOST = null;
 let REDIS_PORT = null;
 let REDIS_PASSWORD = null;
 let BASE_FILE_URL = null;
+let AMQP_MANAGER_URL = null;
+
 
 // Handlebars register helpers
 handlebars.registerHelper('isEqual', (a, b) => {
@@ -779,13 +783,13 @@ router.post('/tiledesk', async (req, res) => {
       twClient.sendMessage(phone_number_id, whatsappJsonMessage).then((response) => {
         winston.verbose("(wab) Message sent to WhatsApp! " + response.status + " " + response.statusText);
       }).catch((err) => {
-        res.status(400).send({ success: false, error: "il template non esiste" });
         winston.error("(wab) error send message: ", err);
+        res.status(400).send({ success: false, error: "Template not existing" });
       })
 
     } else {
-      res.status(400).send({ success: false, error: "il template non esiste" });
       winston.error("(wab) Whatsapp Json Message is undefined!")
+      res.status(400).send({ success: false, error: "An error occurred during message translation" });
     }
 
   } else {
@@ -1038,6 +1042,29 @@ router.post("/webhook/:project_id", async (req, res) => {
 
       }
     }
+
+    if (req.body.entry &&
+        req.body.entry[0].changes &&
+        req.body.entry[0].changes[0] &&
+        req.body.entry[0].changes[0].value.statuses &&
+        req.body.entry[0].changes[0].value.statuses[0]
+    ) {
+      let whatsappStatusMessage = req.body.entry[0].changes[0].value.statuses[0];
+      winston.verbose("(wab) whatsappStatusMessage: ", whatsappStatusMessage);
+
+      let message_id = whatsappStatusMessage.id;
+      let status = whatsappStatusMessage.status;
+      let error = null;
+      if (whatsappStatusMessage.errors) {
+        error = whatsappStatusMessage.errors[0].title;
+      }
+      winston.verbose("(wab) update status in " + status+ " for message_id " + message_id);
+
+      const wl = new WhatsappLogger();
+      wl.updateMessageStatus(message_id, status, error);
+
+    }
+    
     res.sendStatus(200);
 
   } else {
@@ -1324,6 +1351,18 @@ async function startApp(settings, callback) {
     winston.info("(wab) Missing redis parameters --> Test it out on WhatsApp disabled");
   }
 
+  if (!settings.AMQP_MANAGER_URL) {
+    winston.error("(wab api) AMQP_MANAGER_URL is mandatory (?). Exit...");
+  } else {
+    AMQP_MANAGER_URL = settings.AMQP_MANAGER_URL;
+    winston.info("(wab api) AMQP_MANAGER_URL is present");
+  }
+
+  mongoose.connect(process.env.MONGODB_URL)
+          .then(() => { winston.info("Mongoose DB Connected") })
+          .catch((err) => { winston.error("(Mongoose) Unable to connect with MongoDB ", err)
+  })
+
   db.connect(settings.MONGODB_URL, () => {
     winston.info("(wab) KVBaseMongo successfully connected.");
 
@@ -1336,7 +1375,8 @@ async function startApp(settings, callback) {
     DB: db,
     API_URL: API_URL,
     GRAPH_URL: GRAPH_URL,
-    BASE_FILE_URL: BASE_FILE_URL
+    BASE_FILE_URL: BASE_FILE_URL,
+    AMQP_MANAGER_URL: AMQP_MANAGER_URL
   }, (err) => {
     if (!err) {
       winston.info("(wab) API route successfully started.")
