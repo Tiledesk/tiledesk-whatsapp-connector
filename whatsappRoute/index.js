@@ -1367,7 +1367,7 @@ async function startApp(settings, callback) {
     winston.info("(wab) JOB_TOPIC_EXCHANGE is present");
   }
   
-  mongoose.connect(process.env.MONGODB_URL)
+  mongoose.connect(settings.MONGODB_URL)
           .then(() => { winston.info("Mongoose DB Connected") })
           .catch((err) => { winston.error("(Mongoose) Unable to connect with MongoDB ", err)
   })
