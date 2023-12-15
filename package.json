@@ -11,7 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@tiledesk/tiledesk-client": "^0.8.29",
+    "@tiledesk/tiledesk-client": "^0.10.4",
     "@tiledesk/tiledesk-kvbasemongo": "^1.0.0",
     "@tiledesk/tiledesk-whatsapp-connector": "^0.1.46",
     "app-root-path": "^3.1.0",

@@ -19,7 +19,7 @@ const api = require('./routes/api');
 const apiRoute = api.router;
 
 // tiledesk clients
-//const { TiledeskClient } = require('@tiledesk/tiledesk-client');
+const { TiledeskClient } = require('@tiledesk/tiledesk-client');
 const { TiledeskWhatsappTranslator } = require('./tiledesk/TiledeskWhatsappTranslator');
 const { TiledeskSubscriptionClient } = require('./tiledesk/TiledeskSubscriptionClient');
 const { TiledeskWhatsapp } = require('./tiledesk/TiledeskWhatsapp');
@@ -1061,8 +1061,25 @@ router.post("/webhook/:project_id", async (req, res) => {
       }
       winston.verbose("(wab) update status in " + status+ " for message_id " + message_id);
 
-      const wl = new WhatsappLogger();
+      let CONTENT_KEY = "whatsapp-" + project_id;
+      let settings = await db.get(CONTENT_KEY);
+      winston.debug("(wab) settings: ", settings);
+
+      const tdClient = new TiledeskClient({
+        projectId: project_id,
+        token: settings.token,
+        APIURL: API_URL,
+        APIKEY: "___",
+        log: false
+      });
+
+      const wl = new WhatsappLogger({ tdClient: tdClient});
       wl.updateMessageStatus(message_id, status, error);
+      
+
+      
+
+      
 
     }
     

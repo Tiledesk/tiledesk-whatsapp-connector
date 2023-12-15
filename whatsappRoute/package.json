@@ -11,7 +11,7 @@
   "author": "Giovanni Troisi",
   "license": "MIT",
   "dependencies": {
-    "@tiledesk/tiledesk-client": "^0.8.29",
+    "@tiledesk/tiledesk-client": "^0.10.4",
     "app-root-path": "^3.0.0",
     "axios": "^0.27.2",
     "body-parser": "^1.20.0",
