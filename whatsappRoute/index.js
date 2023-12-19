@@ -1075,12 +1075,7 @@ router.post("/webhook/:project_id", async (req, res) => {
 
       const wl = new WhatsappLogger({ tdClient: tdClient});
       wl.updateMessageStatus(message_id, status, error);
-      
-
-      
-
-      
-
+    
     }
     
     res.sendStatus(200);
@@ -1383,8 +1378,15 @@ async function startApp(settings, callback) {
     JOB_TOPIC_EXCHANGE = settings.JOB_TOPIC_EXCHANGE;
     winston.info("(wab) JOB_TOPIC_EXCHANGE is present");
   }
+
+  let LOG_MONGODB_URL;
+  if (!settings.LOG_MONGODB_URL) {
+    LOG_MONGODB_URL = settings.MONGODB_URL;
+  } else {
+    LOG_MONGODB_URL = settings.LOG_MONGODB_URL;
+  }
   
-  mongoose.connect(settings.MONGODB_URL)
+  mongoose.connect(LOG_MONGODB_URL)
           .then(() => { winston.info("Mongoose DB Connected") })
           .catch((err) => { winston.error("(Mongoose) Unable to connect with MongoDB ", err)
   })

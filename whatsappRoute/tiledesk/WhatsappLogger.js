@@ -4,10 +4,9 @@ const { MessageLog } = require("../models/WhatsappLog");
 class WhatsappLogger {
 
   constructor(config) {
-
-    console.log(config);
     
     this.tdClient = config.tdClient;
+    
   }
 
   async updateMessageStatus(message_id, status, error) {
@@ -16,8 +15,7 @@ class WhatsappLogger {
 
     MessageLog.findOneAndUpdate({ message_id: message_id }, { $set: {status: status, status_code: status_code, error: error }}, { new: true }).then((messageLog) => {
       winston.verbose("(wab) status of message_id " + message_id + " updated to " + status);
-      winston.info("(wab) messageLog updated ", messageLog);
-      console.log("messageLog: ", messageLog)
+      winston.debug("(wab) messageLog updated ", messageLog);
 
       this.sendLogWebhook(messageLog);
     }).catch((err) => {
@@ -52,18 +50,34 @@ class WhatsappLogger {
   }
 
   sendLogWebhook(messageLog) {
+    let event = {
+      name: "tiledesk.whatsapplog",
+      attributes: {
+        messageLog: messageLog,
+      },
+    };
+    this.tdClient.fireEvent(event, (err, result) => {
+      if (err) {
+        winston.error("(wab) An error occurred invoking an event:", err);
+      }
+      winston.verbose("(wab) Real time log event fired");
+      winston.debug("(wab) Real time log event fired: ", result);
+    });
+  }
+
+  /*
+  sendLogWebhook(project_id, messageLog) {
     this.tdClient.sendSupportMessage(
-      "support-group-62c3f10152dc7400352bab0d-whatsapplog",
+      "support-group-" + project_id + "-whatsapplog-hidden",
       { text: "Whatsapp Log", attributes: { messageLog: messageLog} },
       (err) => {
         if (err) {
           console.error("Error sending reply:", err);
         }
-        console.log("Reply message sent");
-        
+        winston.verbose("(wab-worker) Log webhook sent successfully"); 
     });
-
   }
+  */
 
 }
 

@@ -13,6 +13,7 @@ const API_URL = process.env.API_URL;
 const BASE_FILE_URL = process.env.BASE_FILE_URL;
 const GRAPH_URL = process.env.GRAPH_URL;
 const MONGODB_URL = process.env.MONGODB_URL;
+const LOG_MONGODB_URL = process.env.MONGODB_URL_PRE || process.env.MONGODB_URL
 const APPS_API_URL = process.env.APPS_API_URL;
 const REDIS_HOST = process.env.REDIS_HOST;
 const REDIS_PORT = process.env.REDIS_PORT;
@@ -24,6 +25,7 @@ const JOB_TOPIC_EXCHANGE = process.env.JOB_TOPIC_EXCHANGE;
 whatsapp.startApp(
   {
     MONGODB_URL: MONGODB_URL,
+    LOG_MONGODB_URL: LOG_MONGODB_URL,
     API_URL: API_URL,
     BASE_FILE_URL: BASE_FILE_URL,
     GRAPH_URL: GRAPH_URL,
