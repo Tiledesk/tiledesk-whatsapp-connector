@@ -14,10 +14,13 @@ class WhatsappLogger {
     winston.debug("(wab) getCodeFromStatus result " + status_code);
 
     MessageLog.findOneAndUpdate({ message_id: message_id }, { $set: {status: status, status_code: status_code, error: error }}, { new: true }).then((messageLog) => {
-      winston.verbose("(wab) status of message_id " + message_id + " updated to " + status);
-      winston.debug("(wab) messageLog updated ", messageLog);
 
-      this.sendLogWebhook(messageLog);
+      if (messageLog) {
+        winston.verbose("(wab) status of message_id " + message_id + " updated to " + status);
+        winston.debug("(wab) messageLog updated ", messageLog);
+        this.sendLogWebhook(messageLog);
+      }
+
     }).catch((err) => {
       winston.error("(wab) findOneAndUpdate error: ", err);
     })
