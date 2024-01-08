@@ -769,8 +769,6 @@ router.post("/tiledesk", async (req, res) => {
       .send({ success: false, message: "Phone number id undefined" });
   }
 
-  console.log("phone_number_id: ", phone_number_id);
-
   /*
   if (settings.expired && 
       settings.expired === true) {
@@ -944,7 +942,6 @@ router.post("/webhook/:project_id", async (req, res) => {
   // Check the Incoming webhook message
   // info on WhatsApp text message payload: https://developers.facebook.com/docs/whatsapp/cloud-api/webhooks/payload-examples#text-messages
   if (req.body.object) {
-    console.log("BODY TO BE SENT: ", req.body);
 
     let CONTENT_KEY = "whatsapp-" + project_id;
     let settings = await db.get(CONTENT_KEY);
