@@ -811,6 +811,9 @@ router.post("/webhook/:project_id", async (req, res) => {
   // Check the Incoming webhook message
   // info on WhatsApp text message payload: https://developers.facebook.com/docs/whatsapp/cloud-api/webhooks/payload-examples#text-messages
   if (req.body.object) {
+    
+    console.log("BODY TO BE SENT: ", req.body);
+    
     if (
       req.body.entry &&
       req.body.entry[0].changes &&

@@ -27,6 +27,39 @@ class WhatsappLogger {
 
   }
 
+  sendLogWebhook(messageLog) {
+    let event = {
+      name: "tiledesk.whatsapplog",
+      attributes: {
+        messageLog: messageLog,
+      },
+    };
+    this.tdClient.fireEvent(event, (err, result) => {
+      if (err) {
+        winston.error("(wab) An error occurred invoking an event: ", err);
+      }
+      winston.verbose("(wab) Real time log event fired");
+      winston.debug("(wab) Real time log event fired: ", result);
+    });
+  }
+  
+  async forwardMessage(whatsappBody) {
+    let event = {
+      name: "tiledesk.whatsappfw",
+      attributes: {
+        whatsappBody: whatsappBody
+      }
+    };
+    this.tdClient.fireEvent(event, (err, result) => {
+      if (err) {
+        winston.error("(wab) An error occured invoking an event: ", err);
+      }
+      win
+    })
+  }
+  
+  
+  
   getCodeFromStatus(status) {
     let code = null;
     switch (status) {
@@ -52,35 +85,6 @@ class WhatsappLogger {
     return code;
   }
 
-  sendLogWebhook(messageLog) {
-    let event = {
-      name: "tiledesk.whatsapplog",
-      attributes: {
-        messageLog: messageLog,
-      },
-    };
-    this.tdClient.fireEvent(event, (err, result) => {
-      if (err) {
-        winston.error("(wab) An error occurred invoking an event:", err);
-      }
-      winston.verbose("(wab) Real time log event fired");
-      winston.debug("(wab) Real time log event fired: ", result);
-    });
-  }
-
-  /*
-  sendLogWebhook(project_id, messageLog) {
-    this.tdClient.sendSupportMessage(
-      "support-group-" + project_id + "-whatsapplog-hidden",
-      { text: "Whatsapp Log", attributes: { messageLog: messageLog} },
-      (err) => {
-        if (err) {
-          console.error("Error sending reply:", err);
-        }
-        winston.verbose("(wab-worker) Log webhook sent successfully"); 
-    });
-  }
-  */
 
 }
 
