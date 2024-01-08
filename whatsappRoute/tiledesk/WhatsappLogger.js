@@ -54,7 +54,8 @@ class WhatsappLogger {
       if (err) {
         winston.error("(wab) An error occured invoking an event: ", err);
       }
-      win
+      winston.verbose("(wab) Message forwarding event fired");
+      winston.debug("(wab) Message forwarding event fired: ", result);
     })
   }
   
