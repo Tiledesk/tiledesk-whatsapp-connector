@@ -495,9 +495,9 @@ router.get("/direct/tiledesk", async (req, res) => {
     .then((response) => {
       winston.verbose(
         "(wab) Message sent to WhatsApp! " +
-          response.status +
-          " " +
-          response.statusText
+        response.status +
+        " " +
+        response.statusText
       );
     })
     .catch((err) => {
@@ -592,9 +592,9 @@ router.post("/tiledesk/broadcast", async (req, res) => {
         .then((response) => {
           winston.verbose(
             "(wab) Message sent to WhatsApp! " +
-              response.status +
-              " " +
-              response.statusText
+            response.status +
+            " " +
+            response.statusText
           );
           messages_sent += 1;
           i += 1;
@@ -853,9 +853,9 @@ router.post("/tiledesk", async (req, res) => {
             .then((response) => {
               winston.verbose(
                 "(wab) Message sent to WhatsApp! " +
-                  response.status +
-                  " " +
-                  response.statusText
+                response.status +
+                " " +
+                response.statusText
               );
               i += 1;
               if (i < commands.length) {
@@ -905,9 +905,9 @@ router.post("/tiledesk", async (req, res) => {
         .then((response) => {
           winston.verbose(
             "(wab) Message sent to WhatsApp! " +
-              response.status +
-              " " +
-              response.statusText
+            response.status +
+            " " +
+            response.statusText
           );
         })
         .catch((err) => {
@@ -978,7 +978,7 @@ router.post("/webhook/:project_id", async (req, res) => {
       let settings = await db.get(CONTENT_KEY);
       winston.debug("(wab) settings: ", settings);
       */
-      
+
       if (!settings) {
         winston.verbose("(wab) No settings found. Exit..");
         return res.sendStatus(200);
@@ -1139,8 +1139,8 @@ router.post("/webhook/:project_id", async (req, res) => {
             if (!filename) {
               winston.debug(
                 "(wab) Unable to download media with id " +
-                  media.id +
-                  ". Message not sent."
+                media.id +
+                ". Message not sent."
               );
               return res
                 .status(500)
@@ -1165,8 +1165,8 @@ router.post("/webhook/:project_id", async (req, res) => {
             if (!filename) {
               winston.debug(
                 "(wab) Unable to download media with id " +
-                  media.id +
-                  ". Message not sent."
+                media.id +
+                ". Message not sent."
               );
               return res
                 .status(500)
@@ -1191,8 +1191,8 @@ router.post("/webhook/:project_id", async (req, res) => {
             if (!filename) {
               winston.debug(
                 "(wab) Unable to download media with id " +
-                  media.id +
-                  ". Message not sent."
+                media.id +
+                ". Message not sent."
               );
               return res
                 .status(500)
@@ -1217,8 +1217,8 @@ router.post("/webhook/:project_id", async (req, res) => {
             if (!filename) {
               winston.debug(
                 "(wab) Unable to download media with id " +
-                  media.id +
-                  ". Message not sent."
+                media.id +
+                ". Message not sent."
               );
               return res
                 .status(500)
@@ -1284,7 +1284,7 @@ router.post("/webhook/:project_id", async (req, res) => {
       let settings = await db.get(CONTENT_KEY);
       winston.debug("(wab) settings: ", settings);
       */
-      
+
       const tdClient = new TiledeskClient({
         projectId: project_id,
         token: settings.token,
@@ -1605,9 +1605,7 @@ async function startApp(settings, callback) {
   }
 
   if (!settings.JOB_TOPIC_EXCHANGE) {
-    winston.warning(
-      "(wab) JOB_TOPIC_EXCHANGE should be present. Using default value"
-    );
+    winston.info("(wab) JOB_TOPIC_EXCHANGE should be present. Using default value");
     JOB_TOPIC_EXCHANGE = "tiledesk-whatsapp";
   } else {
     JOB_TOPIC_EXCHANGE = settings.JOB_TOPIC_EXCHANGE;
