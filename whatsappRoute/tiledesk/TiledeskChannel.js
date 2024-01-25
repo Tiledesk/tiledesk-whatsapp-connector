@@ -94,7 +94,7 @@ class TiledeskChannel {
     }).then((response) => {
   
       let token = response.data.token;
-      //token = fixToken(token);
+      token = this.fixToken(token);
       console.log("\n\n --> token: \n", token);
       
       return axios({
@@ -273,7 +273,9 @@ class TiledeskChannel {
     })
   }
   
-  static fixToken(token) {
+  fixToken(token) {
+    console.log("fixToken --> ", token)
+    token.lastIndexOf('JWT ')
     if (token.startsWith('JWT ')) {
       return token
     } else {
