@@ -93,8 +93,9 @@ class TiledeskChannel {
     }).then((response) => {
   
       let token = response.data.token;
-    
+      token = this.fixToken(token);
       console.log("\n\n --> token: \n", token);
+      
       return axios({
         url: this.API_URL + `/${this.settings.project_id}/requests/me?channel=${messageInfo.channel}`,
         headers: {
@@ -269,6 +270,14 @@ class TiledeskChannel {
         resolve(false);
       }
     })
+  }
+  
+  static fixToken(token) {
+    if (token.startsWith('JWT ')) {
+      return token
+    } else {
+      return 'JWT ' + token
+    }
   }
 
 }
