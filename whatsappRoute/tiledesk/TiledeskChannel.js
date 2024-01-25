@@ -201,8 +201,8 @@ class TiledeskChannel {
       method: 'POST'
     }).then((response) => {
       
-      
       let token = response.data.token;
+      token = this.fixToken(token);
 
       return axios({
         url: this.API_URL + `/${this.settings.project_id}/requests/${new_request_id}/messages`,
