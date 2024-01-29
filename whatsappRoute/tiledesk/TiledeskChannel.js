@@ -277,17 +277,13 @@ class TiledeskChannel {
   fixToken(token) {
     
     let index = token.lastIndexOf("JWT ");
-    let new_token = token.substring(index + 4);
-    
-    return 'JWT ' + new_token;
-    
-    /*
-    if (token.startsWith('JWT ')) {
-      return token
+    if (index != -1) {
+      let new_token = token.substring(index + 4);
+      return 'JWT ' + new_token;
     } else {
-      return 'JWT ' + token
+      return 'JWT ' + token;
     }
-    */
+    
   }
 
 }
