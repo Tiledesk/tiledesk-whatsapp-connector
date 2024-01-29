@@ -1,6 +1,6 @@
 {
   "name": "@tiledesk/tiledesk-whatsapp-connector",
-  "version": "0.1.61",
+  "version": "0.1.62",
   "description": "Tiledesk Whatsapp connector",
   "main": "index.js",
   "scripts": {
