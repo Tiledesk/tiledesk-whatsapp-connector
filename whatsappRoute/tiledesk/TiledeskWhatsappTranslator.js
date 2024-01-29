@@ -261,6 +261,7 @@ const path = require('path');
         }
         else if (tiledeskChannelMessage.attributes.attachment.template) {
           winston.debug("(wab) [Translator] template: ", tiledeskChannelMessage.attributes.attachment.template)
+          console.log("(wab) [Translator] template: ", tiledeskChannelMessage.attributes.attachment.template)
 
           let template = tiledeskChannelMessage.attributes.attachment.template;
 
