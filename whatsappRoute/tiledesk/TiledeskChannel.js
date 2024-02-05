@@ -251,17 +251,17 @@ class TiledeskChannel {
     
     return new Promise((resolve, reject) => {
       if (
-        (profile_name === 'Growth') ||
-        (profile_name === 'Scale' && isActiveSubscription === false) ||
-        (profile_name === 'Plus' && isActiveSubscription === false) ||
+        ((profile_name === 'Growth' || profile_name === 'Basic')) ||
+        ((profile_name === 'Scale' || profile_name === 'Premium') && isActiveSubscription === false) ||
+        ((profile_name === 'Plus' || profile_name === 'Custom') && isActiveSubscription === false) ||
         (profile_type === 'free' && trialExpired === true) 
       ) {
         winston.verbose('Feature not available')
         resolve(false);
 
       } else if (
-        (profile_name === 'Scale' && isActiveSubscription === true) ||
-        (profile_name === 'Plus' && isActiveSubscription === true) ||
+        ((profile_name === 'Scale' || profile_name === 'Premium') && isActiveSubscription === true) ||
+        ((profile_name === 'Plus' || profile_name === 'Custom') && isActiveSubscription === true) ||
         (profile_type === 'free' && trialExpired === false)
       ) {
         winston.verbose('Feature available')
