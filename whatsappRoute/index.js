@@ -742,6 +742,11 @@ router.post("/tiledesk", async (req, res) => {
     return res.sendStatus(200);
   }
 
+  if (attributes && attributes.subtype === "private") {
+    winston.verbose("(wab) Skip subtype (private)");
+    return res.sendStatus(200);
+  }
+
   if (attributes && attributes.subtype === "info/support") {
     winston.verbose("(wab) Skip subtype: " + attributes.subtype);
     return res.sendStatus(200);
