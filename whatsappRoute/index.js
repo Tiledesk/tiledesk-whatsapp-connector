@@ -737,10 +737,6 @@ router.post("/tiledesk", async (req, res) => {
     return res.sendStatus(200);
   }
 
-  if (attributes && attributes.subtype === "private") {
-    winston.verbose("(wab) Skip subtype (private)");
-    return res.sendStatus(200);
-  }
   if (attributes && attributes.subtype === "info") {
     winston.verbose("(wab) Skip subtype (info)");
     return res.sendStatus(200);
@@ -1621,29 +1617,37 @@ async function startApp(settings, callback) {
     winston.info("(wab) JOB_TOPIC_EXCHANGE is present");
   }
 
-  let LOG_MONGODB_URL;
-  if (!settings.LOG_MONGODB_URL) {
-    LOG_MONGODB_URL = settings.MONGODB_URL;
-  } else {
-    LOG_MONGODB_URL = settings.LOG_MONGODB_URL;
+  // For test only
+  if (settings.LOG_MONGODB_URL) {
+    /**
+     * Connect with a different Database
+     */
+    // mongoose
+    // .connect(settings.LOG_MONGODB_URL)
+    // .then(() => {
+    //   winston.info("Mongoose DB Connected");
+    // })
+    // .catch((err) => {
+    //   winston.error("(Mongoose) Unable to connect with MongoDB ", err);
+    // });
   }
 
-  mongoose
-    .connect(LOG_MONGODB_URL)
-    .then(() => {
-      winston.info("Mongoose DB Connected");
+  if (settings.dbconnection) {
+    db.reuseConnection(settings.dbconnection, () => {
+      winston.info("(wab) KVBaseMongo reused exsisting db connection");
+      if (callback) {
+        callback(null);
+      }
     })
-    .catch((err) => {
-      winston.error("(Mongoose) Unable to connect with MongoDB ", err);
+  } else {
+    db.connect(settings.MONGODB_URL, () => {
+      winston.info("(wab) KVBaseMongo successfully connected.");
+  
+      if (callback) {
+        callback(null);
+      }
     });
-
-  db.connect(settings.MONGODB_URL, () => {
-    winston.info("(wab) KVBaseMongo successfully connected.");
-
-    if (callback) {
-      callback(null);
-    }
-  });
+  }
 
   api.startRoute(
     {

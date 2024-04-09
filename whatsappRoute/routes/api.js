@@ -174,7 +174,8 @@ router.post('/tiledesk/broadcast', async (req, res) => {
 
 // start api route from whatsappRoute
 async function startRoute(settings, callback) {
-  winston.info("(wab api) Starting api route", settings);
+  //winston.info("(wab api) Starting api route", settings);
+  winston.info("(wab api) Starting api route");
 
   if (!settings.DB) {
     winston.error("(wab api) db id mandatory. Exit...");

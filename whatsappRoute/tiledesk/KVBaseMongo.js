@@ -36,6 +36,15 @@ class KVBaseMongo {
     });
   }
 
+  reuseConnection(db, callback) {
+    this.db = db;
+    this.db.collection(this.KV_COLLECTION).createIndex(
+      { "key": 1 }, { unique: true }
+    )
+    callback();
+
+  }
+
   set(k, v) {
     return new Promise(resolve => {
       //this.db.set(k, v).then(() => {resolve();});

@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const app = express();
+//var mongoose = require('mongoose');
 
 // const whatsapp = require('@tiledesk/tiledesk-whatsapp-connector');
 const whatsapp = require('./whatsappRoute');
@@ -25,7 +26,6 @@ const JOB_TOPIC_EXCHANGE = process.env.JOB_TOPIC_EXCHANGE;
 whatsapp.startApp(
   {
     MONGODB_URL: MONGODB_URL,
-    LOG_MONGODB_URL: LOG_MONGODB_URL,
     API_URL: API_URL,
     BASE_FILE_URL: BASE_FILE_URL,
     GRAPH_URL: GRAPH_URL,
@@ -50,3 +50,21 @@ whatsapp.startApp(
     }
   }
 );
+
+/**
+ * Alternative start passing ad external db client
+ */
+// mongoose.connect(MONGODB_URL, { useNewUrlParser: true, autoIndex: true }, function(err) {
+//   if (err) { 
+//     console.error('Failed to connect to MongoDB on ' + databaseUri + " ", err);
+//     process.exit(1);
+//   }
+//   console.log("Mongoose connection done on host: "+mongoose.connection.host + " on port: " + mongoose.connection.port + " with name: "+ mongoose.connection.name)// , mongoose.connection.db);
+
+//   whatsapp.startApp(
+//     {
+//       dbconnection: mongoose.connection,
+//       // like before
+//     }
+//   );
+// });
