@@ -1,0 +1,261 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+body {
+  padding: 20px 0px;
+}
+
+.header {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.header-content {
+  width: 65%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo-container {
+  margin: 0px 20px 0px 0px;
+}
+
+.logo-title {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.title {
+  margin-bottom: 0px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.title-version {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.status-box {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  /*background-color: #1f3f77;*/
+  background-color: #f1f2f6;
+  /*color: white;*/
+  height: 40px;
+  padding: 20px;
+  border-radius: 24px;
+  border: solid 1px #e7e0e0;
+}
+
+.green-circle {
+  color: green;
+  margin-right: 6px;
+}
+
+.red-circle {
+  color: #f0593d;
+  margin-right: 6px;
+}
+
+.template-box {
+  margin-top: 30px;
+  width: 100%;
+  //background-color: #fff8f7;
+  display: flex;
+  justify-content: center;
+  padding-bottom: 30px;
+}
+
+.template {
+  width: 65%;
+  margin-top: 20px;
+}
+
+.detail {
+  background-color: #a9c9ff00;
+  background-image: linear-gradient(180deg, #a9c9ff26 0%, #ffbbec24 100%);
+  border-radius: 8px;
+  padding: 20px 20px;
+}
+
+.detail-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.edit-template-title {
+  font-weight: 500;
+  margin-bottom: 0px;
+}
+
+.btn {
+  width: 200px;
+  background-color: #0ba2dc;
+  color: white;
+  font-weight: 500;
+}
+
+.btn:focus {
+  outline: none !important;
+}
+
+.type-title {
+  font-weight: 600;
+}
+
+.title-box {
+  background-color: #a9c9ff00;
+  background-image: linear-gradient(180deg, #74a2ef26 0%, #a9c9ff26 100%);
+  border-radius: 8px;
+  padding: 20px 20px; 
+  margin-bottom: 15px;
+}
+
+.title-box p {
+  margin-bottom: 0px;
+}
+
+.status-language {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.language {
+  max-width: 60px;
+  min-width: 20px;
+  background-color: #007e59;
+  text-align: center;
+  border-radius: 6px;
+  color: white;
+  padding: 0px 4px;
+}
+
+.status {
+  text-transform: lowercase;
+}
+
+.bullet {
+  margin-right: 10px;
+  margin-left: 10px;
+  color: #cbcbcb;
+  font-size: 8px;
+}
+
+.custom-textarea {
+  width: 100%;
+  background-color: white;
+  border: solid 1px #eeeded;
+  border-radius: 6px;
+  padding: 5px;
+}
+
+.template-header-box {
+  display: flex;
+  flex-direction: column;
+}
+
+.template-header-content {
+  display: flex;
+  flex-direction: row;
+}
+
+.counter {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+}
+
+.custom-input {
+  width: 100%;
+  height: 50px;
+  border: solid 1px #e8e3e3;
+  border-radius: 8px;
+  padding: 10px;
+  box-shadow: 0 0 5px rgba(0,0,0,0.1);
+}
+
+.custom-select {
+  width: 100px;
+  height: 50px;
+  border: solid 1px #e8e3e3;
+  border-radius: 6px;
+  padding: 10px;
+  margin-right: 16px;
+}
+
+
+
+.select-menu {
+  width: 150px;
+  margin-right: 16px;
+}
+
+.select-menu .select-btn {
+  display: flex;
+  height: 50px;
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  box-shadow: 0 0 5px rgba(0,0,0,0.1);
+}
+
+.select-menu .select-btn .sBtn-text {
+  font-size: 14px;
+  margin-top: 2px;
+}
+
+.select-btn i {
+  font-size: 18px;
+  color: #d6d6d6;
+  transition: 0.3s; 
+}
+
+.select-menu.active .select-btn i {
+  transform: rotate(-180deg);
+}
+
+.select-menu .options {
+  position: absolute;
+  padding: 4px 4px;
+  width: 200px;
+  background-color: #fff;
+  border-radius: 8px;
+  margin-top: 10px;
+  box-shadow: 0 0 3px rgba(0,0,0,0.1);
+  display: none;
+}
+
+.select-menu.active .options {
+  display: block;
+}
+
+.options .option {
+  display: flex;
+  height: 40px;
+  cursor: pointer;
+  align-items: center;
+  padding: 0 16px;
+  border-radius: 4px;
+  background-color: #fff;
+}
+
+.options .option:hover {
+  background-color: #f2f2f2;
+}
+
+.option .option-text {
+  font-size: 
+}
+
+

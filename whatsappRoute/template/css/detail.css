@@ -1,0 +1,235 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+/* Tooltip container */
+.tooltip {
+  position: relative;
+  display: inline-block;
+  border-bottom: 1px dotted black; /* If you want dots under the hoverable text */
+}
+
+/* Tooltip text */
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 120px;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  padding: 5px 0;
+  border-radius: 6px;
+ 
+  /* Position the tooltip text - see examples below! */
+  position: absolute;
+  z-index: 1;
+}
+
+/* Show the tooltip text when you mouse over the tooltip container */
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+}
+
+.content {
+  width: 52%;
+  min-width: 960px;
+  height: 1000px;
+}
+
+.installation-info-box {
+  background-color: aliceblue;
+  height: 28px;
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
+.icon-and-title {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: row;
+}
+
+.install-button {
+  width: 120px;
+  color: white;
+  margin-top: 5px;
+  background-color: #04AA6D;
+  letter-spacing: 0.5px;
+  font-size: 13px;
+}
+
+.install-button:hover {
+  width: 120px;
+  color: white;
+  margin-top: 5px;
+  background-color: #079d66;
+  border-color: #079d66;
+  letter-spacing: 0.5px;
+  font-size: 13px;
+}
+
+.open-button {
+  width: 120px;
+  color: white;
+  background-color: #04AA6D;
+  letter-spacing: 0.5px;
+  font-size: 13px;
+}
+
+.open-button:hover {
+  width: 120px;
+  color: white;
+  background-color: #079d66;
+  border-color: #079d66;
+  letter-spacing: 0.5px;
+  font-size: 13px;
+}
+
+.open-button:focus {
+  width: 120px;
+  color: white;
+  font-weight: 500;
+  background-color: #079d66;
+  border-color: #079d66;
+  letter-spacing: 0.5px;
+  font-size: 13px;
+}
+
+.uninstall-button {
+  width: 120px;
+  margin-top: 5px;
+  color: white;
+  border-color: #f0593d;
+  background-color: #f0593d;
+  letter-spacing: 0.5px;
+  font-size: 13px;
+}
+
+.uninstall-button:hover {
+  width: 120px;
+  margin-top: 5px;
+  color: white;
+  border-color: #d53e21;
+  background-color: #d53e21;
+  letter-spacing: 0.5px;
+}
+
+.uninstall-button:focus {
+  width: 120px;
+  margin-top: 5px;
+  color: white;
+  font-weight: 500;
+  border-color: #d53e21;
+  background-color: #d53e21;
+  letter-spacing: 0.5px;
+}
+
+.cancel-btn {
+  width: 120px;
+  margin-top: 5px;
+  color: white;
+  border-color: #c0c0c0;
+  background-color: #c0c0c0;
+  letter-spacing: 0.5px;
+  margin-right: 30px;
+}
+
+.cancel-btn:hover {
+  width: 120px;
+  margin-top: 5px;
+  color: white;
+  border-color: #929292;
+  background-color: #929292;
+  letter-spacing: 0.5px;
+}
+
+.cancel-btn:focus {
+  width: 120px;
+  margin-top: 5px;
+  color: white;
+  font-weight: 500;
+  border-color: #929292;
+  background-color: #929292;
+  letter-spacing: 0.5px;
+}
+
+
+div.scrollmenu {
+  background-color: white;
+  overflow: auto;
+  white-space: nowrap;
+}
+
+div.scrollmenu a {
+  display: inline-block;
+  color: white;
+  text-align: center;
+  padding: 14px;
+  text-decoration: none;
+}
+
+div.scrollmenu a:hover {
+  background-color: #777;
+}
+
+.screenshot {
+  width: auto; 
+  height: 420px;
+  border-radius: 10px;
+  border: 1px solid whitesmoke;
+  margin-right: 20px;
+} 
+
+.list-element {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.modal {
+  text-align: center;
+  display: none;
+  justify-content: center;
+  position: fixed;
+  z-index: 1;
+  padding-top: 100px;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-content {
+  width: 500px;
+  height: 300px;
+  background-color: white;
+}
+
+.btn:focus {
+  outline: none !important;
+}
+
+.plans-div {
+  display: flex;
+  flex-direction: row;
+}
+
+.plan {
+  margin-right: 6px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+}
+
+.scale-plan {
+  background-color: #eb459e;
+  color: white;
+}
+
+.plus-plan {
+  background-color: #5865f2;
+  color: white;
+}

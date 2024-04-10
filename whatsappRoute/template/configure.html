@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
+        integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap-theme.min.css"
+        integrity="sha384-6pzBo3FDv/PJ8r2KRkGHifhEocL+1X2rVCTTkUfGk7/0pbek5mMa1upzvWbrUbOZ" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  
+    <script src="//code.jquery.com/jquery-1.12.0.min.js"></script>
+    <script src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"
+        integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd" crossorigin="anonymous">
+        </script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="./css/configure.css">
+
+    <style>
+      body {
+        font-family: 'Poppins', serif;
+      }
+    </style>
+  
+</head>
+
+  
+<body>
+
+  <!-- Success modal -->
+  {{#if show_success_modal}}
+  <div id="success-update-modal" class="success-modal">
+    <div class="modal-content">
+        <img src="https://www.pngall.com/wp-content/uploads/9/Green-Tick-Vector-PNG-Images.png" width="80" height="auto" />
+        <p class="modal-text" style="margin-top: 20px; margin-bottom: 20px;">Configuration updated successfully</p>
+        <button class="btn cancel-btn" onclick="document.getElementById('success-update-modal').style.display='none'">Close</button>
+    </div>
+  </div>
+  {{/if}}
+
+  <!-- Error modal -->
+  {{#if show_error_modal}}
+  <div id="error-update-modal" class="error-modal">
+    <div class="modal-content">
+        <img src="https://cdn-icons-png.flaticon.com/512/148/148766.png" width="80" height="auto"  />
+        <p style="margin-top: 20px; margin-bottom: 20px;">An error occurred while updating the configuration</p>
+        <button class="btn cancel-btn" onclick="document.getElementById('error-update-modal').style.display='none'">Close</button>
+    </div>
+  </div>
+  {{/if}}
+
+
+  
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-content">
+      <div class="logo-title">
+        <div class="logo-container">
+          <img src="https://user-images.githubusercontent.com/45603238/200829081-e6a9c7a0-9d8c-431c-a477-4880a8fd752f.png" width="60px" height="60px">
+        </div>
+        <div class="title-version">
+          <p class="title">WhatsApp Business Connector</p>
+          <div class="status-box" style="padding: 0px 8px; letter-spacing: 1px; height: 18px;"> 
+            <p style="margin-bottom: 0px;">{{ app_version }}</p>
+          </div>
+        </div>
+      </div>
+      <div class="status-box"> 
+        <p style="margin-bottom: 0px; margin-right: 8px;">Status: </p> 
+        {{#if wab_token}}
+        <i class="fa fa-circle green-circle"></i>
+        <p style="margin-bottom: 0px;">Connected</p>
+        {{else}}
+        <i class="fa fa-circle red-circle"></i>
+        <p style="margin-bottom: 0px;">Disconnected</p>  
+        {{/if}}
+      </div>
+    </div>
+  
+  </div>
+  
+
+  <!-- INFO BOX -->
+  {{#unless popup_view}}
+  <div class="info-box">
+    
+    <div class="info-list">
+      <!--
+      <div style="margin-bottom:20px;">
+        {{#if wab_token}}
+        <form action="./templates/{{project_id}}" method="get">
+          <input type="hidden" name="project_id" value="{{ project_id }}" />
+          <input type="hidden" name="app_id" value="{{ app_id }}" />
+          <input type="hidden" name="token" value="{{ token }}" />
+          <input type="submit" class="btn install-button" value="Manage Templates">
+        </form>
+        {{/if}}
+      </div>
+      -->
+      
+       <ul>
+        <div class="list-element">
+          <img src="https://cdn-icons-png.flaticon.com/512/1443/1443000.png" width=20 height=20 style="margin-right: 10px;"/>
+          <h7>Integrate your Whatsapp number with Tiledesk</h7>
+        </div>
+        <div class="list-element">
+          <img src="https://cdn-icons-png.flaticon.com/512/1443/1443000.png" width=20 height=20 style="margin-right: 10px;"/>
+          <h7>Once a chat is initiated on your Whatsapp number, receive an alert on your Tiledesk account</h7>
+        </div>
+        <div class="list-element">
+          <img src="https://cdn-icons-png.flaticon.com/512/1443/1443000.png" width=20 height=20 style="margin-right: 10px;"/>
+          <h7>Enable instant messaging and answer multiple conversations, everything from Tiledesk account</h7>
+        </div>
+      </ul>
+    </div>
+  </div>
+  {{/unless}}
+
+  <!-- Docs Section -->
+  {{#unless popup_view}}
+  <div class="docs-box">
+  
+  <div class="docs-section">
+    <p style="margin-top: 20px; font-size: 18px; font-weight: 600;">Before you start</p>
+    <div style="padding: 20px; background-color: #2fa2dc24; border-radius: 8px; width: 600px; margin-bottom: 5px;">
+      <div style="display: flex; flex-direction: row; align-items: baseline;">
+        <div>
+          <img src="https://freeiconshop.com/wp-content/uploads/edd/arrow-flat.png" width="20px" height="auto" style="margin-right: 10px;"> 
+        </div>
+        <div>
+          <a href="https://gethelp.tiledesk.com/articles/connect-tiledesk-with-whatsapp-business/" target="_blank">Connect Tiledesk with WhatsApp Business</a>
+          <p style="color: grey; margin-bottom: 0px;">A small but very useful guide on how to connect your WhatsApp Business number with Tiledesk</p>
+        </div>
+      </div>
+    </div>
+
+    <div style="padding: 20px; background-color: #2fa2dc24; border-radius: 8px; width: 600px; margin-bottom: 5px;">
+      <div style="display: flex; flex-direction: row; align-items: baseline;">
+        <div>
+          <img src="https://freeiconshop.com/wp-content/uploads/edd/arrow-flat.png" width="20px" height="auto" style="margin-right: 10px;"> 
+        </div>
+        <div>
+          <a href="https://gethelp.tiledesk.com/articles/configure-a-whatsapp-business-account/" target="_blank">Configure a WhatsApp Business account</a>
+        <p style="color: grey; margin-bottom: 0px;">Not sure how to set up a business account? Take a look here.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  </div>
+  {{/unless}}
+  
+
+  <!-- CONFIGURE BOX -->
+  <div class="configure-box">
+    <div class="configure">
+      <p class="title" style="margin-bottom: 20px;">Your Configuration</p>
+
+      <div style="min-width: 600px">
+          <form action="./update" method="post">
+            
+            <div class="form-group" style="width: 590px;">
+              <label class="input-label" for="proxy_url">Webhook Endpoint</label>
+              <div style="display: flex; flex-direction: row;">
+                <div style="width: 522px;">
+                    <div style="display: flex; flex-direction: row; align-items: center;">
+                      <input type="text" readonly class="form-control copy-form custom-input" name="proxy_url" id="proxy_url" value="{{ proxy_url}}">
+                      <span style="margin-left: 10px;">
+                        <i class="fa fa-question-circle custom-tooltip">
+                          <span class="custom-tooltiptext">This is the endpoint to be reached by WhatsApp. Copy it to the Facebook Developer console in "Callback URL" in Whatsapp Configuration.</span>
+                        </i>
+                      </span>
+                      
+                    </div>
+                  
+                </div>
+                <div id="copy-div" class="icon-btn-div" onclick="copyTextToClipboard()">
+                  <i class="fa fa-copy icon-btn"></i>
+                </div>
+                <div id="copied-div" class="icon-btn-div" style="visibility: hidden;">
+                  <i class="fa fa-check icon-btn" style="margin-left: -74px; color: green;"></i>
+                </div>
+              </div>
+            </div>
+
+            <!-- Whatsapp Token -->
+            <div class="form-group" style="width: 522px;">
+              <label class="input-label" for="wab_token">Whatsapp Token
+              </label>
+              <div style="display: flex; flex-direction: row; align-items: center;">
+              <input id="tkn" type="text" required class="form-control custom-input" name="wab_token" value="{{ wab_token }}" placeholder="Enter the Whatsapp Token">
+                <span style="margin-left: 10px;">
+                  <i class="fa fa-question-circle custom-tooltip">
+                    <span class="custom-tooltiptext">This is the permanent WhatsApp Business token.</span>
+                  </i>
+                </span>
+              </div>
+            </div>
+
+            <!-- Verify Token -->
+            <div class="form-group" style="width: 522px;">
+              <label class="input-label" for="verify_token">Verify Token</label>
+              <div style="display: flex; flex-direction: row; align-items: center;">
+              <input type="password" required class="form-control custom-input" name="verify_token" value="{{ verify_token }}" placeholder="Enter your Verify Token">
+                <span style="margin-left: 10px;">
+                  <i class="fa fa-question-circle custom-tooltip">
+                    <span class="custom-tooltiptext">Choose the verification token end copy it to the Facebook Developer console in "Verify Token" in Whatsapp Configuration</span>
+                  </i>
+                </span>
+              </div>
+            </div>
+
+            <!-- WhatsApp Business Account ID -->
+            <div class="form-group" style="width: 522px;">
+              <label class="input-label" for="verify_token">WhatsApp Business Account ID</label>
+              <div style="display: flex; flex-direction: row; align-items: center;">
+              <input type="text" required class="form-control custom-input" name="business_account_id" value="{{ business_account_id }}" placeholder="Enter your Business Account ID">
+                <span style="margin-left: 10px;">
+                  <i class="fa fa-question-circle custom-tooltip">
+                    <span class="custom-tooltiptext">This is the WhatsApp Business Account ID that can be found in Whatsapp Getting Started on the Facebook Developer console.</span>
+                  </i>
+                </span>
+              </div>
+            </div>
+
+            <!-- Departments -->
+            <div class="form-group" style="width: 522px;">
+              <label class="input-label" for="department">Department <span style="font-weight: normal;">(Optional)</span></label>
+              <div style="display: flex; flex-direction: row; align-items: center;">
+                <select class="custom-select" name="department" class="form-control">
+                {{#each departments}}
+                  {{#if (isEqual _id ../department_id)}}
+                  <option value="{{ _id }}" selected>{{ name }}</option>
+                  {{else}}
+                  <option value="{{ _id }}">{{ name }}</option>
+                  {{/if}}
+                {{/each}}
+                </select>
+                <span style="margin-left: 10px;">
+                <i class="fa fa-question-circle custom-tooltip">
+                  <span class="custom-tooltiptext">Select the department where you want to open conversations coming from WhatsApp. Conversations are sent on the Default Department by default.</span>
+                </i>
+              </span>
+              </div>
+            </div>
+
+            <input type="hidden" name="project_id" value="{{ project_id }}" />
+            <input type="hidden" name="token" value="{{ token }}" />
+            
+            {{#if wab_token}}
+              <div style="width: 500px; text-align: right;">
+                <input type="submit" class="btn" style="width: 200px; background-color: #0ba2dc; color: white; font-weight: 500;" value="Update">
+              </div>
+            {{else}}
+              <div style="width: 500px; text-align: right;">
+                <input type="submit" class="btn" style="width: 200px; background-color: #0ba2dc; color: white; font-weight: 500;" value="Connect"
+                    onclick="postMessage('connectWhatsapp')">
+              </div>
+            {{/if}}
+          </form>
+        </div> 
+
+      
+      
+    </div>
+  </div>
+
+  
+  <div class="disconnect-box">
+    <div class="disconnect">
+      <p class="title" style="margin-bottom: 20px;"> Disconnect</p>  
+
+        <!-- Disconnect Button -->
+        {{#if wab_token}}
+        <div>
+          <p style="color: rgb(140, 140, 140);">The WhatsApp Business App is configured on your Tildesk project.</p>
+          <p>By clicking on disconnect you will no longer be able to receive messages from the WhatsApp channel</p>
+          <form action="./disconnect" method="post">
+            <input type="hidden" name="project_id" value="{{ project_id }}">
+                <input type="hidden" name="token" value="{{ token }}">
+                <input type="hidden" name="subscription_id" value="{{ subscription_id }}">
+            <input type="submit" class="btn disconnect-button" style="margin-top: 10px; width: 160px;" value="Disconnect" onclick="postMessage('disconnectWhatsapp')">
+          </form>
+        </div>
+        {{else}}
+        <!-- App not configured -->
+        <p style="color: rgb(140, 140, 140);">The WhatsApp Business App is not yet configured on your Tildesk project.</p>
+        {{/if}}
+    </div>
+  </div>
+
+
+  <!--
+  <div class="version-box">
+    <div class="version">
+      <p class="version-title">App version: </p>
+      <div class="status-box" style="padding: 0px 20px; letter-spacing: 1px; height: 30px;"> 
+        <p style="margin-bottom: 0px;">{{ app_version }}</p>
+      </div>
+    </div>
+  </div>
+  -->
+
+  <script> 
+    
+    function copyTextToClipboard() {
+      const proxyUrl = document.getElementById('proxy_url').select()
+      
+      //document.querySelector('textarea').select();
+      try {
+        document.execCommand('copy');
+        //console.log('Async: Copied to clipboard!');
+        let el1 = document.getElementById('copy-div');
+        el1.style.visibility = 'hidden';
+
+        let el2 = document.getElementById('copied-div');
+        el2.style.visibility = 'visible';
+
+        //let btn = document.getElementById('copy-btn');
+        //btn.value = "Copied!";
+      } catch (err) {
+        console.error('Async: Could not copy text: ', err);
+      }
+    }
+    
+    function postMessage(action) {
+    
+      const tkn = document.getElementById('tkn').value;
+      let connected = false;
+      if (tkn) {
+        connected = true;
+      }
+      const msg = { action: action, calledBy: 'whatsapp_proxy', connected: connected}
+      window.parent.postMessage(msg, '*');
+    }
+    
+  </script>
+
+  
+</body>

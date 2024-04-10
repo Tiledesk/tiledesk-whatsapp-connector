@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
+        integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap-theme.min.css"
+        integrity="sha384-6pzBo3FDv/PJ8r2KRkGHifhEocL+1X2rVCTTkUfGk7/0pbek5mMa1upzvWbrUbOZ" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  
+    <script src="//code.jquery.com/jquery-1.12.0.min.js"></script>
+    <script src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"
+        integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd" crossorigin="anonymous">
+        </script>
+  
+    <link rel="stylesheet" href="./css/detail.css">
+
+    <style>
+      body {
+        font-family: 'Poppins';
+      }
+    </style>
+</head>
+
+<body style="display: flex; justify-content: center;">
+  <div class="content">
+    <div style="margin-top: 10px;">
+      <p style="font-size: 20px;">Tiledesk <b>App Store</b></p>
+    </div>
+
+    <hr style="margin-top: 10px; margin-bottom: 10px">
+    
+    <div class="installation-info-box">
+      {{#if isAvailable}}
+      <p style="margin: 0px; color: #676767; font-size: 13px;">You can install this application for free.</p>
+      {{else}}
+      <p style="margin: 0px; color: #676767; font-size: 13px;">This app is available for Scale and Plus plans</p>
+      {{/if}}
+    </div>
+
+
+    <div class="icon-and-title" style="margin-top: 20px;">
+      <div>
+        <img src="https://user-images.githubusercontent.com/45603238/200829081-e6a9c7a0-9d8c-431c-a477-4880a8fd752f.png" width="180" height="auto"  />
+      </div>
+      
+      <div style="display: flex; flex-direction: row; justify-content: space-between; margin-left: 40px; width: 100%;">
+        <div>
+          <p style="font-size: 26px; font-weight: 500; margin-bottom: 0px;">WhatsApp Business</p>
+          <p style="color: #676767; font-size: 16px; margin-bottom: 5px;">Connect your WhatsApp number with Tiledesk</p>
+          <a style="font-size: 18px;" href="https://tiledesk.com/" target="_blank">Tiledesk</a>
+          {{#if isAvailable}}
+            <p style="font-size: 15px; color: #676767; font-style: italic; margin-bottom: 0px; margin-top: 20px;">Free</p>
+          {{else}}
+            <p style="font-size: 15px; color: #676767; font-style: italic; margin-bottom: 0px; margin-top: 20px;">Free for</p>
+            <div class="plans-div">
+              <div class="plan scale-plan">Premium Plan</div>
+              <div class="plan plus-plan">Custom Plan</div>
+            </div>
+          {{/if}}
+        </div>
+
+        <div style="display: flex; flex-direction: column; justify-content: flex-end; align-items: flex-end;">
+          
+          {{#if installed}}
+
+            <!-- Open button -->
+            {{#if isAvailable}}
+            <form action="./configure" method="get">
+              <input type="hidden" name="project_id" value="{{ project_id }}" />
+              <input type="hidden" name="app_id" value="{{ app_id }}" />
+              <input type="hidden" name="token" value="{{ token }}" />
+              <input type="submit" class="btn install-button" value="Open">
+            </form>
+            {{else}}
+            <button class="btn install-button" disabled>Open</button>
+            {{/if}}
+  
+            <!-- Uninstall button -->
+            <button class="btn uninstall-button" onclick="document.getElementById('uninstall-modal').style.display='flex'">Uninstall</button>
+            
+            <!-- Uninstall modal -->
+            <div id="uninstall-modal" class="modal">
+              <div class="modal-content">
+                <!--<span class="close">×</span-->
+                <h2>WhatsApp Business</h2>
+                <div style="margin-top: 20px;">
+                  <img src="https://user-images.githubusercontent.com/45603238/200829081-e6a9c7a0-9d8c-431c-a477-4880a8fd752f.png" width="70" height="auto"  />
+                </div>
+                <p style="margin-top: 20px; margin-bottom: 20px;">Are you sure you want to uninstall this app?</p>
+
+                <div style="display: flex; flex-direction: row; width: 100%; justify-content: center;">
+                  <button class="btn cancel-btn" onclick="document.getElementById('uninstall-modal').style.display='none'">Cancel</button>
+
+                  <form action="./uninstall" method="post">
+                    <input type="hidden" name="project_id" value="{{ project_id }}" />
+                    <input type="hidden" name="app_id" value="{{ app_id }}" />
+                    <input type="hidden" name="token" value="{{ token }}" />
+                    <input type="submit" class="btn uninstall-button" value="Yes, uninstall" onclick="postMessage('uninstallWhatsapp')">
+                  </form>
+                </div>
+              </div>
+            </div>
+            
+          {{else}}
+
+            {{#if isAvailable}}
+              <button class="btn install-button" onclick="document.getElementById('install-modal').style.display='flex'">Install</button>
+            {{else}}
+              <button class="btn install-button" disabled>Install</button>
+            {{/if}}
+          
+            <!-- Install modal -->
+            <div id="install-modal" class="modal">
+              <div class="modal-content">
+                <!--<span class="close">×</span-->
+                <h2>WhatsApp Business</h2>
+                <div style="margin-top: 20px;">
+                  <img src="https://user-images.githubusercontent.com/45603238/200829081-e6a9c7a0-9d8c-431c-a477-4880a8fd752f.png" width="70" height="auto"  />
+                </div>
+                <p style="margin-top: 20px; margin-bottom: 20px;">Are you sure you want to install this app?</p>
+
+                <div style="display: flex; flex-direction: row; width: 100%; justify-content: center;">
+                  <button class="btn cancel-btn" onclick="document.getElementById('install-modal').style.display='none'">Cancel</button>
+
+                  <form action="./install" method="post">
+                    <input type="hidden" name="project_id" value="{{ project_id }}" />
+                    <input type="hidden" name="app_id" value="{{ app_id }}" />
+                    <input type="hidden" name="token" value="{{ token }}" />
+                    <input type="submit" class="btn install-button" value="Install" onclick="postMessage('installWhatsapp')">
+                    <!--<input type="submit" class="btn install-button" value="Install" onclick="postMessage('installWhatsapp')">-->
+                  </form>
+                </div>
+              </div>
+            </div>
+          {{/if}}
+        </div>
+      </div>
+    </div>
+
+    <hr style="margin-top: 20px; margin-bottom: 20px">
+
+    <p style="font-size: 18px;"><b>Screenshot from the application</b></p>
+
+    <div class="scrollmenu">
+
+      <img src="https://user-images.githubusercontent.com/45603238/195042381-995ff805-359d-4d97-af67-f86f937c175a.jpg" class="screenshot" />
+
+      <img src="https://user-images.githubusercontent.com/45603238/195042391-6560424b-6a20-48ef-a5b3-981f9cbda5db.jpg" class="screenshot" />
+
+      <img src=" https://user-images.githubusercontent.com/45603238/195042354-e8ce2b8b-4a82-45b6-8ac1-c1d1bcf77e40.jpg" class="screenshot"/>
+      
+      <img src="https://user-images.githubusercontent.com/45603238/196982373-6b17cf76-6608-45bf-86da-551c14c46e0f.png" class="screenshot" />
+     
+    </div>
+  
+    <hr style="margin-top: 20px; margin-bottom: 20px">
+    
+    <div>
+      <h7>Receive Whatsapp conversations in your Tiledesk dashboard. Seamlessly Chat with your targeted audience on Whatsapp right from the Tiledesk dashboard.</h7>
+
+      <ul style="margin-top: 10px; padding: 0px;">
+        <div class="list-element">
+          <img src="https://cdn-icons-png.flaticon.com/512/1443/1443000.png" width=16 height=16 style="margin-right: 10px;"/>
+          <h7>Integrate your Whatsapp number with Tiledesk</h7>
+        </div>
+        <div class="list-element">
+          <img src="https://cdn-icons-png.flaticon.com/512/1443/1443000.png" width=16 height=16 style="margin-right: 10px;"/>
+          <h7>Once a chat is initiated on your Whatsapp number, receive an alert on your Tiledesk account</h7>
+        </div>
+        <div class="list-element">
+          <img src="https://cdn-icons-png.flaticon.com/512/1443/1443000.png" width=16 height=16 style="margin-right: 10px;"/>
+          <h7>Enable instant messaging and answer multiple conversations - everything from Tiledesk account</h7>
+        </div>
+      </ul>
+
+      <div style="padding: 20px; background-color: aliceblue; border-radius: 8px;">
+         <div style="display: flex; flex-direction: row; align-items: baseline;">
+          <div>
+            <img src="https://freeiconshop.com/wp-content/uploads/edd/arrow-flat.png" width="20px" height="auto" style="margin-right: 10px;"> 
+          </div>
+          <div>
+            <a href="https://gethelp.tiledesk.com/articles/connect-tiledesk-with-whatsapp-business/" target="_blank">Connect Tiledesk with WhatsApp Business</a>
+            <p style="color: grey; margin-bottom: 0px;">A small but very useful guide on how to connect your WhatsApp Business number with Tiledesk</p>
+          </div>
+        </div>
+
+        <hr style="margin-top: 10px; margin-bottom: 10px;">
+        
+        <div style="display: flex; flex-direction: row; align-items: baseline;">
+          <div>
+            <img src="https://freeiconshop.com/wp-content/uploads/edd/arrow-flat.png" width="20px" height="auto" style="margin-right: 10px;"> 
+          </div>
+          <div>
+            <a href="https://gethelp.tiledesk.com/articles/configure-a-whatsapp-business-account/" target="_blank">Configure a WhatsApp Business account</a>
+            <p style="color: grey; margin-bottom: 0px;">Not sure how to set up a business account? Take a look here.</p>
+          </div>
+        </div>
+    </div>
+    </div>
+    
+    <hr style="margin-top: 20px; margin-bottom: 20px">
+
+    <p style="font-size: 18px;"><b>What's new?</b></p>
+
+    <div style="width: 100%; display: flex; flex-direction: row; justify-content: space-between; margin-bottom: 15px;">
+      <div>
+        <p>Bug fix and minor improvements</p>
+      </div>
+      <p style="font-size: 12px; color: #676767; margin-bottom: 0px;">Version <b>0.1.64</b></p>
+    </div>
+    
+    <div style="width: 100%; display: flex; flex-direction: row; justify-content: space-between; margin-bottom: 15px;">
+      <div>
+        <p>Plans upgrade</p>
+      </div>
+      <p style="font-size: 12px; color: #676767; margin-bottom: 0px;">Version <b>0.1.63</b></p>
+    </div>
+
+    <div style="width: 100%; display: flex; flex-direction: row; justify-content: space-between; margin-bottom: 15px;">
+      <div>
+        <p>Fixed bug: custom authentication error</p>
+      </div>
+      <p style="font-size: 12px; color: #676767; margin-bottom: 0px;">Version <b>0.1.62</b></p>
+    </div>
+
+    <div style="width: 100%; display: flex; flex-direction: row; justify-content: space-between; margin-bottom: 15px;">
+      <div>
+        <p>Bug fixes and performance improvements</p>
+      </div>
+      <p style="font-size: 12px; color: #676767; margin-bottom: 0px;">Version <b>0.1.61</b></p>
+    </div>
+    
+    <hr style="margin-top: 50px; margin-bottom: 20px">
+
+  <script>   
+    function postMessage(action) {
+      const msg = { action: action, calledBy: 'whatsapp_proxy' }
+      window.parent.postMessage(msg, '*');
+    }
+  </script>
+  
+</body>

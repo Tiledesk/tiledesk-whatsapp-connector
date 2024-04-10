@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
+        integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap-theme.min.css"
+        integrity="sha384-6pzBo3FDv/PJ8r2KRkGHifhEocL+1X2rVCTTkUfGk7/0pbek5mMa1upzvWbrUbOZ" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  
+    <script src="//code.jquery.com/jquery-1.12.0.min.js"></script>
+    <script src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"
+        integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd" crossorigin="anonymous">
+        </script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/css/templates.css">
+
+    <style>
+      body {
+        font-family: 'Poppins', serif;
+      }
+    </style>
+  
+</head>
+
+  
+<body>
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-content">
+      <div class="logo-title">
+        <div class="logo-container">
+          <img src="https://www.clipartmax.com/png/full/205-2058823_whatsapp-ios-icon-whatsapp-ios-icon-png.png" width="60px" height="60px">
+        </div>
+        <div class="title-version">
+          <p class="title">WhatsApp Business Connector</p>
+          <div class="status-box" style="padding: 0px 8px; letter-spacing: 1px; height: 18px;"> 
+            <p style="margin-bottom: 0px;">{{ app_version }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!--
+      <div class="status-box"> 
+        <p style="margin-bottom: 0px; margin-right: 8px;">Status: </p> 
+        {{#if wab_token}}
+        <i class="fa fa-circle green-circle"></i>
+        <p style="margin-bottom: 0px;">Connected</p>
+        {{else}}
+        <i class="fa fa-circle red-circle"></i>
+        <p style="margin-bottom: 0px;">Disconnected</p>  
+        {{/if}}
+      </div>
+      -->
+    </div>
+  </div>
+
+
+  <div class="templates-box">
+
+    <div class="templates">
+      <p class="title">Message Templates</p>
+
+      <div class="templates-list">
+
+        {{#each templates}}    
+          <form action="./detail" method="get">
+            <div class="single-template" onclick="selectTemplate({{ id }})">
+            <!--<div class="single-template" onclick="customInput.click()">-->
+              <div class="template-name">{{ name }}</div>
+              <div class="template-language">{{ language }}</div>
+              <div class="template-category">{{ category }}</div>
+              <div class="template-status">
+                {{#if (isEqual status 'APPROVED')}}
+                <i class="fa fa-circle green-circle"></i>{{ status }}
+                {{else}}
+                <i class="fa fa-circle red-circle"></i>{{ status }}
+                {{/if}}
+              </div>
+            </div>
+
+            <input type="hidden" name="project_id" value="{{ ../project_id }}">
+            <input type="hidden" name="app_id" value="{{ ../app_id }}">
+            <input type="hidden" name="token" value="{{ ../token }}">
+            <input type="hidden" name="id_template" value="{{ id }}">
+            <input id="customInput-{{id}}" type="submit" class="hidden-button" value="{{ name }}">
+          </form>
+          
+          <hr>
+        {{/each}}
+        
+      </div>
+    </div>
+
+  </div>
+
+
+  <script>
+
+    function selectTemplate(id) {
+      document.getElementById('customInput-' + id).click();
+    }
+    
+  </script>
+</body>
