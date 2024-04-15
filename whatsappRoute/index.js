@@ -1616,6 +1616,8 @@ async function startApp(settings, callback) {
     JOB_TOPIC_EXCHANGE = settings.JOB_TOPIC_EXCHANGE;
     winston.info("(wab) JOB_TOPIC_EXCHANGE is present");
   }
+  
+  
 
   // For test only
   if (settings.LOG_MONGODB_URL) {

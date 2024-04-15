@@ -22,6 +22,7 @@ const REDIS_PASSWORD = process.env.REDIS_PASSWORD;
 const log = process.env.WHATSAPP_LOG || "info";
 const AMQP_MANAGER_URL = process.env.AMQP_MANAGER_URL;
 const JOB_TOPIC_EXCHANGE = process.env.JOB_TOPIC_EXCHANGE;
+const BRAND_NAME = process.env.BRAND_NAME;
 
 whatsapp.startApp(
   {
@@ -36,6 +37,7 @@ whatsapp.startApp(
     REDIS_PASSWORD: REDIS_PASSWORD,
     AMQP_MANAGER_URL: AMQP_MANAGER_URL,
     JOB_TOPIC_EXCHANGE: JOB_TOPIC_EXCHANGE,
+    BRAND_NAME: BRAND_NAME,
     log: log,
   },
   (err) => {
