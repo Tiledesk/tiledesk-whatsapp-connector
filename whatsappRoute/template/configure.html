@@ -94,7 +94,7 @@
   <!-- INFO BOX -->
   {{#unless popup_view}}
   <div class="info-box">
-    
+    {{#if brand_name}}
     <div class="info-list">
       <!--
       <div style="margin-bottom:20px;">
@@ -111,19 +111,20 @@
       
        <ul>
         <div class="list-element">
-          <img src="https://cdn-icons-png.flaticon.com/512/1443/1443000.png" width=20 height=20 style="margin-right: 10px;"/>
+          <img src="https://cdn-icons-png.flaticon.com/512/1443/1443000.png" width="20" height="20" style="margin-right: 10px;"/>
           <h7>Integrate your Whatsapp number with Tiledesk</h7>
         </div>
         <div class="list-element">
-          <img src="https://cdn-icons-png.flaticon.com/512/1443/1443000.png" width=20 height=20 style="margin-right: 10px;"/>
+          <img src="https://cdn-icons-png.flaticon.com/512/1443/1443000.png" width="20" height="20" style="margin-right: 10px;"/>
           <h7>Once a chat is initiated on your Whatsapp number, receive an alert on your Tiledesk account</h7>
         </div>
         <div class="list-element">
-          <img src="https://cdn-icons-png.flaticon.com/512/1443/1443000.png" width=20 height=20 style="margin-right: 10px;"/>
+          <img src="https://cdn-icons-png.flaticon.com/512/1443/1443000.png" width="20" height="20" style="margin-right: 10px;"/>
           <h7>Enable instant messaging and answer multiple conversations, everything from Tiledesk account</h7>
         </div>
       </ul>
     </div>
+    {{/if}}
   </div>
   {{/unless}}
 

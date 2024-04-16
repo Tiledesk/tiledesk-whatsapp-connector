@@ -66,6 +66,7 @@ let REDIS_PASSWORD = null;
 let BASE_FILE_URL = null;
 let AMQP_MANAGER_URL = null;
 let JOB_TOPIC_EXCHANGE = null;
+let BRAND_NAME = null;
 
 // Handlebars register helpers
 handlebars.registerHelper("isEqual", (a, b) => {
@@ -249,6 +250,7 @@ router.get("/configure", async (req, res) => {
           subscription_id: settings.subscriptionId,
           department_id: settings.department_id,
           departments: departments,
+          brand_name: BRAND_NAME
         };
         var html = template(replacements);
         res.send(html);
@@ -267,6 +269,7 @@ router.get("/configure", async (req, res) => {
           proxy_url: proxy_url,
           departments: departments,
           popup_view: popup_view,
+          brand_name: BRAND_NAME
         };
         var html = template(replacements);
         res.send(html);
@@ -319,6 +322,7 @@ router.post("/update", async (req, res) => {
         subscription_id: settings.subscriptionId,
         department_id: settings.department_id,
         departments: departments,
+        brand_name: BRAND_NAME
       };
       var html = template(replacements);
       res.send(html);
@@ -378,6 +382,7 @@ router.post("/update", async (req, res) => {
             subscription_id: settings.subscriptionId,
             department_id: settings.department_id,
             departments: departments,
+            brand_name: BRAND_NAME
           };
           var html = template(replacements);
           res.send(html);
@@ -393,6 +398,7 @@ router.post("/update", async (req, res) => {
             proxy_url: proxy_url,
             departments: departments,
             show_error_modal: true,
+            brand_name: BRAND_NAME
           };
           var html = template(replacements);
           res.send(html);
@@ -444,6 +450,7 @@ router.post("/disconnect", async (req, res) => {
           token: token,
           proxy_url: proxy_url,
           departments: departments,
+          brand_name: BRAND_NAME
         };
         var html = template(replacements);
         res.send(html);
@@ -1615,6 +1622,10 @@ async function startApp(settings, callback) {
   } else {
     JOB_TOPIC_EXCHANGE = settings.JOB_TOPIC_EXCHANGE;
     winston.info("(wab) JOB_TOPIC_EXCHANGE is present");
+  }
+  
+  if (settings.BRAND_NAME) {
+    BRAND_NAME = settings.BRAND_NAME
   }
   
   
