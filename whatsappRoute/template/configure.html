@@ -94,7 +94,7 @@
   <!-- INFO BOX -->
   {{#unless popup_view}}
   <div class="info-box">
-    {{#if brand_name}}
+    {{#unless brand_name}}
     <div class="info-list">
       <!--
       <div style="margin-bottom:20px;">
@@ -124,41 +124,42 @@
         </div>
       </ul>
     </div>
-    {{/if}}
+    {{/unless}}
   </div>
   {{/unless}}
 
   <!-- Docs Section -->
   {{#unless popup_view}}
   <div class="docs-box">
-  
-  <div class="docs-section">
-    <p style="margin-top: 20px; font-size: 18px; font-weight: 600;">Before you start</p>
-    <div style="padding: 20px; background-color: #2fa2dc24; border-radius: 8px; width: 600px; margin-bottom: 5px;">
-      <div style="display: flex; flex-direction: row; align-items: baseline;">
-        <div>
-          <img src="https://freeiconshop.com/wp-content/uploads/edd/arrow-flat.png" width="20px" height="auto" style="margin-right: 10px;"> 
-        </div>
-        <div>
-          <a href="https://gethelp.tiledesk.com/articles/connect-tiledesk-with-whatsapp-business/" target="_blank">Connect Tiledesk with WhatsApp Business</a>
-          <p style="color: grey; margin-bottom: 0px;">A small but very useful guide on how to connect your WhatsApp Business number with Tiledesk</p>
-        </div>
-      </div>
-    </div>
-
-    <div style="padding: 20px; background-color: #2fa2dc24; border-radius: 8px; width: 600px; margin-bottom: 5px;">
-      <div style="display: flex; flex-direction: row; align-items: baseline;">
-        <div>
-          <img src="https://freeiconshop.com/wp-content/uploads/edd/arrow-flat.png" width="20px" height="auto" style="margin-right: 10px;"> 
-        </div>
-        <div>
-          <a href="https://gethelp.tiledesk.com/articles/configure-a-whatsapp-business-account/" target="_blank">Configure a WhatsApp Business account</a>
-        <p style="color: grey; margin-bottom: 0px;">Not sure how to set up a business account? Take a look here.</p>
+    {{#unless brand_name}}
+    <div class="docs-section">
+      <p style="margin-top: 20px; font-size: 18px; font-weight: 600;">Before you start</p>
+      <div style="padding: 20px; background-color: #2fa2dc24; border-radius: 8px; width: 600px; margin-bottom: 5px;">
+        <div style="display: flex; flex-direction: row; align-items: baseline;">
+          <div>
+            <img src="https://freeiconshop.com/wp-content/uploads/edd/arrow-flat.png" width="20px" height="auto" style="margin-right: 10px;"> 
+          </div>
+          <div>
+            <a href="https://gethelp.tiledesk.com/articles/connect-tiledesk-with-whatsapp-business/" target="_blank">Connect Tiledesk with WhatsApp Business</a>
+            <p style="color: grey; margin-bottom: 0px;">A small but very useful guide on how to connect your WhatsApp Business number with Tiledesk</p>
+          </div>
         </div>
       </div>
-    </div>
 
-  </div>
+      <div style="padding: 20px; background-color: #2fa2dc24; border-radius: 8px; width: 600px; margin-bottom: 5px;">
+        <div style="display: flex; flex-direction: row; align-items: baseline;">
+          <div>
+            <img src="https://freeiconshop.com/wp-content/uploads/edd/arrow-flat.png" width="20px" height="auto" style="margin-right: 10px;"> 
+          </div>
+          <div>
+            <a href="https://gethelp.tiledesk.com/articles/configure-a-whatsapp-business-account/" target="_blank">Configure a WhatsApp Business account</a>
+          <p style="color: grey; margin-bottom: 0px;">Not sure how to set up a business account? Take a look here.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    {{/unless}}
   </div>
   {{/unless}}
   
@@ -239,7 +240,7 @@
             <div class="form-group" style="width: 522px;">
               <label class="input-label" for="department">Department <span style="font-weight: normal;">(Optional)</span></label>
               <div style="display: flex; flex-direction: row; align-items: center;">
-                <select class="custom-select" name="department" class="form-control">
+                <select class="custom-select form-control" name="department">
                 {{#each departments}}
                   {{#if (isEqual _id ../department_id)}}
                   <option value="{{ _id }}" selected>{{ name }}</option>
@@ -285,7 +286,7 @@
         <!-- Disconnect Button -->
         {{#if wab_token}}
         <div>
-          <p style="color: rgb(140, 140, 140);">The WhatsApp Business App is configured on your Tildesk project.</p>
+          <p style="color: rgb(140, 140, 140);">The WhatsApp Business App is configured on your Tiledesk project.</p>
           <p>By clicking on disconnect you will no longer be able to receive messages from the WhatsApp channel</p>
           <form action="./disconnect" method="post">
             <input type="hidden" name="project_id" value="{{ project_id }}">
@@ -296,7 +297,12 @@
         </div>
         {{else}}
         <!-- App not configured -->
-        <p style="color: rgb(140, 140, 140);">The WhatsApp Business App is not yet configured on your Tildesk project.</p>
+          {{#if brand_name}}
+          <p style="color: rgb(140, 140, 140);">The WhatsApp Business App is not yet configured on your {{brand_name}} project.</p>
+          {{else}}
+          <p style="color: rgb(140, 140, 140);">The WhatsApp Business App is not yet configured on your Tiledesk project.</p>
+          {{/if}}
+        
         {{/if}}
     </div>
   </div>
@@ -350,3 +356,4 @@
 
   
 </body>
+</html>
