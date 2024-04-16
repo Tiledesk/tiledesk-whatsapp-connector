@@ -286,7 +286,13 @@
         <!-- Disconnect Button -->
         {{#if wab_token}}
         <div>
+          {{#if brand_name}}
+          <p style="color: rgb(140, 140, 140);">The WhatsApp Business App is configured on your {{ brand_name }} project.</p>
+          {{else}}
           <p style="color: rgb(140, 140, 140);">The WhatsApp Business App is configured on your Tiledesk project.</p>
+          {{/if}}
+          
+          
           <p>By clicking on disconnect you will no longer be able to receive messages from the WhatsApp channel</p>
           <form action="./disconnect" method="post">
             <input type="hidden" name="project_id" value="{{ project_id }}">
@@ -296,7 +302,7 @@
           </form>
         </div>
         {{else}}
-        <!-- App not configured -->
+          <!-- App not configured -->
           {{#if brand_name}}
           <p style="color: rgb(140, 140, 140);">The WhatsApp Business App is not yet configured on your {{brand_name}} project.</p>
           {{else}}
