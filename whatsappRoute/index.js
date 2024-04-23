@@ -1635,14 +1635,14 @@ async function startApp(settings, callback) {
     /**
      * Connect with a different Database
      */
-    // mongoose
-    // .connect(settings.LOG_MONGODB_URL)
-    // .then(() => {
-    //   winston.info("Mongoose DB Connected");
-    // })
-    // .catch((err) => {
-    //   winston.error("(Mongoose) Unable to connect with MongoDB ", err);
-    // });
+    mongoose
+     .connect(settings.LOG_MONGODB_URL)
+     .then(() => {
+       winston.info("Mongoose DB Connected");
+     })
+     .catch((err) => {
+       winston.error("(Mongoose) Unable to connect with MongoDB ", err);
+     });
   }
 
   if (settings.dbconnection) {

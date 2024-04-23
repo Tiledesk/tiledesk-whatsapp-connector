@@ -31,6 +31,7 @@
     "jsonwebtoken": "^8.5.1",
     "jobs-worker-queued": "^0.0.5",
     "mongodb": "^3.5.5",
+    "mongoose": "^6.5.0",
     "redis": "^3.1.2",
     "uuid": "^9.0.0",
     "winston": "^3.8.2"
