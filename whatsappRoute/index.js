@@ -897,6 +897,9 @@ router.post("/tiledesk", async (req, res) => {
       }
     }
     execute(commands[0]);
+
+    return res.sendStatus(200);
+
   } else if (tiledeskChannelMessage.text || tiledeskChannelMessage.metadata) {
     let whatsappJsonMessage = await tlr.toWhatsapp(
       tiledeskChannelMessage,
@@ -924,13 +927,13 @@ router.post("/tiledesk", async (req, res) => {
         })
         .catch((err) => {
           winston.error("(wab) error send message: ", err);
-          res
+          return res
             .status(400)
             .send({ success: false, error: "Template not existing" });
         });
     } else {
       winston.error("(wab) Whatsapp Json Message is undefined!");
-      res
+      return res
         .status(400)
         .send({
           success: false,
@@ -939,9 +942,9 @@ router.post("/tiledesk", async (req, res) => {
     }
   } else {
     winston.debug("(wab) no command, no text --> skip");
+    return res.sendStatus(400).send({ success: false, error: "No command or text specified. Skip message."});
   }
 
-  return res.sendStatus(200);
 });
 
 // Endpoint for Whatsapp Business
