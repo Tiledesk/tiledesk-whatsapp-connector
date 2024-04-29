@@ -1628,22 +1628,36 @@ async function startApp(settings, callback) {
     BRAND_NAME = settings.BRAND_NAME
   }
   
-  
+  // // For test only
+  // if (settings.LOG_MONGODB_URL) {
+  //   /**
+  //    * Connect with a different Database
+  //    */
+  //   mongoose
+  //    .connect(settings.LOG_MONGODB_URL)
+  //    .then(() => {
+  //      winston.info("Mongoose DB Connected");
+  //    })
+  //    .catch((err) => {
+  //      winston.error("(Mongoose) Unable to connect with MongoDB ", err);
+  //    });
+  // }
 
-  // For test only
-  if (settings.LOG_MONGODB_URL) {
-    /**
-     * Connect with a different Database
-     */
-    mongoose
-     .connect(settings.LOG_MONGODB_URL)
-     .then(() => {
-       winston.info("Mongoose DB Connected");
-     })
-     .catch((err) => {
-       winston.error("(Mongoose) Unable to connect with MongoDB ", err);
-     });
+  let LOG_MONGODB_URL;
+  if (!settings.LOG_MONGODB_URL) {
+    LOG_MONGODB_URL = settings.MONGODB_URL;
+  } else {
+    LOG_MONGODB_URL = settings.LOG_MONGODB_URL;
   }
+
+  mongoose
+    .connect(LOG_MONGODB_URL)
+    .then(() => {
+      winston.info("Mongoose DB Connected");
+    })
+    .catch((err) => {
+      winston.error("(Mongoose) Unable to connect with MongoDB ", err);
+    });
 
   if (settings.dbconnection) {
     db.reuseConnection(settings.dbconnection, () => {
