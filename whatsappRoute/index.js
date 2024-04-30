@@ -930,8 +930,8 @@ router.post("/tiledesk", async (req, res) => {
     return res.sendStatus(400).send({ success: false, error: "No command or text specified. Skip message." });
   }
   
-  console.log(">>>> return 6")
-  return res.sendStatus(200);
+  //console.log(">>>> return 6")
+  //return res.sendStatus(200);
 
 });
 
