@@ -776,9 +776,7 @@ router.post("/tiledesk", async (req, res) => {
   }
 
   if (!phone_number_id) {
-    return res
-      .status(400)
-      .send({ success: false, message: "Phone number id undefined" });
+    return res.status(400).send({ success: false, message: "Phone number id undefined" });
   }
 
   /*
@@ -819,6 +817,7 @@ router.post("/tiledesk", async (req, res) => {
       settings.department_id
     );
     winston.verbose("(wab) Expiration message sent to Tiledesk");
+    console.log(">>>> return 1")
     return res.sendStatus(200);
   }
 
@@ -863,12 +862,7 @@ router.post("/tiledesk", async (req, res) => {
           twClient
             .sendMessage(phone_number_id, whatsappJsonMessage)
             .then((response) => {
-              winston.verbose(
-                "(wab) Message sent to WhatsApp! " +
-                response.status +
-                " " +
-                response.statusText
-              );
+              winston.verbose("(wab) Message sent to WhatsApp! " + response.status + " " + response.statusText);
               i += 1;
               if (i < commands.length) {
                 execute(commands[i]);
@@ -916,33 +910,27 @@ router.post("/tiledesk", async (req, res) => {
       twClient
         .sendMessage(phone_number_id, whatsappJsonMessage)
         .then((response) => {
-          winston.verbose(
-            "(wab) Message sent to WhatsApp! " +
-            response.status +
-            " " +
-            response.statusText
-          );
+          winston.verbose("(wab) Message sent to WhatsApp! " + response.status + " " + response.statusText);
+          console.log(">>>> return 2")
+          return res.sendStatus(200);
         })
         .catch((err) => {
           winston.error("(wab) error send message: ", err);
-          return res
-            .status(400)
-            .send({ success: false, error: "Template not existing" });
+          console.log(">>>> return 3")
+          return res.status(400).send({ success: false, error: "Template not existing" });
         });
     } else {
       winston.error("(wab) Whatsapp Json Message is undefined!");
-      return res
-        .status(400)
-        .send({
-          success: false,
-          error: "An error occurred during message translation",
-        });
+      console.log(">>>> return 4")
+      return res.status(400).send({ success: false, error: "An error occurred during message translation" });
     }
   } else {
     winston.debug("(wab) no command, no text --> skip");
-    return res.sendStatus(400).send({ success: false, error: "No command or text specified. Skip message."});
+    console.log(">>>> return 5")
+    return res.sendStatus(400).send({ success: false, error: "No command or text specified. Skip message." });
   }
   
+  console.log(">>>> return 6")
   return res.sendStatus(200);
 
 });
