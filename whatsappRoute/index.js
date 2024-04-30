@@ -898,8 +898,6 @@ router.post("/tiledesk", async (req, res) => {
     }
     execute(commands[0]);
 
-    return res.sendStatus(200);
-
   } else if (tiledeskChannelMessage.text || tiledeskChannelMessage.metadata) {
     let whatsappJsonMessage = await tlr.toWhatsapp(
       tiledeskChannelMessage,
@@ -944,6 +942,8 @@ router.post("/tiledesk", async (req, res) => {
     winston.debug("(wab) no command, no text --> skip");
     return res.sendStatus(400).send({ success: false, error: "No command or text specified. Skip message."});
   }
+  
+  return res.sendStatus(200);
 
 });
 
