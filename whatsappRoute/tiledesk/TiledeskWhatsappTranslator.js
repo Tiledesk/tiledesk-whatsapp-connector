@@ -492,11 +492,12 @@ const path = require('path');
         if (whatsappChannelMessage.interactive.button_reply.id.startsWith("action")) {
           var tiledeskMessage = {
             senderFullname: from,
-            text: whatsappChannelMessage.interactive.button_reply.,
+            //text: ' ',
+            text: whatsappChannelMessage.interactive.button_reply.title,
             type: 'text',
             attributes: {
               action: whatsappChannelMessage.interactive.button_reply.id.substring(11),
-              subtype: 'info'
+              //subtype: 'info'
             },
             channel: { name: TiledeskWhatsappTranslator.CHANNEL_NAME }
           }
@@ -505,7 +506,8 @@ const path = require('path');
         // quick reply button
         if (whatsappChannelMessage.interactive.button_reply.id.startsWith("quick")) {
           var tiledeskMessage = {
-            text: whatsappChannelMessage.interactive.button_reply.id.substring(10),
+            //text: whatsappChannelMessage.interactive.button_reply.id.substring(10),
+            text: whatsappChannelMessage.interactive.button_reply.title,
             senderFullname: from,
             channel: { name: TiledeskWhatsappTranslator.CHANNEL_NAME }
           }
