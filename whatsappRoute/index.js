@@ -869,6 +869,7 @@ router.post("/tiledesk", async (req, res) => {
                 execute(commands[i]);
               } else {
                 winston.debug("(wab) End of commands");
+                return res.sendStatus(200);
               }
             })
             .catch((err) => {
@@ -887,6 +888,7 @@ router.post("/tiledesk", async (req, res) => {
             execute(commands[i]);
           } else {
             winston.debug("(wab) End of commands");
+            return res.sendStatus(200);
           }
         }, command.time);
       }
@@ -927,7 +929,6 @@ router.post("/tiledesk", async (req, res) => {
     }
   } else {
     winston.debug("(wab) no command, no text --> skip");
-    console.log(">>>> return 5")
     return res.sendStatus(400).send({ success: false, error: "No command or text specified. Skip message." });
   }
   
