@@ -81,7 +81,6 @@ class TiledeskChannel {
     }
 
     var customToken = jwt.sign(payload, this.settings.secret);
-    console.log("\n\ncustomToken: ", customToken)
 
     return await axios({
       url: this.API_URL + "/auth/signinWithCustomToken",

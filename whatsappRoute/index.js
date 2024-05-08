@@ -725,6 +725,7 @@ router.post("/tiledesk", async (req, res) => {
   winston.debug("(wab) tiledeskChannelMessage: ", tiledeskChannelMessage);
   var project_id = req.body.payload.id_project;
 
+  console.log("--> RECEIVED: ", tiledeskChannelMessage)
   // get settings from mongo
   let CONTENT_KEY = "whatsapp-" + project_id;
   let settings = await db.get(CONTENT_KEY);
