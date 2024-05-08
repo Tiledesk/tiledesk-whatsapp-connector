@@ -725,7 +725,6 @@ router.post("/tiledesk", async (req, res) => {
   winston.debug("(wab) tiledeskChannelMessage: ", tiledeskChannelMessage);
   var project_id = req.body.payload.id_project;
 
-  console.log("--> RECEIVED: ", tiledeskChannelMessage)
   // get settings from mongo
   let CONTENT_KEY = "whatsapp-" + project_id;
   let settings = await db.get(CONTENT_KEY);
@@ -818,7 +817,6 @@ router.post("/tiledesk", async (req, res) => {
       settings.department_id
     );
     winston.verbose("(wab) Expiration message sent to Tiledesk");
-    console.log(">>>> return 1")
     return res.sendStatus(200);
   }
 
@@ -914,17 +912,14 @@ router.post("/tiledesk", async (req, res) => {
         .sendMessage(phone_number_id, whatsappJsonMessage)
         .then((response) => {
           winston.verbose("(wab) Message sent to WhatsApp! " + response.status + " " + response.statusText);
-          console.log(">>>> return 2")
           return res.sendStatus(200);
         })
         .catch((err) => {
           winston.error("(wab) error send message: ", err);
-          console.log(">>>> return 3")
           return res.status(400).send({ success: false, error: "Template not existing" });
         });
     } else {
       winston.error("(wab) Whatsapp Json Message is undefined!");
-      console.log(">>>> return 4")
       return res.status(400).send({ success: false, error: "An error occurred during message translation" });
     }
   } else {
@@ -932,9 +927,6 @@ router.post("/tiledesk", async (req, res) => {
     return res.sendStatus(400).send({ success: false, error: "No command or text specified. Skip message." });
   }
   
-  //console.log(">>>> return 6")
-  //return res.sendStatus(200);
-
 });
 
 // Endpoint for Whatsapp Business

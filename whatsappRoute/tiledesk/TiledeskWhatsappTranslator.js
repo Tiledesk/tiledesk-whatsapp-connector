@@ -261,7 +261,6 @@ const path = require('path');
         }
         else if (tiledeskChannelMessage.attributes.attachment.template) {
           winston.debug("(wab) [Translator] template: ", tiledeskChannelMessage.attributes.attachment.template)
-          console.log("(wab) [Translator] template: ", tiledeskChannelMessage.attributes.attachment.template)
 
           let template = tiledeskChannelMessage.attributes.attachment.template;
 
@@ -493,7 +492,7 @@ const path = require('path');
         if (whatsappChannelMessage.interactive.button_reply.id.startsWith("action")) {
           var tiledeskMessage = {
             senderFullname: from,
-            text: ' ',
+            text: whatsappChannelMessage.interactive.button_reply.,
             type: 'text',
             attributes: {
               action: whatsappChannelMessage.interactive.button_reply.id.substring(11),
