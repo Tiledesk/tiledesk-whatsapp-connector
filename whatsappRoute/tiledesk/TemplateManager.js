@@ -115,7 +115,7 @@ class TemplateManager {
           header_params.push({ type: header_component.format, location: { latitude: null, longitude: null, name: null, address: null } })
         }
         else {
-          console.log("(Template Manager) Unrecognized Header: ", header_component)
+          winston.verbose("(Template Manager) Unrecognized Header: ", header_component)
         }
 
       }
