@@ -458,6 +458,8 @@ const path = require('path');
     // interactive message
     else if (whatsappChannelMessage.type == 'interactive') {
 
+      console.log("whatsappChannelMessage.interactive: ", whatsappChannelMessage.interactive)
+      
       // list reply
       if (whatsappChannelMessage.interactive.type == 'list_reply') {
         // action button

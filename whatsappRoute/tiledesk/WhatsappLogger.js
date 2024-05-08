@@ -13,8 +13,6 @@ class WhatsappLogger {
     let status_code = this.getCodeFromStatus(status);
     winston.debug("(wab) getCodeFromStatus result " + status_code);
     
-    console.log("message_id: ", message_id)
-
     MessageLog.findOneAndUpdate({ message_id: message_id }, { $set: {status: status, status_code: status_code, error: error }}, { new: true }).then((messageLog) => {
 
       if (messageLog) {
