@@ -98,15 +98,16 @@ const path = require('path');
         whatsapp_message.document = {
           link: doc,
           filename: tiledeskChannelMessage.metadata.name,
-          caption: tiledeskChannelMessage.text
         }
         
         let index = tiledeskChannelMessage.text.indexOf(tiledeskChannelMessage.metadata.src);
-        if (idx != -1) {
+        if (index != -1) {
           let length = tiledeskChannelMessage.metadata.src.length;
-          let caption = tiledeskChannelMessage.text.subst
-          
+          let caption = tiledeskChannelMessage.text.substring(index + length + 2);
+          whatsapp_message.document.caption = caption;
         }
+        
+        console.log("whatsapp_message: ", whatsapp_message);
         
       }
 
