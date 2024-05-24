@@ -69,8 +69,6 @@ const path = require('path');
     }
 
     else if (tiledeskChannelMessage.metadata) {
-      
-      console.log("tiledeskChannelMessage.metadata: ", tiledeskChannelMessage.text);
 
       if ((tiledeskChannelMessage.metadata.type && tiledeskChannelMessage.metadata.type.startsWith('image')) || tiledeskChannelMessage.type.startsWith('image')) {
         var imgUrl = tiledeskChannelMessage.metadata.src;
@@ -93,7 +91,6 @@ const path = require('path');
       else if (tiledeskChannelMessage.metadata.type.startsWith('application')) {
         //var doc = tiledeskChannelMessage.metadata.src;
         var doc = tiledeskChannelMessage.metadata.downloadURL;
-        console.log("doc: ", doc);
         whatsapp_message.type = 'document'
         whatsapp_message.document = {
           link: doc,
@@ -106,8 +103,6 @@ const path = require('path');
           let caption = tiledeskChannelMessage.text.substring(index + length + 2);
           whatsapp_message.document.caption = caption;
         }
-        
-        console.log("whatsapp_message: ", whatsapp_message);
         
       }
 
@@ -471,7 +466,6 @@ const path = require('path');
     // interactive message
     else if (whatsappChannelMessage.type == 'interactive') {
 
-      console.log("whatsappChannelMessage.interactive: ", whatsappChannelMessage.interactive)
       
       // list reply
       if (whatsappChannelMessage.interactive.type == 'list_reply') {
