@@ -94,8 +94,8 @@ const path = require('path');
         var doc = tiledeskChannelMessage.metadata.src;
         whatsapp_message.type = 'document'
         whatsapp_message.document = {
-          link: "https://eu.rtmv3.tiledesk.com/api/files?path=uploads/users/63878b996b26bc0013305ad4/files/ca1362d9-cfa4-4ae3-b1aa-bdeff9ac3d5e/ABI_Guida_Sicurezza_12032020.pdf",
-          //link: doc,
+          //link: "https://eu.rtmv3.tiledesk.com/api/files?path=uploads/users/63878b996b26bc0013305ad4/files/ca1362d9-cfa4-4ae3-b1aa-bdeff9ac3d5e/ABI_Guida_Sicurezza_12032020.pdf",
+          link: doc,
           caption: tiledeskChannelMessage.metadata.name || tiledeskChannelMessage.text
         }
       }
