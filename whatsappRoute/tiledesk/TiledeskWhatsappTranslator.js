@@ -465,10 +465,6 @@ const path = require('path');
 
     // interactive message
     else if (whatsappChannelMessage.type == 'interactive') {
-<<<<<<< HEAD
-
-=======
->>>>>>> f20fec950b2fc0960c6d84f5fca07aed0a273419
       
       // list reply
       if (whatsappChannelMessage.interactive.type == 'list_reply') {
