@@ -69,6 +69,8 @@ const path = require('path');
     }
 
     else if (tiledeskChannelMessage.metadata) {
+      
+      console.log("tiledeskChannelMessage.metadata: ", tiledeskChannelMessage.metadata);
 
       if ((tiledeskChannelMessage.metadata.type && tiledeskChannelMessage.metadata.type.startsWith('image')) || tiledeskChannelMessage.type.startsWith('image')) {
         var imgUrl = tiledeskChannelMessage.metadata.src;
