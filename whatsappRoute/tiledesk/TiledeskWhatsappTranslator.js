@@ -70,7 +70,7 @@ const path = require('path');
 
     else if (tiledeskChannelMessage.metadata) {
       
-      console.log("tiledeskChannelMessage.metadata: ", tiledeskChannelMessage.metadata);
+      console.log("tiledeskChannelMessage.metadata: ", tiledeskChannelMessage.text);
 
       if ((tiledeskChannelMessage.metadata.type && tiledeskChannelMessage.metadata.type.startsWith('image')) || tiledeskChannelMessage.type.startsWith('image')) {
         var imgUrl = tiledeskChannelMessage.metadata.src;
@@ -98,8 +98,11 @@ const path = require('path');
         whatsapp_message.document = {
           link: doc,
           filename: tiledeskChannelMessage.metadata.name,
-          //caption: tiledeskChannelMessage.metadata.name || tiledeskChannelMessage.text
+          caption: tiledeskChannelMessage.text
         }
+        
+        let index = tiledeskChannelMessage.text.indexOf(tiledeskChannelMessage.metadata.name);
+        console.log("index:" , index);
       }
 
       else {
