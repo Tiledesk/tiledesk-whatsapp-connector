@@ -101,8 +101,13 @@ const path = require('path');
           caption: tiledeskChannelMessage.text
         }
         
-        let index = tiledeskChannelMessage.text.indexOf(tiledeskChannelMessage.metadata.name);
-        console.log("index:" , index);
+        let index = tiledeskChannelMessage.text.indexOf(tiledeskChannelMessage.metadata.src);
+        if (idx != -1) {
+          let length = tiledeskChannelMessage.metadata.src.length;
+          let caption = tiledeskChannelMessage.text.subst
+          
+        }
+        
       }
 
       else {
