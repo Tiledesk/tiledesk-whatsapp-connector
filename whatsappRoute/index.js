@@ -942,6 +942,8 @@ router.post("/webhook/:project_id", async (req, res) => {
   // info on WhatsApp text message payload: https://developers.facebook.com/docs/whatsapp/cloud-api/webhooks/payload-examples#text-messages
   if (req.body.object) {
 
+    console.log("req.body.object: ", req.body.object); 
+    
     let CONTENT_KEY = "whatsapp-" + project_id;
     let settings = await db.get(CONTENT_KEY);
     winston.debug("(wab) settings: ", settings);
@@ -972,6 +974,7 @@ router.post("/webhook/:project_id", async (req, res) => {
       let whatsappChannelMessage =
         req.body.entry[0].changes[0].value.messages[0];
 
+      console.log("whatsappChannelMessage: ", whatsappChannelMessage);
       /*
       let CONTENT_KEY = "whatsapp-" + project_id;
       let settings = await db.get(CONTENT_KEY);
