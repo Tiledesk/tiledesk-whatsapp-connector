@@ -105,6 +105,8 @@ class TiledeskChannel {
       }).then((response) => {
 
         winston.debug("(wab) [TiledeskChannel] get request response: ", response.data);
+        
+        console.log("REQUESTSSSS ---> ", response.data);
 
         let request_id;
         if (response.data.requests[0]) {

@@ -774,6 +774,8 @@ router.post("/tiledesk", async (req, res) => {
       recipient_id.lastIndexOf("-")
     );
   }
+  
+  console.log("phone_number_id: ", phone_number_id);
 
   if (!phone_number_id) {
     return res.status(400).send({ success: false, message: "Phone number id undefined" });
