@@ -940,6 +940,8 @@ router.post("/webhook/:project_id", async (req, res) => {
   // Parse the request body from the POST
   let project_id = req.params.project_id;
   winston.verbose("(wab) Message received from WhatsApp");
+  
+  console.log("--> WHATSAPP message received with project id: ", project_id);
 
   // Check the Incoming webhook message
   // info on WhatsApp text message payload: https://developers.facebook.com/docs/whatsapp/cloud-api/webhooks/payload-examples#text-messages
