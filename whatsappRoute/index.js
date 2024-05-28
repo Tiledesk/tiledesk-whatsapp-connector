@@ -952,7 +952,7 @@ router.post("/webhook/:project_id", async (req, res) => {
     let CONTENT_KEY = "whatsapp-" + project_id;
     let settings = await db.get(CONTENT_KEY);
     winston.debug("(wab) settings: ", settings);
-
+    
     const tdClient = new TiledeskClient({
       projectId: project_id,
       token: settings.token,
@@ -974,6 +974,15 @@ router.post("/webhook/:project_id", async (req, res) => {
       if (req.body.entry[0].changes[0].value.messages[0].type == "system") {
         winston.verbose("(wab) Skip system message");
         return res.sendStatus(200);
+      }
+      
+      console.log("waba: " + req.body.entry[0].id + " --> settings: ", settings);
+      
+      if (req.body.entry[0].id !== settings.business_account_id) {
+        console.log("FERMATIIIIIII")
+        return res.sendStatus(200);
+      } else {
+        console.log("VAI CONTINUA")
       }
 
       let whatsappChannelMessage =
