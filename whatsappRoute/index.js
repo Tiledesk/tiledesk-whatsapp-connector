@@ -583,7 +583,7 @@ router.post("/tiledesk/broadcast", async (req, res) => {
         tiledeskChannelMessage,
         whatsapp_receiver
       );
-      winston.info("customTiledeskJsonMessage: ", customTiledeskJsonMessage);
+      winston.verbose("customTiledeskJsonMessage: ", customTiledeskJsonMessage);
 
       let whatsappJsonMessage = await tlr.toWhatsapp(
         customTiledeskJsonMessage,
@@ -725,8 +725,6 @@ router.post("/tiledesk", async (req, res) => {
   winston.debug("(wab) tiledeskChannelMessage: ", tiledeskChannelMessage);
   var project_id = req.body.payload.id_project;
   
-  console.log("--> TILEDESK message: ", tiledeskChannelMessage);
-
   // get settings from mongo
   let CONTENT_KEY = "whatsapp-" + project_id;
   let settings = await db.get(CONTENT_KEY);
@@ -776,8 +774,6 @@ router.post("/tiledesk", async (req, res) => {
       recipient_id.lastIndexOf("-")
     );
   }
-  
-  console.log("--> TILEDESK phone_number_id: ", phone_number_id);
 
   if (!phone_number_id) {
     return res.status(400).send({ success: false, message: "Phone number id undefined" });
@@ -855,7 +851,6 @@ router.post("/tiledesk", async (req, res) => {
         );
         winston.verbose("(wab) whatsappJsonMessage", whatsappJsonMessage);
 
-        console.log("--> TILEDESK whatsapp message to be sent ", whatsappJsonMessage)
         if (whatsappJsonMessage) {
           const twClient = new TiledeskWhatsapp({
             token: settings.wab_token,
@@ -941,13 +936,9 @@ router.post("/webhook/:project_id", async (req, res) => {
   let project_id = req.params.project_id;
   winston.verbose("(wab) Message received from WhatsApp");
   
-  console.log("--> WHATSAPP message received with project id: ", project_id);
-
   // Check the Incoming webhook message
   // info on WhatsApp text message payload: https://developers.facebook.com/docs/whatsapp/cloud-api/webhooks/payload-examples#text-messages
   if (req.body.object) {
-
-    console.log("--> WHATSAPP body: ", JSON.stringify(req.body)); 
     
     let CONTENT_KEY = "whatsapp-" + project_id;
     let settings = await db.get(CONTENT_KEY);
@@ -976,19 +967,14 @@ router.post("/webhook/:project_id", async (req, res) => {
         return res.sendStatus(200);
       }
       
-      console.log("waba: " + req.body.entry[0].id + " --> settings: ", settings);
-      
       if (req.body.entry[0].id !== settings.business_account_id) {
-        console.log("FERMATIIIIIII")
+        winston.verbose("(wab) Skip message with waba that not belong to Tiledesk project id");
         return res.sendStatus(200);
-      } else {
-        console.log("VAI CONTINUA")
       }
 
       let whatsappChannelMessage =
         req.body.entry[0].changes[0].value.messages[0];
 
-      console.log("whatsappChannelMessage: ", whatsappChannelMessage);
       /*
       let CONTENT_KEY = "whatsapp-" + project_id;
       let settings = await db.get(CONTENT_KEY);
@@ -1047,8 +1033,6 @@ router.post("/webhook/:project_id", async (req, res) => {
           },
         };
         
-        console.log("--> WHATSAPP message info: ", JSON.stringify(message_info)); 
-
         let tiledeskJsonMessage;
 
         /*
@@ -1262,7 +1246,6 @@ router.post("/webhook/:project_id", async (req, res) => {
         }
 
         if (tiledeskJsonMessage) {
-          console.log("--> WHATSAPP tiledesk message to be sent: ", tiledeskJsonMessage); 
           winston.verbose("(wab) tiledeskJsonMessage: ", tiledeskJsonMessage);
           const response = await tdChannel.send(
             tiledeskJsonMessage,
