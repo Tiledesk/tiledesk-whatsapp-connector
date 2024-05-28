@@ -724,6 +724,8 @@ router.post("/tiledesk", async (req, res) => {
   var tiledeskChannelMessage = req.body.payload;
   winston.debug("(wab) tiledeskChannelMessage: ", tiledeskChannelMessage);
   var project_id = req.body.payload.id_project;
+  
+  console.log("--> TILEDESK message: ", tiledeskChannelMessage);
 
   // get settings from mongo
   let CONTENT_KEY = "whatsapp-" + project_id;
@@ -775,7 +777,7 @@ router.post("/tiledesk", async (req, res) => {
     );
   }
   
-  console.log("phone_number_id: ", phone_number_id);
+  console.log("--> TILEDESK phone_number_id: ", phone_number_id);
 
   if (!phone_number_id) {
     return res.status(400).send({ success: false, message: "Phone number id undefined" });
@@ -853,6 +855,7 @@ router.post("/tiledesk", async (req, res) => {
         );
         winston.verbose("(wab) whatsappJsonMessage", whatsappJsonMessage);
 
+        console.log("--> TILEDESK whatsapp message to be sent ", whatsappJsonMessage)
         if (whatsappJsonMessage) {
           const twClient = new TiledeskWhatsapp({
             token: settings.wab_token,
@@ -942,7 +945,7 @@ router.post("/webhook/:project_id", async (req, res) => {
   // info on WhatsApp text message payload: https://developers.facebook.com/docs/whatsapp/cloud-api/webhooks/payload-examples#text-messages
   if (req.body.object) {
 
-    console.log("req.body: ", JSON.stringify(req.body)); 
+    console.log("--> WHATSAPP body: ", JSON.stringify(req.body)); 
     
     let CONTENT_KEY = "whatsapp-" + project_id;
     let settings = await db.get(CONTENT_KEY);
@@ -1032,6 +1035,8 @@ router.post("/webhook/:project_id", async (req, res) => {
             lastname: " ",
           },
         };
+        
+        console.log("--> WHATSAPP message info: ", JSON.stringify(message_info)); 
 
         let tiledeskJsonMessage;
 
@@ -1246,6 +1251,7 @@ router.post("/webhook/:project_id", async (req, res) => {
         }
 
         if (tiledeskJsonMessage) {
+          console.log("--> WHATSAPP tiledesk message to be sent: ", tiledeskJsonMessage); 
           winston.verbose("(wab) tiledeskJsonMessage: ", tiledeskJsonMessage);
           const response = await tdChannel.send(
             tiledeskJsonMessage,
