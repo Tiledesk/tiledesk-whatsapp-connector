@@ -96,10 +96,11 @@ describe('Test Translator\n', function() {
   it("Translates a message containing a DOCUMENT from Tiledesk to Whatsapp", function() {
 
     let tiledeskChannelMessage = {
-      text: 'Document Caption', // can be empty --> ""
+      text: '[fakedocument.pdf](https://fakedocumenturl.com/)\n' + 'Document Caption', // can be empty --> ""
       type: 'application',
       recipient: 'support-group-62c3f10152dc7400352bab0d-86a2293e-wab-104777398965560-393484506627',
       metadata: {
+        downloadURL: 'https://fakedocumenturl.com/',
         src: 'https://fakedocumenturl.com/',
         name: "fakedocument.pdf",
         type: 'application/pdf'
@@ -119,7 +120,12 @@ describe('Test Translator\n', function() {
     assert(!whatsappJsonMessage.text);
     assert(whatsappJsonMessage.document);
     assert(whatsappJsonMessage.document.link === tiledeskChannelMessage.metadata.src);
-    assert(whatsappJsonMessage.document.caption === tiledeskChannelMessage.metadata.name);
+    assert(whatsappJsonMessage.document.filename === tiledeskChannelMessage.metadata.name);
+    let index = tiledeskChannelMessage.text.indexOf(tiledeskChannelMessage.metadata.src);
+    if (index != -1) {
+      let length = tiledeskChannelMessage.metadata.src.length;
+      assert(whatsappJsonMessage.document.caption === tiledeskChannelMessage.text.substring(index + length + 2));
+    }
     if (log) {
       console.log("(test) whatsappJsonMessage: ", whatsappJsonMessage);
     }
@@ -319,6 +325,7 @@ describe('Test Translator\n', function() {
     assert(tlr != null);
     const tiledeskJsonMessage = await tlr.toTiledesk(whatsappChannelMessage, fullname, null)
     assert(tiledeskJsonMessage != null);
+    console.log("(test) tiledeskJsonMessage: ", tiledeskJsonMessage);
     assert(tiledeskJsonMessage.channel.name === TiledeskWhatsappTranslator.CHANNEL_NAME);
     assert(tiledeskJsonMessage.text === ' ');
     assert(tiledeskJsonMessage.type === 'text');
